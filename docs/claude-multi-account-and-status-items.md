@@ -43,9 +43,9 @@ CodexBar has three account concepts today:
   `statusItems` is keyed by `UsageProvider`.
 
 The recently merged [#1800](https://github.com/steipete/CodexBar/pull/1800) scopes Claude OAuth history to the routed
-Keychain identity. [#1776](https://github.com/steipete/CodexBar/pull/1776) prevents an app usage refresh from mutating
-Claude Code-owned credentials. Both changes improve single-active-account correctness; neither discovers or displays
-multiple subscriptions.
+Keychain identity. [#1776](https://github.com/steipete/CodexBar/pull/1776) prevents CLI-runtime usage refreshes from
+delegating credential repair to Claude Code, while app and user-initiated repair remain available. Both changes improve
+single-active-account correctness; neither discovers or displays multiple subscriptions.
 
 The closed [#1707](https://github.com/steipete/CodexBar/pull/1707) should not be revived. It coupled account discovery,
 credential resolution, provider routing, menu rendering, and animation across a large patch while broadening
