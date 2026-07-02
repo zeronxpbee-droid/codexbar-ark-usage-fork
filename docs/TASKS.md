@@ -11,7 +11,7 @@ M0 — Fork Bootstrap + Ark Agent Plan API Probe Preparation
 ## Goal Status
 
 ```text
-Status: Ready for Developer Start
+Status: M0 Review Failed — Developer Fix Required
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex
@@ -227,6 +227,9 @@ Official Volcengine documentation confirms:
 5. `SubscribeTime` and `ResetTime` are epoch millisecond timestamps.
 6. Bee's subscription is an Agent Plan personal subscription, so
    `GetAFPUsage` is the intended usage action.
+7. The signer strategy is a dedicated Volcengine signer using `swift-crypto`
+   and the official HMAC-SHA256 signing chain. Test execution and session-token
+   handling must pass review before acceptance.
 
 ## Current Open Questions
 
@@ -238,8 +241,6 @@ These must be resolved during M0 or before the indicated integration milestone:
 2. What is the least-privilege IAM action/policy required for `GetAFPUsage`?
 3. Which CodexBar usage model best fits quota windows with multiple reset periods?
 4. Should the Widget default to 5-hour usage or highest-risk usage?
-5. Should the Swift implementation contain a small signer derived from the
-   official signing reference, or can an existing audited dependency be reused?
 
 ## Current Decision
 

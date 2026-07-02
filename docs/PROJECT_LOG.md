@@ -470,6 +470,90 @@ Codex runs `swift build` / `swift test` on macOS, audits scope/security/upstream
 boundary, and records a PASS/FAIL in this log. Bee authorizes the live probe if
 desired.
 
+## Entry 008 — M0 Ark Probe Audit
+
+Date: 2026-07-02
+Actor: Codex
+Type: Review
+Status: FAIL
+
+### Active Goal
+
+M0 — Fork Bootstrap + Ark Agent Plan API Probe Preparation
+
+### LOOP Result
+
+Reviewed only commit `40cd9f7871d8aa79c18e544a3c6035ae8ae1c648`
+against the M0 boundary and upstream baseline. Required evidence was scope
+isolation, secret safety, official signing-spec agreement, macOS build, runnable
+offline tests, and redacted dry-run behavior. Rollback remains reverting the
+single developer commit. No product code was modified by Codex.
+
+### Summary
+
+Scope isolation, macOS compilation, official signing-chain agreement, secret
+safety, the independent Python vector, and the redacted no-network dry-run
+passed. M0 acceptance fails because the submitted tests cannot run in the
+available macOS Command Line Tools environment, and the optional session-token
+path produces a header that is not included in the canonical signed headers.
+
+### Files Reviewed
+
+```text
+Scripts/ark-probe/**
+docs/M0_INTEGRATION_BOUNDARY.md
+docs/PROJECT_LOG.md
+```
+
+### Evidence
+
+- Reviewed commit:
+  `40cd9f7871d8aa79c18e544a3c6035ae8ae1c648`.
+- Diff scope: 13 files, all under `Scripts/ark-probe/` or M0 documentation; no
+  root `Package.swift`, app Provider, Widget, or unrelated Provider changes.
+- `git diff --check 877226f0..40cd9f78`: PASS.
+- `swift build`: PASS on Apple Swift 6.3.1; resolved `swift-crypto` 3.15.1.
+- Fake-credential default dry-run: PASS; no network request and no signature,
+  credential, or identifier output.
+- `python3 reference/volc_sign_reference.py`: PASS; outputs matched the committed
+  body hash, signed headers, credential scope, canonical request, and signature.
+- Official `volcengine/volc-openapi-demos` Python reference confirms the
+  `HMAC-SHA256` label, raw-secret key chain, `/request` scope, `X-Date`,
+  `X-Content-Sha256`, and core signed headers used by the probe.
+- Secret scan found only environment-variable names and deliberately fake test
+  credentials.
+- `swift test`: FAIL before test execution with `no such module 'XCTest'`.
+  The selected developer directory is Command Line Tools and no full Xcode /
+  `xctest` is installed.
+
+### Findings
+
+1. **P1 — No runnable offline test evidence.** The submitted test target imports
+   `XCTest`, which is unavailable in the reviewer environment. Provide a
+   Command-Line-Tools-runnable deterministic self-test target or another
+   dependency-free verification path; keep the XCTest suite if useful.
+2. **P1 — Session token is not signed.** `Credentials` accepts a
+   `sessionToken`, and the signer emits `X-Security-Token`, but the header is not
+   included in canonical headers or `SignedHeaders`. The official reference
+   requires it to be signed. Remove unsupported session-token handling for M0,
+   or implement and test it correctly.
+3. **P2 — Dependency resolution is not reproducible in the commit.**
+   `swift build` generated an untracked `Scripts/ark-probe/Package.resolved`.
+   Commit the resolved file or otherwise make the declared 3.15.1 dependency
+   policy accurate and reproducible.
+
+### Decision
+
+FAIL. Do not push developer commit `40cd9f78`. The existing draft PR remains at
+the last reviewed remote head until Claude / GLM submits a corrective local
+commit and Codex re-runs the evidence.
+
+### Next Action
+
+Claude / GLM fixes the three findings in a new local commit without rewriting
+history or pushing. Codex then re-runs build, deterministic self-tests, dry-run,
+scope/security review, and records a new PASS/FAIL entry.
+
 ## Entry Template
 
 Copy this template for future entries.
