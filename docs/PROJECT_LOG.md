@@ -734,6 +734,122 @@ Codex pushes the reviewed branch and updates the draft PR evidence. Bee decides
 whether to authorize a live probe using environment variables and whether M0
 may proceed to milestone approval.
 
+## Entry 011 — M0 Live Probe Result (Both Hosts 401) + Safe Error-Code Diagnostic
+
+Date: 2026-07-02
+Actor: Bee (live probe) + Claude (Developer)
+Type: Development / Bugfix
+Status: IMPLEMENTED / UNVERIFIED
+
+### Active Goal
+
+M0 — Fork Bootstrap + Ark Agent Plan API Probe Preparation
+
+### LOOP Result
+
+Debugging Loop on top of the M0 baseline (HEAD `6692d962`, Entry 010 PASS).
+Pre-task GATHER re-read AGENTS.md, PRD.md, TASKS.md, PROJECT_LOG.md and
+verified HEAD + Entry 010 on disk (an earlier in-context PROJECT_LOG copy was
+stale; no real documentation drift exists). Smallest useful loop: given real
+401/401 evidence from both official hosts, add a *safe error-code diagnostic* so
+a future authorized probe surfaces a machine-readable cause without leaking
+identifiers. Evidence = offline fictional-fixture tests + static checks now;
+`swift build` / `swift run ark-probe-selftest` deferred to macOS. Rollback =
+revert this commit; the signer, request params, and default host are untouched.
+
+### Summary
+
+Bee ran a real, Bee-authorized live probe. Both officially-documented hosts
+returned HTTP 401, so the Base-URL question is NOT resolved by this evidence:
+
+- `ark.cn-beijing.volces.com` → HTTP 401, response body 210 bytes.
+- `ark.cn-beijing.volcengineapi.com` → HTTP 401, response body 302 bytes.
+
+Because a 401 is returned by both hosts, the failure is an authentication /
+authorization problem (signing spec, credential, or IAM policy), not obviously a
+wrong Base URL. To diagnose safely without exposing sensitive material, added a
+minimal "safe error-code parsing" path to the probe. A non-2xx response now
+prints only: HTTP status code, response body byte count, and the machine-
+readable Volcengine error `Code` (parsed preferentially from
+`ResponseMetadata.Error.Code`, with a tolerated top-level `Error.Code`
+fallback). If no code can be parsed, it prints `errorCode: <unavailable>`. The
+raw body, error `Message`, `RequestId`, response headers, AK/SK, Authorization,
+and any account/resource/tenant identifier are never printed.
+
+The signing algorithm, request parameters, and default host were NOT changed.
+The `--host` override is retained.
+
+### Files Changed
+
+```text
+Scripts/ark-probe/Sources/ArkProbeKit/ArkErrorResponse.swift        (new)
+Scripts/ark-probe/Sources/ArkProbeKit/SanitizedUsageReport.swift    (+renderErrorDiagnostic)
+Scripts/ark-probe/Sources/ArkProbe/main.swift                       (non-2xx branch)
+Scripts/ark-probe/Sources/ArkProbeSelfTest/main.swift               (+error diagnostic checks)
+Scripts/ark-probe/Tests/ArkProbeKitTests/ArkErrorResponseTests.swift (new)
+docs/PROJECT_LOG.md
+docs/TASKS.md
+```
+
+### Evidence
+
+- Live probe (run by Bee, not by this workspace): both hosts returned HTTP 401
+  with 210-byte and 302-byte bodies respectively. No response content was
+  written to the repo.
+- `ArkErrorResponse.extractErrorCode` returns only the error `Code` string;
+  offline tests assert it never returns `Message`/`RequestId`/canary strings.
+- New tests (XCTest `ArkErrorResponseTests` + self-test block) use entirely
+  fictional error envelopes containing deliberate canary strings
+  (`FAKE-REQ-ID-DO-NOT-LEAK-0001`, a fake `Message` with `9F3A`) and assert the
+  rendered diagnostic contains none of them, only `httpStatus`, `bodyBytes`, and
+  `errorCode`.
+- Extraction + collision logic cross-checked with an independent Python mimic:
+  all 7 fixture cases produced the expected code/nil, and the rendered
+  diagnostic collided with zero forbidden substrings.
+- `git diff --cached --check`: clean.
+- Isolation: staged diff is restricted to `Scripts/ark-probe/**` (+ these two
+  docs); root `Package.swift`, `Sources/CodexBar*`, Widget, and other providers
+  untouched. `VolcengineArkSigner.swift` and `ArkAPIConfig.swift` untouched.
+- Secret scan: only fictional canary/env-var names; no real credentials.
+- **NOT YET VERIFIED**: `swift build` / `swift run ark-probe-selftest` were NOT
+  run — this Linux workspace has no Swift toolchain. Compilation/self-test
+  evidence must be produced on macOS/Codex.
+
+### Commands for Codex to run (M0 evidence)
+
+```bash
+cd Scripts/ark-probe
+swift build
+swift run ark-probe-selftest   # exits non-zero on failure; no XCTest needed
+# optional, if a full Xcode/xctest runner is present:
+swift test
+```
+
+### Issues / Risks
+
+- Status is IMPLEMENTED / UNVERIFIED, NOT PASS. If macOS `swift build` /
+  `swift run ark-probe-selftest` fails, this patch does not pass; Claude fixes
+  and re-commits.
+- The 401/401 result means the production host is still unresolved AND at least
+  one of {signing spec assumption, credential validity, least-privilege IAM
+  policy} is wrong. The next authorized live probe should capture the parsed
+  `errorCode` (e.g. `SignatureDoesNotMatch` vs `AccessDenied` vs
+  `InvalidCredential`) to disambiguate — but that requires Bee's authorization
+  and is out of scope for this offline patch.
+- No credentialed live network request was made from this workspace.
+
+### Decision
+
+Diagnostic enhancement delivered as a new local commit on top of `6692d962` —
+no push, no PR, no history rewrite. Signer/params/default host unchanged. Real
+network probe remains gated on Bee's explicit authorization.
+
+### Next Action
+
+Codex re-runs `swift build` + `swift run ark-probe-selftest` on macOS, audits
+scope/security, and records a PASS/FAIL. If Bee authorizes another live probe,
+capture the redacted `errorCode` from both hosts to disambiguate the 401 cause.
+
 ## Entry Template
 
 Copy this template for future entries.

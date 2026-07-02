@@ -61,4 +61,26 @@ public enum SanitizedUsageReport {
         lines.append("  authorization: <redacted — signature not printed>")
         return lines.joined(separator: "\n")
     }
+
+    /// Renders a redacted diagnostic for a non-2xx live response. Per
+    /// docs/PRD.md §9 and AGENTS.md §6, the ONLY fields permitted here are the
+    /// HTTP status code, the response body byte count, and the machine-readable
+    /// Volcengine error `Code`. The raw body, error `Message`, `RequestId`,
+    /// response headers, and any account/resource/tenant identifier are never
+    /// included. When no error code can be parsed, `<unavailable>` is shown
+    /// rather than any raw content.
+    public static func renderErrorDiagnostic(
+        httpStatus: Int,
+        bodyByteCount: Int,
+        errorCode: String?) -> String
+    {
+        let code = errorCode ?? "<unavailable>"
+        var lines: [String] = []
+        lines.append("Non-2xx response (redacted diagnostic):")
+        lines.append("  httpStatus: \(httpStatus)")
+        lines.append("  bodyBytes: \(bodyByteCount)")
+        lines.append("  errorCode: \(code)")
+        lines.append("  note: body, message, requestId, and headers suppressed to avoid leaking identifiers.")
+        return lines.joined(separator: "\n")
+    }
 }

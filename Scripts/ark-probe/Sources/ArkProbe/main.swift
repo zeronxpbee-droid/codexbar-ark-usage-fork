@@ -112,7 +112,12 @@ enum ArkProbeCLI {
                 print(SanitizedUsageReport.render(parsed))
             } else {
                 // Do not echo the raw body (may carry account/request IDs).
-                print("Non-200 response (\(data.count) bytes). Body suppressed to avoid leaking identifiers.")
+                // Extract only the machine-readable error Code, if present.
+                let errorCode = ArkErrorResponse.extractErrorCode(from: data)
+                print(SanitizedUsageReport.renderErrorDiagnostic(
+                    httpStatus: status,
+                    bodyByteCount: data.count,
+                    errorCode: errorCode))
             }
         } catch {
             FileHandle.standardError.write(Data("live call failed: \(error.localizedDescription)\n".utf8))

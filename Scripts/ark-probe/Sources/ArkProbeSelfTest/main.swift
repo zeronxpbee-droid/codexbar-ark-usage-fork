@@ -230,6 +230,51 @@ let shape = SanitizedUsageReport.renderSignedRequestShape(
 c.check("request shape marks authorization redacted", shape.contains("redacted"))
 c.check("request shape never prints signature=", !shape.lowercased().contains("signature="))
 
+// MARK: - Non-2xx error diagnostic (fictional fixtures)
+
+print("== error diagnostic ==")
+let errorEnvelope = Data("""
+{
+  "ResponseMetadata": {
+    "RequestId": "FAKE-REQ-ID-DO-NOT-LEAK-0001",
+    "Error": {
+      "Code": "SignatureDoesNotMatch",
+      "Message": "signature mismatch; secret leak canary 9F3A"
+    }
+  }
+}
+""".utf8)
+
+let extractedCode = ArkErrorResponse.extractErrorCode(from: errorEnvelope)
+c.equal("error code: prefers ResponseMetadata.Error.Code", extractedCode, "SignatureDoesNotMatch")
+c.equal(
+    "error code: top-level Error fallback",
+    ArkErrorResponse.extractErrorCode(from: Data("{ \"Error\": { \"Code\": \"AccessDenied\" } }".utf8)),
+    "AccessDenied")
+c.check("error code: nil when absent", ArkErrorResponse.extractErrorCode(from: Data("{}".utf8)) == nil)
+c.check("error code: nil on invalid JSON", ArkErrorResponse.extractErrorCode(from: Data("not json".utf8)) == nil)
+
+let diag = SanitizedUsageReport.renderErrorDiagnostic(
+    httpStatus: 401,
+    bodyByteCount: errorEnvelope.count,
+    errorCode: extractedCode)
+c.check("diagnostic shows httpStatus", diag.contains("httpStatus: 401"))
+c.check("diagnostic shows bodyBytes", diag.contains("bodyBytes: \(errorEnvelope.count)"))
+c.check("diagnostic shows errorCode", diag.contains("errorCode: SignatureDoesNotMatch"))
+c.check("diagnostic hides RequestId value", !diag.contains("FAKE-REQ-ID-DO-NOT-LEAK-0001"))
+c.check("diagnostic hides RequestId key", !diag.contains("RequestId"))
+c.check("diagnostic hides Message text", !diag.contains("signature mismatch"))
+c.check("diagnostic hides Message key", !diag.contains("Message"))
+c.check("diagnostic hides secret canary", !diag.contains("9F3A"))
+
+let diagUnavailable = SanitizedUsageReport.renderErrorDiagnostic(
+    httpStatus: 401,
+    bodyByteCount: 302,
+    errorCode: ArkErrorResponse.extractErrorCode(
+        from: Data("{ \"ResponseMetadata\": { \"RequestId\": \"FAKE-REQ-ID-0002\" } }".utf8)))
+c.check("diagnostic marks <unavailable> when no code", diagUnavailable.contains("errorCode: <unavailable>"))
+c.check("diagnostic (unavailable) still hides RequestId", !diagUnavailable.contains("FAKE-REQ-ID-0002"))
+
 // MARK: - Summary
 
 print("")
