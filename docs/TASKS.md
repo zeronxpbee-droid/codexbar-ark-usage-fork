@@ -11,7 +11,7 @@ M0 — Fork Bootstrap + Ark Agent Plan API Probe Preparation
 ## Goal Status
 
 ```text
-Status: M0 Review Failed — Developer Fix Required
+Status: M0 Review PASS — Awaiting Bee Approval / Live Probe Decision
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex

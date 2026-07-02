@@ -649,6 +649,91 @@ Codex re-runs `swift build` + `swift run ark-probe-selftest` (and optionally
 `swift test`) on macOS, re-audits scope/security/upstream boundary, and records
 a new PASS/FAIL entry.
 
+## Entry 010 — M0 Ark Probe Fix Re-Audit
+
+Date: 2026-07-02
+Actor: Codex
+Type: Review
+Status: PASS
+
+### Active Goal
+
+M0 — Fork Bootstrap + Ark Agent Plan API Probe Preparation
+
+### LOOP Result
+
+Re-reviewed corrective commit
+`ffd977749f6b4514ed23a6c785a5958e0ae82898` against the three Entry 008
+findings. Required evidence was a macOS build, dependency-free deterministic
+self-test, fixed session-token behavior, reproducible dependency resolution,
+scope isolation, secret safety, official-vector agreement, and redacted
+no-network dry-run behavior. No product code was modified by Codex.
+
+### Summary
+
+All three Entry 008 findings are closed. The standalone package builds on the
+reviewer macOS environment, its dependency-free self-test passes all checks,
+session-token support was safely removed from M0, and dependency versions are
+reproducibly pinned. The implementation remains isolated from the CodexBar app.
+
+### Files Reviewed
+
+```text
+Scripts/ark-probe/Package.swift
+Scripts/ark-probe/Package.resolved
+Scripts/ark-probe/README.md
+Scripts/ark-probe/Sources/ArkProbeKit/VolcengineArkSigner.swift
+Scripts/ark-probe/Sources/ArkProbeSelfTest/main.swift
+docs/PROJECT_LOG.md
+```
+
+### Evidence
+
+- Corrective commit:
+  `ffd977749f6b4514ed23a6c785a5958e0ae82898`.
+- Commit ancestry is additive:
+  `40cd9f78` → `e26932cd` → `ffd97774`; no amend, rebase, or history rewrite.
+- `swift build`: PASS on Apple Swift 6.3.1.
+- `swift run ark-probe-selftest`: PASS, 35/35 checks.
+- `python3 reference/volc_sign_reference.py`: PASS; canonical request, body
+  hash, scope, and signature match the Swift self-test vector.
+- Fake-credential default dry-run: PASS; no network request and no credential,
+  signature, request ID, or account identifier output.
+- `swift-crypto` is pinned exactly to 3.15.1; committed `Package.resolved`
+  resolves `swift-crypto` 3.15.1 and `swift-asn1` 1.7.1.
+- Unsupported session-token input and unsigned `X-Security-Token` emission were
+  removed.
+- `git diff --check e26932cd..ffd97774`: PASS.
+- Corrective diff is restricted to `Scripts/ark-probe/**` and
+  `docs/PROJECT_LOG.md`; no root package, app Provider, Widget, or unrelated
+  Provider changes.
+- Secret review found only documented environment-variable names and
+  deliberately fake test credentials.
+- Empty stale Git lock files left by the developer environment were verified
+  as unowned and removed before repository operations resumed.
+
+### Issues / Risks
+
+- Full `swift test` remains unavailable because this macOS environment has only
+  Command Line Tools and no `XCTest` runner. The accepted portable evidence path
+  is the dependency-free self-test, which exercises the same public signer,
+  parser, and sanitizer behavior.
+- No credentialed live network probe was run.
+- Production host (`volces.com` vs `volcengineapi.com`) and least-privilege IAM
+  policy remain unresolved.
+
+### Decision
+
+PASS for the M0 implementation and safe to push to the existing draft PR.
+This does not authorize merge or entry into M1. M0 remains awaiting Bee's
+decision on a credentialed live probe and Bee's milestone approval.
+
+### Next Action
+
+Codex pushes the reviewed branch and updates the draft PR evidence. Bee decides
+whether to authorize a live probe using environment variables and whether M0
+may proceed to milestone approval.
+
 ## Entry Template
 
 Copy this template for future entries.
