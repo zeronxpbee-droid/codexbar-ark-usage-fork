@@ -69,18 +69,34 @@ public enum SanitizedUsageReport {
     /// response headers, and any account/resource/tenant identifier are never
     /// included. When no error code can be parsed, `<unavailable>` is shown
     /// rather than any raw content.
+    ///
+    /// Security note (Entry 012 Findings 1 & 2): this renderer is `public`, so it
+    /// must NOT trust its `errorCode` argument even though the primary caller
+    /// passes an already-validated value. The code is re-validated here against
+    /// the strict grammar `[A-Za-z0-9][A-Za-z0-9._-]{0,127}` via
+    /// `ArkErrorResponse.validatedCode(_:)`; any hostile value (newline, control
+    /// character, whitespace, over-length) collapses to `<unavailable>`. The
+    /// output is exactly three fields under the header line — `httpStatus`,
+    /// `bodyBytes`, `errorCode` — with no free-form `note` line, so the field set
+    /// and line count are stable and assertable.
     public static func renderErrorDiagnostic(
         httpStatus: Int,
         bodyByteCount: Int,
         errorCode: String?) -> String
     {
-        let code = errorCode ?? "<unavailable>"
+        // Re-enforce the untrusted-input grammar at the public boundary: never
+        // interpolate an unvalidated, server-controlled string into the output.
+        let code: String
+        if let errorCode, let valid = ArkErrorResponse.validatedCode(errorCode) {
+            code = valid
+        } else {
+            code = "<unavailable>"
+        }
         var lines: [String] = []
         lines.append("Non-2xx response (redacted diagnostic):")
         lines.append("  httpStatus: \(httpStatus)")
         lines.append("  bodyBytes: \(bodyByteCount)")
         lines.append("  errorCode: \(code)")
-        lines.append("  note: body, message, requestId, and headers suppressed to avoid leaking identifiers.")
         return lines.joined(separator: "\n")
     }
 }

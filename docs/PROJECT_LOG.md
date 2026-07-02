@@ -943,9 +943,114 @@ re-runs static security review and build/self-test evidence in a compatible
 Swift environment. No additional live probe is needed before the patch passes
 offline review.
 
-## Entry Template
+## Entry 013 — M0 Untrusted Error-Code Hardening (Entry 012 Corrective Patch)
 
-Copy this template for future entries.
+Date: 2026-07-02
+Actor: Claude (Developer)
+Type: Bugfix
+Status: IMPLEMENTED / UNVERIFIED
+
+### Active Goal
+
+M0 — Fork Bootstrap + Ark Agent Plan API Probe Preparation
+
+### LOOP Result
+
+Debugging Loop. Planner/Generator/Evaluator/Recorder = Claude for this
+low-blast-radius, isolated probe change; final verification is delegated to
+Codex in a Swift-capable environment. Verified real HEAD `62190348` and that
+Entry 012 = FAIL is present on disk before editing. Entry 012 was NOT modified
+or deleted; this is a purely additive corrective commit on top of it. Evidence
+recorded below. Safe restart boundary: the isolated `Scripts/ark-probe/`
+package; no push, amend, or rebase performed.
+
+### Summary
+
+Closes both Entry 012 findings by treating the Volcengine `Error.Code` as
+untrusted, server-controlled input.
+
+Finding 1 (untrusted code printed verbatim): added
+`ArkErrorResponse.validatedCode(_:)` as the single source of truth for code
+validity. It accepts a value ONLY if it fully matches the bounded, single-line
+ASCII grammar `[A-Za-z0-9][A-Za-z0-9._-]{0,127}` (length 1–128 scalars, first
+char alphanumeric, remainder alphanumeric or `. _ -`). The value is not trimmed
+or normalized, so a value that only conforms after trimming is rejected. The
+JSON extractor `code(fromErrorObject:)` now returns the validated code or `nil`;
+non-conforming codes yield `errorCode: <unavailable>`. Because
+`renderErrorDiagnostic` is `public`, it re-applies the same validation at the
+rendering boundary, so a hostile value passed directly to the renderer (not via
+the parser) is also collapsed to `<unavailable>`.
+
+Finding 2 (extra static `note` line): removed the fourth `note` line. The
+diagnostic is now exactly four lines — a header plus the three permitted fields
+`httpStatus`, `bodyBytes`, `errorCode` — and nothing else.
+
+Tests now include hostile fixtures (escaped newline, control character,
+whitespace, inner space, over-length 129-char, empty, punctuation-led, and a
+direct-to-renderer newline-injection carrying a fake field) and assert the
+EXACT output line count (4) and the exact field-key set
+(`{httpStatus, bodyBytes, errorCode}`), not merely selected substrings. The
+dependency-free `ark-probe-selftest` executable was updated with the same
+assertions so Codex can verify without a test runner.
+
+The signer, request parameters, default host, `--host` override, app, Widget,
+and other providers were not touched. No network calls were made and no AK/SK
+was requested. M1 was not entered.
+
+### Files Changed
+
+```text
+Scripts/ark-probe/Sources/ArkProbeKit/ArkErrorResponse.swift      (add validatedCode grammar; extractor returns validated code or nil)
+Scripts/ark-probe/Sources/ArkProbeKit/SanitizedUsageReport.swift  (re-validate at renderer boundary; remove note line -> 4-line output)
+Scripts/ark-probe/Sources/ArkProbeSelfTest/main.swift             (hostile fixtures + exact line/field assertions)
+Scripts/ark-probe/Tests/ArkProbeKitTests/ArkErrorResponseTests.swift (hostile fixtures + exact line/field assertions)
+docs/TASKS.md                                                     (status line update)
+docs/PROJECT_LOG.md                                               (this entry)
+```
+
+### Evidence
+
+```text
+- git rev-parse --short HEAD before edits: 62190348 (Entry 012 FAIL present, not modified).
+- Independent Python grammar+renderer mimic (offline): 18/18 grammar cases match
+  the Swift rules; diagnostic mimic asserts 4 lines, no "note:", hostile
+  newline-injection collapses to "<unavailable>" with the fake field absent.
+- Static scope check: signer, ArkAPIConfig default host, request params, and
+  --host override are untouched (diff limited to error-code path + tests + docs).
+- Swift build / swift run ark-probe-selftest: NOT RUN here (no Swift toolchain in
+  this environment). Deferred to Codex — hence Status IMPLEMENTED / UNVERIFIED.
+```
+
+Codex verification commands:
+
+```text
+cd Scripts/ark-probe
+swift build
+swift run ark-probe-selftest      # expect SELFTEST OK, exit 0
+swift test                        # if a test runner is available
+```
+
+### Issues / Risks
+
+Not yet compiled/executed in a Swift environment; correctness of the Swift build
+and self-test is unverified pending Codex. The grammar was cross-checked only by
+an independent Python mimic, which validates the rule logic but not Swift
+compilation.
+
+### Decision
+
+Treat `Error.Code` as untrusted at both the parser and the public renderer, cap
+the diagnostic at the three authorized fields, and prove it with hostile
+fixtures and exact line/field assertions. Await Codex offline re-audit; no live
+probe required.
+
+### Next Action
+
+Codex re-runs static security review and `swift build` / `swift run
+ark-probe-selftest` in a compatible environment and records PASS or FAIL. No
+push, amend, or rebase by Claude.
+
+## Entry Template
 
 ```text
 ## Entry XXX — <Title>

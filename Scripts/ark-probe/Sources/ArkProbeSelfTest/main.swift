@@ -251,16 +251,54 @@ c.equal(
     "error code: top-level Error fallback",
     ArkErrorResponse.extractErrorCode(from: Data("{ \"Error\": { \"Code\": \"AccessDenied\" } }".utf8)),
     "AccessDenied")
+c.equal(
+    "error code: grammar punctuation accepted",
+    ArkErrorResponse.extractErrorCode(from: Data("{ \"Error\": { \"Code\": \"Err.Code_v2-1\" } }".utf8)),
+    "Err.Code_v2-1")
 c.check("error code: nil when absent", ArkErrorResponse.extractErrorCode(from: Data("{}".utf8)) == nil)
 c.check("error code: nil on invalid JSON", ArkErrorResponse.extractErrorCode(from: Data("not json".utf8)) == nil)
 
+// Untrusted-input hardening (Entry 012 Finding 1): hostile Error.Code values.
+c.check(
+    "error code: rejects whitespace-only",
+    ArkErrorResponse.extractErrorCode(
+        from: Data("{ \"Error\": { \"Code\": \"  \" } }".utf8)) == nil)
+c.check(
+    "error code: rejects surrounding whitespace (no trim-then-accept)",
+    ArkErrorResponse.extractErrorCode(
+        from: Data("{ \"Error\": { \"Code\": \"  Signature  \" } }".utf8)) == nil)
+c.check(
+    "error code: rejects embedded newline",
+    ArkErrorResponse.extractErrorCode(
+        from: Data("{ \"Error\": { \"Code\": \"Line1\\nLine2\" } }".utf8)) == nil)
+c.check(
+    "error code: rejects control character",
+    ArkErrorResponse.extractErrorCode(
+        from: Data("{ \"Error\": { \"Code\": \"Alert\\u0007Bell\" } }".utf8)) == nil)
+c.check(
+    "error code: rejects inner space",
+    ArkErrorResponse.extractErrorCode(
+        from: Data("{ \"Error\": { \"Code\": \"Bad Code\" } }".utf8)) == nil)
+let overLong = "A" + String(repeating: "b", count: 128) // 129 chars
+c.check("validatedCode: rejects over-length (129)", ArkErrorResponse.validatedCode(overLong) == nil)
+let maxLen = "A" + String(repeating: "b", count: 127)   // 128 chars
+c.equal("validatedCode: accepts max-length (128)", ArkErrorResponse.validatedCode(maxLen), maxLen)
+c.check("validatedCode: rejects leading punctuation", ArkErrorResponse.validatedCode(".x") == nil)
+c.check("validatedCode: rejects empty", ArkErrorResponse.validatedCode("") == nil)
+
+// Diagnostic output: EXACTLY 4 lines (header + 3 fields), no note line.
 let diag = SanitizedUsageReport.renderErrorDiagnostic(
     httpStatus: 401,
     bodyByteCount: errorEnvelope.count,
     errorCode: extractedCode)
-c.check("diagnostic shows httpStatus", diag.contains("httpStatus: 401"))
-c.check("diagnostic shows bodyBytes", diag.contains("bodyBytes: \(errorEnvelope.count)"))
-c.check("diagnostic shows errorCode", diag.contains("errorCode: SignatureDoesNotMatch"))
+let diagLines = diag.components(separatedBy: "\n")
+c.equal("diagnostic: exactly 4 lines (header + 3 fields)", diagLines.count, 4)
+c.equal("diagnostic: header line", diagLines[0], "Non-2xx response (redacted diagnostic):")
+c.equal("diagnostic: httpStatus line", diagLines[1], "  httpStatus: 401")
+c.equal("diagnostic: bodyBytes line", diagLines[2], "  bodyBytes: \(errorEnvelope.count)")
+c.equal("diagnostic: errorCode line", diagLines[3], "  errorCode: SignatureDoesNotMatch")
+c.check("diagnostic: no note line", !diag.contains("note:"))
+c.check("diagnostic: no 'suppressed' text", !diag.lowercased().contains("suppressed"))
 c.check("diagnostic hides RequestId value", !diag.contains("FAKE-REQ-ID-DO-NOT-LEAK-0001"))
 c.check("diagnostic hides RequestId key", !diag.contains("RequestId"))
 c.check("diagnostic hides Message text", !diag.contains("signature mismatch"))
@@ -272,8 +310,40 @@ let diagUnavailable = SanitizedUsageReport.renderErrorDiagnostic(
     bodyByteCount: 302,
     errorCode: ArkErrorResponse.extractErrorCode(
         from: Data("{ \"ResponseMetadata\": { \"RequestId\": \"FAKE-REQ-ID-0002\" } }".utf8)))
-c.check("diagnostic marks <unavailable> when no code", diagUnavailable.contains("errorCode: <unavailable>"))
+let diagUnavailLines = diagUnavailable.components(separatedBy: "\n")
+c.equal("diagnostic (unavailable): exactly 4 lines", diagUnavailLines.count, 4)
+c.equal("diagnostic (unavailable): errorCode line", diagUnavailLines[3], "  errorCode: <unavailable>")
 c.check("diagnostic (unavailable) still hides RequestId", !diagUnavailable.contains("FAKE-REQ-ID-0002"))
+
+// Renderer boundary (Entry 012 Finding 1): the public renderer must neutralize
+// hostile values passed DIRECTLY to it, not only values from the parser.
+let hostileDirect = [
+    "Injected\nfakeField: leaked-secret",
+    "Alert\u{0007}Bell",
+    "  spaced value  ",
+    "Bad Code With Spaces",
+    "A" + String(repeating: "b", count: 200),
+    "",
+    ".startsWithDot",
+]
+var hostileOK = true
+for hostile in hostileDirect {
+    let d = SanitizedUsageReport.renderErrorDiagnostic(
+        httpStatus: 500, bodyByteCount: 123, errorCode: hostile)
+    let ls = d.components(separatedBy: "\n")
+    if ls.count != 4 { hostileOK = false }
+    if ls.last != "  errorCode: <unavailable>" { hostileOK = false }
+    if d.contains("leaked-secret") || d.contains("fakeField") { hostileOK = false }
+}
+c.check("renderer neutralizes hostile direct input (line count + <unavailable> + no leak)", hostileOK)
+
+// A valid code passed directly is preserved verbatim.
+let diagValidDirect = SanitizedUsageReport.renderErrorDiagnostic(
+    httpStatus: 403, bodyByteCount: 42, errorCode: "AccessDenied")
+c.equal(
+    "renderer preserves valid direct input",
+    diagValidDirect.components(separatedBy: "\n").last,
+    "  errorCode: AccessDenied")
 
 // MARK: - Summary
 
