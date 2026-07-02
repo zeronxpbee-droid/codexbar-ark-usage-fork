@@ -1592,6 +1592,186 @@ Claude / GLM performs its final pre-coding LOOP check and implements the
 smallest complete M1 loop. It must stop and report again before touching any
 shared file outside S1–S4, S8, and S9.
 
+## Entry 022 — M1 Ark Core Implemented (S1–S4/S8/S9 partial); Widget Compile-Stub Blocker Reported
+
+Date: 2026-07-02
+Actor: Claude Developer (implementation + report) + Bee (decision)
+Type: Development / Decision
+Status: BLOCKED (coding paused pending Codex boundary registration)
+
+### Active Goal
+
+M1 — Ark Provider Menu Bar MVP
+
+### LOOP Result
+
+Applied LOOP as a checklist. Gather/Reason/Act produced the Ark-owned core and
+the additive S1–S4/S8 registrations. During Verify (static blast-radius review
+of the S1 enum change before any build), Claude found that S1 unavoidably breaks
+the forbidden Widget target and stopped to report rather than silently editing
+S5–S7 files. Recorder step captured the decision here and in TASKS.md.
+
+### Summary
+
+Implemented the Ark provider core and wired the approved shared touchpoints,
+then hit a hard scope conflict and paused.
+
+Completed this session (additive only, build/test deferred to Codex —
+UNVERIFIED, no Swift toolchain in the dev environment):
+
+- Ark-owned new files:
+  - `Sources/CodexBarCore/Providers/Ark/VolcengineArkSigner.swift` (promoted from M0)
+  - `Sources/CodexBarCore/Providers/Ark/ArkAPIConfig.swift`
+  - `Sources/CodexBarCore/Providers/Ark/GetAFPUsageResponse.swift` (+ `AFPWindow.usedPercent`)
+  - `Sources/CodexBarCore/Providers/Ark/ArkErrorResponse.swift`
+  - `Sources/CodexBarCore/Providers/Ark/ArkSettingsReader.swift`
+  - `Sources/CodexBarCore/Providers/Ark/ArkUsageFetcher.swift` (+ `ArkUsageSnapshot`, `ArkUsageError`)
+  - `Sources/CodexBarCore/Providers/Ark/ArkProviderDescriptor.swift` (+ `ArkAPIFetchStrategy`)
+  - `Sources/CodexBar/Providers/Ark/ArkProviderImplementation.swift`
+  - `Sources/CodexBar/Providers/Ark/ArkSettingsStore.swift`
+- Shared touchpoints applied:
+  - S1 — `UsageProvider` `case ark` (Providers.swift)
+  - S2 — `IconStyle` `case ark` (Providers.swift)
+  - S3 — `descriptorsByID[.ark]` (ProviderDescriptor.swift)
+  - S4 — `case .ark:` (ProviderImplementationRegistry.swift)
+  - S8 — `applyArkOverrides` + `.ark` in `applyDedicatedProviderOverrides` (ProviderConfigEnvironment.swift):
+    `apiKey → VOLCENGINE_ACCESS_KEY_ID`, `secretKey → VOLCENGINE_SECRET_ACCESS_KEY`
+  - Also added `LogCategories.arkUsage`.
+- Window mapping (方案 B): 5h → `primary`, Daily → `secondary`, Weekly →
+  `tertiary`, Monthly → `extraRateWindows`. Windows with unknown usage are
+  omitted (never rendered as 0%).
+
+Not yet done (blocked): S9 resolver branch, M1 tests, local commit.
+
+### Blocker (STOP-and-report per TASKS.md item 5)
+
+S1 (`UsageProvider.ark`) is mandatory for M1 but breaks the **CodexBarWidget**
+target, which contains 3 exhaustive `switch` statements over `UsageProvider`
+with no `default:`:
+
+1. `Sources/CodexBarWidget/CodexBarWidgetProvider.swift:55` — `ProviderChoice.init?(provider:)`
+2. `Sources/CodexBarWidget/CodexBarWidgetViews.swift:271` — `shortLabel`
+3. `Sources/CodexBarWidget/CodexBarWidgetViews.swift:801` — provider color switch
+
+Without an `.ark` arm in each, the whole workspace fails to compile. Widget
+files are M1-forbidden (S5–S7). `IconStyle` (S2) is safe — dispatched via a
+`styleKeyLookup[style] ?? 0` dictionary, not an exhaustive switch. All
+`CLIDiagnoseCommand.swift` provider switches have `default:` and are safe.
+
+### Decision (Bee, 2026-07-02)
+
+Option 1 approved IN PRINCIPLE, but coding STAYS PAUSED until Codex formally
+registers the compile-stub boundary. When unpaused, ONLY these 3 additive lines
+are permitted:
+
+1. `ProviderChoice.init?(provider:)` → `case .ark: return nil` (Ark not
+   selectable in the M1 widget).
+2. `shortLabel` → `case .ark: "Ark"`.
+3. Widget color switch → `case .ark:` static color.
+
+Forbidden even under this exception: a new `ProviderChoice.ark` enum case,
+`DisplayRepresentation`, Widget picker entry, snapshot logic, or any real Widget
+display logic (those remain M3–M4). This is a compile-only stub exception, not a
+widening of M1 feature scope.
+
+### Files Changed (working tree only — NOT committed)
+
+- Ark-owned new files and S1–S4/S8 edits listed above.
+- `docs/PROJECT_LOG.md` (this entry).
+- `docs/TASKS.md` (status update — pending in the same paused batch).
+
+### Evidence
+
+- Static exhaustiveness review: `CodexBarWidgetProvider.swift:55–112` covers
+  every provider through `.zed` with explicit arms and no `default:`.
+- `CodexBarWidgetViews.swift` `shortLabel` (271–326) and color switch (801–908)
+  likewise terminate at `.zed` with no `default:`.
+- `IconRenderer.swift:802` `styleKeyLookup` is an `[IconStyle: Int]` dictionary
+  with `?? 0` fallback — S2 needs no downstream edits.
+- No build/test run: the dev environment has no Swift toolchain; Codex must
+  compile and run `swift build` / `make test` / `make check`.
+
+### Issues / Risks
+
+- Coding is paused mid-M1. S9, tests, and the additive local commit are pending
+  the boundary registration.
+- The 3 Widget stub lines are the minimum to keep the workspace compiling; they
+  add one shared conflict surface (S6 partial) beyond the originally scoped
+  S1–S4/S8/S9, hence the escalation.
+
+### Next Action
+
+Codex: register/confirm the compile-stub boundary for the 3 Widget lines. Once
+confirmed, Claude will (1) add the 3 stub lines exactly as specified, (2)
+implement the S9 Ark highest-risk resolver branch, (3) write M1 tests, (4) run
+static checks, update this log + TASKS.md, and create a single additive local
+commit (no push). Build/test verification remains Codex's responsibility.
+
+## Entry 023 — M1 Widget Compile-Only Boundary Registered
+
+Date: 2026-07-02
+Actor: Bee (approval) + Codex (boundary registration)
+Type: Decision / Documentation
+Status: APPROVED / RESUMED
+
+### Active Goal
+
+M1 — Ark Provider Menu Bar MVP
+
+### LOOP Result
+
+Codex verified Claude's blast-radius report against the three exhaustive Widget
+switches. Because S1 cannot compile without explicit Ark arms, the smallest
+useful loop is a three-line compiler-closure exception that keeps all Widget
+capability disabled.
+
+### Summary
+
+- Registered S10 for one compile-only arm in
+  `CodexBarWidgetProvider.swift`:
+  `ProviderChoice.init?(provider: .ark)` returns `nil`.
+- Registered S11 for two compile-only arms in
+  `CodexBarWidgetViews.swift`: short label `"Ark"` and a static color.
+- Ark remains absent from `ProviderChoice`, `caseDisplayRepresentations`,
+  supported-provider filtering, Widget snapshot behavior, and Widget layout.
+- M3–M4 remain the exclusive milestones for functional Ark Widget support.
+- Existing uncommitted Ark implementation files were not edited by Codex.
+
+### Files Changed
+
+- `docs/TASKS.md`
+- `docs/M0_INTEGRATION_BOUNDARY.md`
+- `docs/PROJECT_LOG.md`
+
+### Evidence
+
+- `ProviderChoice.init?(provider:)`, `ProviderSwitchChip.shortLabel`, and
+  `WidgetColors.color(for:)` exhaustively switch over `UsageProvider` without
+  `default` clauses.
+- Adding S1 `UsageProvider.ark` therefore requires explicit cases for the
+  Widget target to compile.
+- Returning `nil` from `ProviderChoice.init?(provider: .ark)` prevents Ark
+  from entering the Widget provider picker or supported-provider list.
+
+### Issues / Risks
+
+- S10/S11 touch Widget-owned files earlier than the functional Widget
+  milestones and add small line-local upstream conflict surfaces.
+- Any change beyond the exact three arms is out of M1 scope and requires a new
+  stop-and-report decision.
+
+### Decision
+
+M1 is resumed with shared touchpoints S1–S4 and S8–S11. S10/S11 are
+compiler-closure exceptions only and do not authorize Widget functionality.
+
+### Next Action
+
+Claude resumes the paused implementation: add exactly the S10/S11 arms,
+complete S9 and targeted tests, run available static checks, update the M1
+implementation record/status, and create the additive local commit without
+push.
+
 ## Entry Template
 
 ```text

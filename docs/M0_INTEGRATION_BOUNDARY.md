@@ -54,6 +54,8 @@
 | S7 | `CodexBarWidgetViews.swift` | minimal row wiring if needed | Low–Med. | Revert wiring. |
 | S8 | `ProviderConfigEnvironment.swift` | add Ark-specific projection from `ProviderConfig.apiKey` / `secretKey` into the existing in-memory provider environment | Low–Med — shared credential router, but the edit follows the upstream Bedrock convention and remains an additive provider case/helper. | Remove the Ark case/helper; Ark then has no production credential projection. |
 | S9 | `MenuBarMetricWindowResolver.swift` | add an Ark branch for `.automatic` that selects the highest-risk known AFP window and falls back to 5h, then Daily | Med — shared menu policy is provider-switched and frequently extended, but the Ark edit follows existing provider-specific resolver branches and remains line-local. | Remove the Ark branch; generic automatic behavior falls back to stable `primary` (5h), then `secondary` (Daily). |
+| S10 | `CodexBarWidgetProvider.swift` `ProviderChoice.init?(provider:)` | add only `case .ark: return nil` to close the exhaustive switch; do not add `ProviderChoice.ark` or a display representation | Low — one compile-only arm; Ark remains unsupported and unselectable in Widgets. | Remove the arm together with S1. |
+| S11 | `CodexBarWidgetViews.swift` | add only exhaustive `case .ark` arms for `shortLabel` (`"Ark"`) and a static color; no layout or rendering wiring | Low — two compile-only arms with no new Widget entry path. | Remove both arms together with S1. |
 
 All shared edits are additive registrations/wiring. None rename, move, or
 reformat upstream code. Each milestone's PR must list the S# points it touches.
@@ -69,8 +71,8 @@ reformat upstream code. Each milestone's PR must list the S# points it touches.
    widget snapshot/preview checks.
 5. Report conflicts and behavior changes explicitly; do not auto-merge.
 6. Rollback: because Ark logic is isolated in `Providers/Ark/*` new files, a
-   revert of the S1–S9 additive edits fully removes Ark without touching other
-   providers.
+   revert of the applicable S1–S11 additive edits fully removes Ark without
+   touching other providers.
 
 ## M0-specific rollback
 

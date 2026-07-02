@@ -11,7 +11,9 @@ M1 — Ark Provider Menu Bar MVP
 ## Goal Status
 
 ```text
-Status: M1 Approved by Bee — Credential + Menu Window Boundaries Resolved — Ready for Development
+Status: M1 IN PROGRESS — Widget Compile-Stub Boundary Resolved
+Implementation State: Ark core + S1–S4/S8 implemented (UNVERIFIED, uncommitted)
+Next: Claude resumes S9, tests, S10/S11 compile-only stubs, and local commit
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex
@@ -76,6 +78,10 @@ Claude / GLM may:
   - S4 — provider implementation registration.
   - S8 — `ProviderConfigEnvironment` Ark credential projection.
   - S9 — `MenuBarMetricWindowResolver` Ark automatic highest-risk selection.
+  - S10 — `CodexBarWidgetProvider` exhaustive-switch compile stub:
+    `case .ark: return nil`.
+  - S11 — `CodexBarWidgetViews` exhaustive-switch compile stubs for the Ark
+    short label and static color.
 - Store the IAM Access Key ID in `ProviderConfig.apiKey` and Secret Access Key
   in `ProviderConfig.secretKey`, persisted by the upstream
   `CodexBarConfigStore` with mode `0600`, following the existing Bedrock
@@ -99,7 +105,11 @@ Claude / GLM must not:
 - Open, update, close, or merge Pull Requests.
 - Replace upstream history with a detached copy or squashed import.
 - Mix an upstream synchronization with Ark feature implementation.
-- Touch Widget snapshot, picker, intent, or UI files (S5–S7).
+- Touch Widget snapshot, picker, intent, or UI feature code (S5–S7). The only
+  M1 exception is the exact compile-only S10/S11 exhaustive-switch arms.
+- Add `ProviderChoice.ark`, an Ark `DisplayRepresentation`, Widget picker
+  availability, snapshot behavior, layout wiring, or any visible Ark Widget
+  capability under the S10/S11 exception.
 - Add custom four-window popover UI; that belongs to M2.
 - Modify unrelated providers.
 - Refactor CodexBar architecture.
@@ -150,7 +160,7 @@ docs/M0_INTEGRATION_BOUNDARY.md
 ```text
 - Done Contract.
 - Planned Ark-owned new files.
-- Planned shared files with S1–S4/S8/S9 identifiers.
+- Planned shared files with S1–S4/S8–S11 identifiers.
 - Secure AK/SK storage and resolution path.
 - UsageSnapshot mapping for 5h / daily / weekly / monthly.
 - Menu-bar primary-window selection using existing CodexBar conventions.
@@ -160,7 +170,7 @@ docs/M0_INTEGRATION_BOUNDARY.md
 
 5. Use the approved upstream-compatible AK/SK path documented above. If no
    existing convention can support the required usage mapping without expanding
-   beyond S1–S4, S8, and S9, stop and report the blocker before coding.
+   beyond S1–S4 and S8–S11, stop and report the blocker before coding.
 
 6. Otherwise implement the smallest complete M1 loop:
 
@@ -173,6 +183,8 @@ docs/M0_INTEGRATION_BOUNDARY.md
 - Compact menu-bar automatic status selected by the S9 Ark-specific
   highest-risk resolver, with 5h then Daily fallback when no valid
   highest-risk candidate is available.
+- S10/S11 compile-only Widget exhaustive-switch arms; Ark remains unavailable
+  in Widget configuration and rendering during M1.
 - Safe unauthorized, timeout/network, empty/unsupported, and unknown states.
 - Targeted unit/mock tests with no real network or credentials.
 ```
@@ -194,7 +206,7 @@ make check
 M1 is Done only when:
 
 - LOOP was used or explicitly referenced before execution.
-- Ark is registered through only the necessary S1–S4, S8, and S9 shared
+- Ark is registered through only the necessary S1–S4 and S8–S11 shared
   integration points.
 - Provider-specific networking, signing, parsing, credential resolution, and
   tests are isolated in Ark-owned files where the architecture permits.
@@ -214,9 +226,10 @@ M1 is Done only when:
   provider registration have targeted tests.
 - `swift build`, `make test`, and `make check` pass, or any environment-only
   blocker is documented honestly and reproduced by Codex.
-- No M2 popover, Widget, unrelated-provider, upstream-sync, or broad-refactor
-  changes are included.
-- Actual S1–S4/S8/S9 touches and rollback steps are recorded in the M1 PR/log.
+- No M2 popover, functional Widget, unrelated-provider, upstream-sync, or
+  broad-refactor changes are included; Widget changes are limited exactly to
+  the S10/S11 compiler-closure arms.
+- Actual S1–S4/S8–S11 touches and rollback steps are recorded in the M1 PR/log.
 - `docs/PROJECT_LOG.md` has an M1 implementation and Codex audit record.
 - Codex review is complete.
 - Bee approves merge or moving to M2.
