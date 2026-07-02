@@ -11,9 +11,9 @@ M1 — Ark Provider Menu Bar MVP
 ## Goal Status
 
 ```text
-Status: M1 CORRECTION SUBMITTED — Awaiting Codex Re-Audit (see PROJECT_LOG Entries 025–027)
-Implementation State: Additive corrective commit on M1 branch (S12/S13 compile closures + fetcher tests + Ark icon); IMPLEMENTED, UNVERIFIED
-Next: Codex re-audits the correction — swift build, focused Ark suites, make test/check — and records PASS/FAIL
+Status: M1 RE-AUDIT FAIL — Second Corrective Commit Required (see PROJECT_LOG Entry 028)
+Implementation State: Commit c6c60cfc builds the app, but Ark test compilation and make check fail
+Next: Bee decides whether to authorize proposed S14 generated-hash touchpoint; Claude then fixes all Entry 028 findings in an additive local commit
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex

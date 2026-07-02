@@ -2128,6 +2128,107 @@ S12/S13 boundary. No amend/reset/rebase/push of `53544438` or this correction.
 Codex re-audits the additive correction: `swift build`, the focused Ark suites,
 `make test`, and `make check` where available; records PASS/FAIL.
 
+## Entry 028 — M1 Corrective Commit Re-Audit
+
+Date: 2026-07-03
+Actor: Codex
+Type: Review
+Status: FAIL
+
+### Active Goal
+
+M1 — Ark Provider Menu Bar MVP
+
+### LOOP Result
+
+Re-audited additive corrective commit
+`c6c60cfcf0b12a227e25b9d46e8322c52e3eee9a` against Entry 025, approved
+S12/S13 scope, M1 Definition of Done, and upstream build/test/check rules.
+Required evidence was a clean Git state, exact committed-tree provenance,
+full app compilation, all Ark suites, and `make check`. Codex changed no
+product or test source in the repository.
+
+### Summary
+
+The S12/S13 compiler closures work: the complete app now builds successfully.
+The new fetcher tests, however, do not compile under Swift 6 because they
+mutate a captured local variable inside a `Sendable` closure. An earlier Ark
+credential test also fails to unwrap the optional result of
+`CodexBarConfigStore.load()`. Finally, S12 changes a vendored cost-scanner
+source covered by the repository's generated parser hash, so `make check`
+requires the generated hash companion to be refreshed.
+
+Claude again committed through a temporary index, leaving the real index and
+two zero-byte lock files stale. Codex verified every changed working-tree blob
+against `c6c60cfc`, removed only the orphan locks, and synchronized only the
+real index to HEAD with `git read-tree --reset HEAD`. No working-tree file or
+developer commit was changed.
+
+### Evidence
+
+- Reviewed commit: `c6c60cfcf0b12a227e25b9d46e8322c52e3eee9a`.
+- Parent: governance commit
+  `4a112ca6ea25543058be16aecba444b97eb580ac`.
+- Every one of the eight changed files matched its committed blob exactly.
+- `git diff --check 4a112ca6..c6c60cfc`: PASS.
+- Native `swift build`: PASS (`Build complete!`, 30.10 seconds).
+- Native `swift test --filter Ark`: FAIL during test-target compilation:
+  - `ArkUsageFetcherTests.swift:72`: mutation of captured variable `touched`
+    in concurrently executing `Sendable` closure.
+  - `ArkCredentialProjectionTests.swift:76`: optional
+    `CodexBarConfig?` must be unwrapped before calling `providerConfig`.
+- `make check`: FAIL because
+  `Sources/CodexBarCore/Generated/CodexParserHash.generated.swift` is stale;
+  expected hash `cc33c89a2253a9a3`, committed hash
+  `2e350d981415198e`.
+- `make test` was not run after the same test target had already failed to
+  compile.
+- In a `/private/tmp` archive of exact commit `c6c60cfc`, Codex changed only
+  the two failing test expressions and regenerated the parser hash. The
+  diagnostic `swift test --filter Ark` then passed all 40 tests in six suites.
+  These diagnostic edits were not applied to the repository.
+- Static review found the corrective production changes limited to approved
+  S12/S13 arms, Ark-owned error conformance/icon, and tests. No credentials,
+  real network calls, functional Widget work, or unrelated-provider behavior
+  were added.
+
+### Findings
+
+1. **[P1] Make the missing-credentials transport spy Swift 6 safe.**
+   `ArkUsageFetcherTests` must not mutate a captured local `Bool` from the
+   `ProviderHTTPTransportHandler`'s `Sendable` closure. Use an existing
+   concurrency-safe test helper or record a test issue directly if the
+   transport is unexpectedly invoked.
+
+2. **[P1] Unwrap the config-store load result before provider lookup.**
+   `CodexBarConfigStore.load()` returns `CodexBarConfig?`. Store the throwing
+   result first, require the optional value, then call
+   `providerConfig(for: .ark)`.
+
+3. **[P1] Refresh the generated Codex parser hash required by S12.**
+   Run `Scripts/regenerate-codex-parser-hash.sh` and commit the generated
+   one-line hash update. Because this is an additional shared upstream-owned
+   file, it is proposed as **S14**: a mechanical generated-integrity companion
+   to S12, with no runtime behavior. Bee must approve S14 before implementation.
+
+### Decision
+
+FAIL. Do not push or open the M1 PR for `c6c60cfc`. The app compilation
+blockers from Entry 025 are closed, but the required Ark tests and repository
+checks do not compile/pass in the submitted tree.
+
+S14 is not yet authorized. It is the smallest shared-file consequence of S12:
+regenerate only `CodexParserHash.generated.swift`; no vendored parser logic or
+unrelated generated file may be changed.
+
+### Next Action
+
+Bee approves or rejects proposed S14. If approved, Codex registers S14 in the
+integration boundary and M1 scope. Claude then creates one additive local
+commit fixing findings 1–3, runs `swift build`, `swift test --filter Ark`,
+`make test`, and `make check`, updates the implementation record, and does not
+push. Codex re-audits the result.
+
 ## Entry Template
 
 ```text
