@@ -11,7 +11,7 @@ M0 — Fork Bootstrap + Ark Agent Plan API Probe Preparation
 ## Goal Status
 
 ```text
-Status: M0 Baseline Review PASS — Live Probe HTTP 401; Diagnostic Patch Awaiting Codex Re-audit
+Status: M0 Baseline Review PASS — Diagnostic Patch Audit FAIL; Safe Error-Code Output Fix Required
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex

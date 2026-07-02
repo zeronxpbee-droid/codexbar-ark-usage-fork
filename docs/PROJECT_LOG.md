@@ -850,6 +850,99 @@ Codex re-runs `swift build` + `swift run ark-probe-selftest` on macOS, audits
 scope/security, and records a PASS/FAIL. If Bee authorizes another live probe,
 capture the redacted `errorCode` from both hosts to disambiguate the 401 cause.
 
+## Entry 012 — M0 Safe Error-Code Diagnostic Audit
+
+Date: 2026-07-02
+Actor: Codex
+Type: Review
+Status: FAIL
+
+### Active Goal
+
+M0 — Fork Bootstrap + Ark Agent Plan API Probe Preparation
+
+### LOOP Result
+
+Reviewed developer commit `fd16dc11e8924f0c3962b86b55f7f33540b8fa72`
+only against the authorized M0 diagnostic loop. Required evidence was strict
+non-2xx output minimization, untrusted-response safety, scope isolation, secret
+safety, syntax/build/self-test evidence, and documentation consistency.
+Rollback is to leave `fd16dc11` local and unpushed while Claude supplies an
+additive corrective commit.
+
+### Summary
+
+The patch remains isolated and correctly avoids printing the raw response body,
+`Message`, and `RequestId`. However, the extracted `Error.Code` is still an
+untrusted response string and is printed verbatim. That leaves the diagnostic
+capable of emitting newlines, terminal control characters, forged fields, or
+identifier-like content placed inside `Code`. The current tests cover known
+fictional envelopes but do not exercise hostile `Code` values. The renderer
+also emits a fourth `note` line despite the authorized output contract allowing
+only HTTP status, body byte count, and error code.
+
+### Files Reviewed
+
+```text
+Scripts/ark-probe/Sources/ArkProbe/main.swift
+Scripts/ark-probe/Sources/ArkProbeKit/ArkErrorResponse.swift
+Scripts/ark-probe/Sources/ArkProbeKit/SanitizedUsageReport.swift
+Scripts/ark-probe/Sources/ArkProbeSelfTest/main.swift
+Scripts/ark-probe/Tests/ArkProbeKitTests/ArkErrorResponseTests.swift
+docs/TASKS.md
+docs/PROJECT_LOG.md
+```
+
+### Evidence
+
+- Commit ancestry: `6692d962` → `fd16dc11`; branch was ahead of origin by one
+  local commit at review time.
+- `git diff --check 6692d962..fd16dc11`: PASS.
+- Changed-file scope is limited to `Scripts/ark-probe/**`,
+  `docs/TASKS.md`, and `docs/PROJECT_LOG.md`.
+- Swift frontend syntax parse of all five changed Swift files: PASS.
+- Targeted secret-pattern scan: PASS; only fictional fixtures and documented
+  credential variable names were present.
+- `swift build`, `swift run ark-probe-selftest`, and `swift test`: BLOCKED
+  before package compilation by the reviewer environment. Installed compiler
+  is Apple Swift 6.3.1 while the Command Line Tools SDK Swift module was built
+  with Apple Swift 6.3; SwiftPM reports an unsupported compiler/SDK mismatch.
+  The default Clang module cache is also sandbox-inaccessible. This is
+  environment/toolchain evidence, not a source compilation failure.
+
+### Findings
+
+1. **[P1] Validate or constrain `Error.Code` before terminal output.**
+   `ArkErrorResponse.code(fromErrorObject:)` trims only outer whitespace and
+   returns the remaining server-controlled string. `renderErrorDiagnostic`
+   then interpolates it verbatim. Accept only a bounded, single-line ASCII
+   machine-code grammar (for example
+   `[A-Za-z0-9][A-Za-z0-9._-]{0,127}`); otherwise render
+   `<unavailable>`. Enforce the invariant at the rendering boundary as well, or
+   use a validated value type, because the renderer is public. Add hostile
+   fixtures for escaped newline, control character, whitespace, excessive
+   length, and direct renderer input.
+
+2. **[P2] Match the strict three-field output contract.**
+   `renderErrorDiagnostic` adds a static `note` line even though the authorized
+   non-2xx contract permits only `httpStatus`, `bodyBytes`, and `errorCode`.
+   Remove the note and assert the exact output line set/count rather than only
+   checking selected substrings.
+
+### Decision
+
+FAIL. Do not push `fd16dc11`. The baseline M0 review in Entry 010 remains PASS,
+but this new diagnostic patch is not accepted until both findings are fixed and
+the additive corrective commit is re-audited.
+
+### Next Action
+
+Claude adds a corrective commit without modifying the signer, request
+parameters, default host, app, Widget, or unrelated providers. Codex then
+re-runs static security review and build/self-test evidence in a compatible
+Swift environment. No additional live probe is needed before the patch passes
+offline review.
+
 ## Entry Template
 
 Copy this template for future entries.
