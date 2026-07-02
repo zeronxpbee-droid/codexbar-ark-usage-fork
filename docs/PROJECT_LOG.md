@@ -1114,6 +1114,66 @@ the probe's sanitized output. Claude removes the literal BEL from the test
 comment in an additive cleanup commit; no signer or behavior changes are
 required.
 
+## Entry 015 — M0 Credentialed Live Probe Resolves Production Host
+
+Date: 2026-07-02
+Actor: Bee (live probe) + Codex (evidence review)
+Type: Verification / Decision
+Status: PASS
+
+### Active Goal
+
+M0 — Fork Bootstrap + Ark Agent Plan API Probe Preparation
+
+### LOOP Result
+
+Used the smallest credentialed verification loop after Entry 014 passed the
+safe diagnostic patch. Bee supplied a newly created IAM Access Key ID / Secret
+Access Key pair only through hidden terminal input and ran the probe against
+both officially documented hosts. No credential value, authorization header,
+request identifier, account identifier, or raw response body was shared or
+persisted.
+
+### Summary
+
+The production host question is resolved by live evidence:
+
+- `ark.cn-beijing.volces.com` returned HTTP 401 with a redacted 210-byte body.
+- `ark.cn-beijing.volcengineapi.com` returned HTTP 200 and the probe safely
+  parsed all four AFP windows: five-hour, daily, weekly, and monthly.
+
+Exact transient quota values are intentionally not persisted in this log. The
+successful response contained only the expected numeric usage/quota/reset
+fields in the probe's redacted output.
+
+### Evidence
+
+- Credentials came from the Volcengine IAM API Access Key management flow, not
+  the Ark model API Key page.
+- The same HMAC signer, action, version, request body, and credential pair were
+  used for both host tests; only `--host` changed.
+- `ark.cn-beijing.volcengineapi.com`: HTTP 200.
+- `GetAFPUsageParser`: successfully produced all four expected windows.
+- No raw response or sensitive identifier was printed.
+
+### Decision
+
+Use `ark.cn-beijing.volcengineapi.com` as the production/default host for the
+M0 probe. The action-specific documentation example using `volces.com` is not
+valid for this live account path, while the general Ark control-plane
+documentation and live result agree on `volcengineapi.com`.
+
+This is evidence for a narrow default-value correction only. It does not
+authorize signer changes, provider integration, Widget work, or entry into M1.
+
+### Next Action
+
+Claude changes only the probe's default host and corresponding tests/docs from
+`ark.cn-beijing.volces.com` to `ark.cn-beijing.volcengineapi.com`, while
+preserving the `--host` override. In the same additive cleanup commit, replace
+the literal U+0007 BEL byte in the test comment with the plain ASCII text
+`U+0007 (BEL)`. Codex then runs the final M0 offline audit before any push.
+
 ## Entry Template
 
 ```text

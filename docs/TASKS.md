@@ -11,7 +11,7 @@ M0 — Fork Bootstrap + Ark Agent Plan API Probe Preparation
 ## Goal Status
 
 ```text
-Status: M0 Diagnostic Patch Review PASS — Awaiting IAM AK/SK Live Probe Result; Source Comment Cleanup Before Push
+Status: M0 Live Probe PASS on volcengineapi.com — Default Host Fix + Source Comment Cleanup Required
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex
