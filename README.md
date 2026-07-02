@@ -1,4 +1,21 @@
-# CodexBar 🎚️ — May your tokens never run out.
+# CodexBar Ark Usage Fork
+
+This repository is a narrow, upstream-compatible fork of
+[CodexBar](https://github.com/steipete/CodexBar). It adds Volcengine Ark Agent
+Plan AFP usage monitoring to the macOS menu bar and desktop Widgets while
+keeping Ark-specific code isolated and shared upstream changes minimal.
+
+Fork-specific governance and product requirements:
+
+- [Project rules](AGENTS.md)
+- [Product requirements](docs/PRD.md)
+- [Current task](docs/TASKS.md)
+- [Project history](docs/PROJECT_LOG.md)
+
+The upstream documentation below remains applicable unless the fork-specific
+documents explicitly define a narrower rule.
+
+## Upstream CodexBar Documentation
 
 > Every AI coding limit, in your menu bar.
 
