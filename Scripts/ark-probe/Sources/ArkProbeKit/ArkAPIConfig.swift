@@ -9,17 +9,21 @@ public enum ArkAPIConfig {
     public static let service = "ark"
     public static let region = "cn-beijing"
 
-    /// UNRESOLVED (M0 open question #1): the `GetAFPUsage` request example uses
-    /// `ark.cn-beijing.volces.com`, while the general control-plane Base URL
-    /// documentation lists `ark.cn-beijing.volcengineapi.com`. Both are exposed
-    /// here so a probe run can try each; production host must be confirmed
-    /// before M1.
+    /// RESOLVED (M0 open question #1, docs/PROJECT_LOG.md Entry 015): a
+    /// credentialed live probe confirmed the production host. Using the same
+    /// signer, action, version, body, and credential pair (only `--host`
+    /// changed), `ark.cn-beijing.volcengineapi.com` returned HTTP 200 and the
+    /// probe parsed all four AFP windows, while the action-doc example host
+    /// `ark.cn-beijing.volces.com` returned HTTP 401. Both cases are retained so
+    /// the `--host` override can still target either endpoint, but the default
+    /// is the confirmed-working control-plane host.
     public enum Host: String, CaseIterable, Sendable {
         case volces = "ark.cn-beijing.volces.com"
         case volcengineapi = "ark.cn-beijing.volcengineapi.com"
     }
 
-    public static let defaultHost: Host = .volces
+    /// Production/default host, confirmed by the Entry 015 live probe.
+    public static let defaultHost: Host = .volcengineapi
 
     /// Query items required on the signed request.
     public static func queryItems() -> [(String, String)] {

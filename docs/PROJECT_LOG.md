@@ -1174,6 +1174,107 @@ preserving the `--host` override. In the same additive cleanup commit, replace
 the literal U+0007 BEL byte in the test comment with the plain ASCII text
 `U+0007 (BEL)`. Codex then runs the final M0 offline audit before any push.
 
+## Entry 016 — M0 Default-Host Correction + Source Comment Cleanup
+
+Date: 2026-07-02
+Actor: Claude (Developer)
+Type: Development
+Status: IMPLEMENTED / UNVERIFIED
+
+### Active Goal
+
+M0 — Fork Bootstrap + Ark Agent Plan API Probe Preparation
+
+### LOOP Result
+
+Development Loop. Planner/Generator/Evaluator/Recorder = Claude; final audit
+delegated to Codex. Verified real HEAD `676391d2` and that Entry 015 = PASS is
+present on disk before editing; Entry 015 was NOT modified. Minimal, additive
+default-value correction only — no signer or algorithm change. Safe restart
+boundary: the isolated `Scripts/ark-probe/` package; no push/amend/rebase.
+
+### Summary
+
+Applies the Entry 015 decision as the smallest possible code/doc change:
+
+- `ArkAPIConfig.defaultHost` changed from `.volces` to `.volcengineapi`
+  (`ark.cn-beijing.volcengineapi.com`), the host that returned HTTP 200 in the
+  live probe. The doc comment on `Host` was updated from "UNRESOLVED open
+  question" to "RESOLVED by Entry 015", and `defaultHost` now notes it is the
+  confirmed production host.
+- Both `Host` enum cases (`.volces`, `.volcengineapi`) and the `--host` override
+  are retained, so either endpoint can still be targeted.
+- The signer algorithm was NOT changed. The existing fixed signature/parser
+  test vectors that use `volces.com`
+  (`VolcengineArkSignerTests`, `GetAFPUsageParserTests`, and the signer block of
+  `ArkProbeSelfTest`) were left intact — they are independent algorithm vectors
+  and do not represent the default host. A clarifying comment was added in the
+  selftest to make that separation explicit.
+- Added `ArkAPIConfigTests` asserting `defaultHost.rawValue ==
+  "ark.cn-beijing.volcengineapi.com"`, that both cases remain available for
+  override, and that the static API facts are unchanged. The dependency-free
+  `ark-probe-selftest` gained the same default-host assertions in a new
+  `== config ==` block.
+- Replaced the literal U+0007 BEL byte in the `ArkErrorResponseTests` control-
+  character test comment with the plain ASCII text `U+0007 (BEL)`; zero raw BEL
+  bytes remain in the file.
+- Updated `Scripts/ark-probe/README.md`: the dry-run default host is now
+  `volcengineapi.com`, and the production host moved from "Open questions" to a
+  new "Confirmed conclusions" section. Updated `docs/TASKS.md` Confirmed API
+  Findings (added item 8) and removed the resolved host from Open Questions.
+
+App, Widget, other providers, request parameters, and the signing algorithm were
+not touched. No network calls; no AK/SK requested. M1 was not entered.
+
+### Files Changed
+
+```text
+Scripts/ark-probe/Sources/ArkProbeKit/ArkAPIConfig.swift            (defaultHost -> .volcengineapi; comment RESOLVED)
+Scripts/ark-probe/Sources/ArkProbeSelfTest/main.swift              (add == config == default-host checks; clarify signer vector comment)
+Scripts/ark-probe/Tests/ArkProbeKitTests/ArkAPIConfigTests.swift   (new: default-host + override + facts assertions)
+Scripts/ark-probe/Tests/ArkProbeKitTests/ArkErrorResponseTests.swift (BEL byte -> "U+0007 (BEL)")
+Scripts/ark-probe/README.md                                        (default host + Confirmed conclusions)
+docs/TASKS.md                                                      (status; Confirmed Findings item 8; Open Questions)
+docs/PROJECT_LOG.md                                                (this entry)
+```
+
+### Evidence
+
+```text
+- git rev-parse --short HEAD before edits: 676391d2 (Entry 015 PASS present, not modified).
+- Raw BEL scan after edit: grep -c $'\x07' on ArkErrorResponseTests.swift -> 0.
+- Static scope check: signer (VolcengineArkSigner.swift) untouched; volces.com
+  fixed signature/parser vectors untouched (diff limited to config default +
+  new config tests + comment + docs).
+- git diff --check: clean.
+- Swift build / swift run ark-probe-selftest / swift test: NOT RUN here (no Swift
+  toolchain in this environment). Deferred to Codex — Status IMPLEMENTED / UNVERIFIED.
+```
+
+Codex verification commands:
+
+```text
+cd Scripts/ark-probe
+swift build
+swift run ark-probe-selftest      # expect SELFTEST OK, exit 0 (now includes == config == checks)
+swift test                        # if a test runner is available
+```
+
+### Issues / Risks
+
+Not compiled/executed in a Swift environment; build and self-test correctness are
+unverified pending Codex.
+
+### Decision
+
+Adopt `ark.cn-beijing.volcengineapi.com` as the probe default while keeping the
+`--host` override and the independent `volces.com` signature vectors intact.
+
+### Next Action
+
+Codex runs the final M0 offline audit (`swift build` / `swift run
+ark-probe-selftest`) and records PASS or FAIL. No push/amend/rebase by Claude.
+
 ## Entry Template
 
 ```text

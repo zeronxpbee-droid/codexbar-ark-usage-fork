@@ -98,7 +98,7 @@ final class ArkErrorResponseTests: XCTestCase {
     }
 
     func test_rejectsCodeWithControlCharacter() {
-        //  (BEL) embedded in the code value.
+        // U+0007 (BEL) embedded in the code value.
         XCTAssertNil(ArkErrorResponse.extractErrorCode(
             from: Data("{ \"Error\": { \"Code\": \"Alert\\u0007Bell\" } }".utf8)))
         XCTAssertNil(ArkErrorResponse.validatedCode("Tab\tSeparated"))

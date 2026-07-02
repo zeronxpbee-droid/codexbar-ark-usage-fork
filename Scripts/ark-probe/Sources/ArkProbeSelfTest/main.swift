@@ -53,12 +53,31 @@ final class Checker {
 
 let c = Checker()
 
+// MARK: - API config (default host resolved by Entry 015 live probe)
+
+print("== config ==")
+// PROJECT_LOG Entry 015: volcengineapi.com -> HTTP 200, volces.com -> HTTP 401.
+c.equal(
+    "default host is the confirmed control-plane host",
+    ArkAPIConfig.defaultHost.rawValue,
+    "ark.cn-beijing.volcengineapi.com")
+c.check("default host case is .volcengineapi", ArkAPIConfig.defaultHost == .volcengineapi)
+// Both cases stay available so `--host` can still target either endpoint.
+c.equal("override case .volces retained", ArkAPIConfig.Host.volces.rawValue, "ark.cn-beijing.volces.com")
+c.equal(
+    "override case .volcengineapi retained",
+    ArkAPIConfig.Host.volcengineapi.rawValue,
+    "ark.cn-beijing.volcengineapi.com")
+
 // MARK: - Fixed, non-real signing inputs (mirror volc_sign_reference.py exactly)
 
 let ak = "AKTESTEXAMPLE000000000"
 let sk = "TESTSECRET0000000000000000000000"
 let region = "cn-beijing"
 let service = "ark"
+// NOTE: this `host` is an independent signature test vector mirroring
+// volc_sign_reference.py; it is intentionally volces.com and does NOT represent
+// the probe's default host (see the config checks above / Entry 015).
 let host = "ark.cn-beijing.volces.com"
 // 2026-07-02T00:00:00Z
 let fixedDate = Date(timeIntervalSince1970: 1_782_950_400)

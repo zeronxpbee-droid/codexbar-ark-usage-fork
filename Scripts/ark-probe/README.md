@@ -53,8 +53,8 @@ swift test
 Optional dry-run (safe, no network; requires the two env vars to be set):
 
 ```bash
-swift run ark-probe                 # dry-run, default host ark.cn-beijing.volces.com
-swift run ark-probe --host ark.cn-beijing.volcengineapi.com
+swift run ark-probe                 # dry-run, default host ark.cn-beijing.volcengineapi.com
+swift run ark-probe --host ark.cn-beijing.volces.com
 ```
 
 A live probe (Bee-authorized only):
@@ -73,11 +73,19 @@ tests cross-check against a second implementation. Re-run the reference with:
 python3 reference/volc_sign_reference.py
 ```
 
+## Confirmed conclusions
+
+- **Production host: `ark.cn-beijing.volcengineapi.com`.** Resolved by the
+  credentialed live probe in docs/PROJECT_LOG.md Entry 015: with the same
+  signer, action, version, body, and credentials (only `--host` changed), this
+  host returned HTTP 200 and the probe parsed all four AFP windows, while
+  `ark.cn-beijing.volces.com` returned HTTP 401. This is now the probe's default
+  host; `--host` can still target either endpoint.
+
 ## Open questions carried from M0
 
-1. Production host: `ark.cn-beijing.volces.com` vs `ark.cn-beijing.volcengineapi.com`.
-2. Least-privilege IAM policy for `GetAFPUsage`.
-3. The signing spec assumptions (algorithm label, scope terminator `request`,
+1. Least-privilege IAM policy for `GetAFPUsage`.
+2. The signing spec assumptions (algorithm label, scope terminator `request`,
    signing-key seed without `AWS4` prefix, `X-Date`/`X-Content-Sha256` headers)
    are documented inline in `VolcengineArkSigner.swift` and must be confirmed
    against the official Volcengine signing reference before M1.

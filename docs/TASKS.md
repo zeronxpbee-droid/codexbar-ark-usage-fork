@@ -11,7 +11,7 @@ M0 — Fork Bootstrap + Ark Agent Plan API Probe Preparation
 ## Goal Status
 
 ```text
-Status: M0 Live Probe PASS on volcengineapi.com — Default Host Fix + Source Comment Cleanup Required
+Status: M0 Live Probe PASS on volcengineapi.com — Default Host Fix + Source Comment Cleanup IMPLEMENTED (Entry 016), Awaiting Codex Final Audit
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex
@@ -230,6 +230,10 @@ Official Volcengine documentation confirms:
 7. The signer strategy is a dedicated Volcengine signer using `swift-crypto`
    and the official HMAC-SHA256 signing chain. Test execution and session-token
    handling must pass review before acceptance.
+8. Production host is `ark.cn-beijing.volcengineapi.com`, confirmed by the
+   credentialed live probe (docs/PROJECT_LOG.md Entry 015): HTTP 200 with all
+   four AFP windows parsed, while `ark.cn-beijing.volces.com` returned HTTP 401.
+   This is the probe's default host; `--host` can still target either endpoint.
 
 ## Current Open Questions
 
