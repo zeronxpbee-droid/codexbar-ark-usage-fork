@@ -25,16 +25,20 @@ import Foundation
 ///   5. Payload hash header is `X-Content-Sha256`.
 ///   6. Signed headers are the lowercased, semicolon-joined, sorted set of
 ///      `content-type;host;x-content-sha256;x-date`.
+///
+/// Session tokens (STS `X-Security-Token`) are intentionally NOT supported in
+/// M0: the official spec requires that header to be part of the canonical
+/// signed headers, and Agent Plan uses long-lived IAM AK/SK. Rather than emit an
+/// unsigned token header, M0 accepts AK/SK only. STS support can be added later
+/// with the token folded into the canonical header set and its own test vector.
 public enum VolcengineArkSigner {
     public struct Credentials: Sendable {
         public let accessKeyID: String
         public let secretAccessKey: String
-        public let sessionToken: String?
 
-        public init(accessKeyID: String, secretAccessKey: String, sessionToken: String? = nil) {
+        public init(accessKeyID: String, secretAccessKey: String) {
             self.accessKeyID = accessKeyID
             self.secretAccessKey = secretAccessKey
-            self.sessionToken = sessionToken
         }
     }
 
@@ -138,16 +142,13 @@ public enum VolcengineArkSigner {
             + "SignedHeaders=\(signedHeaders), "
             + "Signature=\(signature)"
 
-        var headers: [String: String] = [
+        let headers: [String: String] = [
             "Content-Type": input.contentType,
             "Host": input.host,
             "X-Content-Sha256": bodyHash,
             "X-Date": xDate,
             "Authorization": authorization,
         ]
-        if let sessionToken = credentials.sessionToken {
-            headers["X-Security-Token"] = sessionToken
-        }
 
         return SignedResult(
             headers: headers,

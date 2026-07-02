@@ -24,12 +24,29 @@ Compilation and test evidence must be produced on macOS/Codex (see below).
   Bee (M0 rule). Live output is redacted — only window names + numeric quota
   fields; the raw envelope, request IDs, account identifiers, and the signature
   are never printed.
+- Session tokens (STS `X-Security-Token`) are **not** supported in M0. The
+  official spec requires that header to be part of the canonical signed headers;
+  rather than emit an unsigned token header, the signer accepts long-lived IAM
+  AK/SK only.
 
 ## Commands for Codex (produce M0 evidence on macOS)
+
+The self-test target has **no test-framework dependency**, so it runs under
+plain Command Line Tools (no full Xcode / `xctest` required):
 
 ```bash
 cd Scripts/ark-probe
 swift build
+swift run ark-probe-selftest     # deterministic offline checks; exits non-zero on failure
+```
+
+`swift-crypto` is pinned `exact: "3.15.1"` and `Package.resolved` is committed,
+so dependency resolution is reproducible.
+
+If a full Xcode / `xctest` runner is available, the XCTest suite covers the same
+assertions:
+
+```bash
 swift test
 ```
 

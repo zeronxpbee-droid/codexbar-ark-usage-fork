@@ -554,6 +554,101 @@ Claude / GLM fixes the three findings in a new local commit without rewriting
 history or pushing. Codex then re-runs build, deterministic self-tests, dry-run,
 scope/security review, and records a new PASS/FAIL entry.
 
+## Entry 009 — M0 Ark Probe Audit Fixes (Findings 1–3)
+
+Date: 2026-07-02
+Actor: Claude (Developer)
+Type: Bugfix / Development
+Status: IMPLEMENTED / UNVERIFIED
+
+### Active Goal
+
+M0 — Fork Bootstrap + Ark Agent Plan API Probe Preparation
+
+### LOOP Result
+
+Development Loop. Ran LOOP self-check before and after. Smallest useful loop:
+address the three Codex findings from Entry 008 in a NEW local commit on top of
+`e26932cd` (no amend/rebase/push). Evidence path was reworked so the reviewer's
+Command-Line-Tools environment can verify without a test runner. Rollback =
+revert this single commit (Ark logic stays isolated in `Scripts/ark-probe/`).
+
+### Summary
+
+Corrected the three Entry 008 findings:
+
+1. **P1 — No runnable offline test evidence (fixed).** Added a dependency-free
+   `ark-probe-selftest` executable target
+   (`Sources/ArkProbeSelfTest/main.swift`) that reproduces the signer, parser,
+   and sanitizer assertions using only the public API + Foundation, prints one
+   line per check, and exits non-zero on any failure. It runs under plain
+   Command Line Tools via `swift run ark-probe-selftest` — no XCTest/xctest
+   required. The XCTest suite is retained for environments that have a runner.
+2. **P1 — Session token not signed (fixed by removal).** Removed `sessionToken`
+   from `Credentials` and stopped emitting the unsigned `X-Security-Token`
+   header. M0 now accepts long-lived IAM AK/SK only; STS support is deferred
+   until it can be folded into the canonical signed headers with its own vector.
+   Documented inline and in the README.
+3. **P2 — Non-reproducible dependency (fixed).** Pinned `swift-crypto` to
+   `exact: "3.15.1"` in `Package.swift` and committed
+   `Scripts/ark-probe/Package.resolved` (swift-crypto 3.15.1, swift-asn1 1.7.1).
+
+### Files Changed
+
+```text
+Scripts/ark-probe/Package.swift
+Scripts/ark-probe/Package.resolved            (new — committed)
+Scripts/ark-probe/Sources/ArkProbeKit/VolcengineArkSigner.swift
+Scripts/ark-probe/Sources/ArkProbeSelfTest/main.swift   (new)
+Scripts/ark-probe/README.md
+docs/PROJECT_LOG.md
+```
+
+### Evidence
+
+- `python3 reference/volc_sign_reference.py` re-run: outputs unchanged and match
+  the values asserted by both the self-test and the XCTest suite (body hash
+  `44136fa3…`, signed headers `content-type;host;x-content-sha256;x-date`,
+  scope `20260702/cn-beijing/ark/request`, signature `0b9d4a47…`).
+- `git diff --cached --check`: clean.
+- Isolation re-verified: staged files are only under `Scripts/ark-probe/` +
+  `docs/PROJECT_LOG.md`; root `Package.swift` and `Sources/` untouched.
+- Secret scan: only fake fixture AK (`AKTESTEXAMPLE…`) and env-var names.
+- **NOT YET VERIFIED**: `swift build` / `swift run ark-probe-selftest` were NOT
+  run here — this Linux workspace has no Swift toolchain. Compilation/self-test
+  evidence must be produced on macOS/Codex.
+
+### Commands for Codex to run (M0 evidence)
+
+```bash
+cd Scripts/ark-probe
+swift build
+swift run ark-probe-selftest   # exits non-zero on failure; no XCTest needed
+# optional, if a full Xcode/xctest runner is present:
+swift test
+```
+
+### Issues / Risks
+
+- Status is IMPLEMENTED / UNVERIFIED, NOT PASS. If macOS `swift build` /
+  `swift run ark-probe-selftest` fails, M0 does not pass; Claude fixes and
+  re-commits.
+- Signing spec assumptions and the two open questions (production host
+  `volces.com` vs `volcengineapi.com`; least-privilege IAM policy) remain
+  documented and unresolved, to be confirmed against the official Volcengine
+  reference before M1.
+
+### Decision
+
+Corrective work delivered as a new local commit on top of `e26932cd` — no
+amend, no rebase, no push, no PR. Real network probe remains gated on Bee.
+
+### Next Action
+
+Codex re-runs `swift build` + `swift run ark-probe-selftest` (and optionally
+`swift test`) on macOS, re-audits scope/security/upstream boundary, and records
+a new PASS/FAIL entry.
+
 ## Entry Template
 
 Copy this template for future entries.
