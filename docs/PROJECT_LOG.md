@@ -1050,6 +1050,70 @@ Codex re-runs static security review and `swift build` / `swift run
 ark-probe-selftest` in a compatible environment and records PASS or FAIL. No
 push, amend, or rebase by Claude.
 
+## Entry 014 — M0 Untrusted Error-Code Hardening Re-Audit
+
+Date: 2026-07-02
+Actor: Codex
+Type: Review
+Status: PASS
+
+### Active Goal
+
+M0 — Fork Bootstrap + Ark Agent Plan API Probe Preparation
+
+### LOOP Result
+
+Re-reviewed corrective commit
+`f0e6459ee949d8ec880903090c003781c4863979` against Entry 012 only.
+Required evidence was bounded error-code validation at both extraction and
+rendering boundaries, exact diagnostic fields, hostile-input tests, build and
+test execution, redacted dry-run behavior, scope isolation, and secret safety.
+No product code was modified by Codex.
+
+### Summary
+
+Both Entry 012 findings are closed. Server-controlled `Error.Code` values are
+accepted only when they match the bounded ASCII machine-code grammar, and the
+public renderer independently re-validates its input. The extra note line was
+removed, leaving the stable header plus exactly three diagnostic fields.
+
+### Evidence
+
+- `swift build`: PASS with Apple Swift 6.3.3 / Xcode 26.6.
+- `swift run ark-probe-selftest`: PASS, 66/66 checks.
+- `swift test`: PASS, 31 tests, 0 failures.
+- Fake-credential dry-run: PASS; signed request shape remains redacted and no
+  network request was made.
+- Swift frontend syntax parse for all changed Swift files: PASS.
+- `git diff --check 62190348..f0e6459e`: PASS.
+- Scope is limited to the isolated error diagnostic, its tests, and governance
+  documents; signer, request parameters, default host, App, Widget, and other
+  providers are untouched.
+- Targeted secret scan found no real credentials.
+
+### Issues / Risks
+
+- `ArkErrorResponseTests.swift` contains a literal U+0007 BEL control byte in a
+  test comment. It does not affect compilation, runtime behavior, or test
+  results, so it is non-blocking for the authorized live probe. Replace it with
+  the plain ASCII text `U+0007 (BEL)` before push.
+- The correct production host and the live account response remain unresolved.
+  The next Bee-run probe must use a real IAM Access Key ID / Secret Access Key
+  pair, not an Ark model API Key.
+
+### Decision
+
+PASS for the M0 safe diagnostic patch and for proceeding with the already
+authorized, Bee-run live probe. Do not push until the non-runtime BEL comment
+cleanup is complete and recorded.
+
+### Next Action
+
+Bee runs the redacted live probe using environment-only IAM AK/SK. Capture only
+the probe's sanitized output. Claude removes the literal BEL from the test
+comment in an additive cleanup commit; no signer or behavior changes are
+required.
+
 ## Entry Template
 
 ```text

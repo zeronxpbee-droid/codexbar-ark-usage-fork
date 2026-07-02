@@ -11,7 +11,7 @@ M0 — Fork Bootstrap + Ark Agent Plan API Probe Preparation
 ## Goal Status
 
 ```text
-Status: M0 Baseline Review PASS — Live Probe HTTP 401; Untrusted Error-Code Hardening Patch (Entry 013) Awaiting Codex Re-audit
+Status: M0 Diagnostic Patch Review PASS — Awaiting IAM AK/SK Live Probe Result; Source Comment Cleanup Before Push
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex
