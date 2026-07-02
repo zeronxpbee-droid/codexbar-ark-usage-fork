@@ -1344,6 +1344,64 @@ the status to await Codex re-audit, and appends a short developer correction
 entry to `docs/PROJECT_LOG.md`. Codex then performs a documentation-only
 re-audit; the already-passing executable evidence need not be changed.
 
+## Entry 018 — M0 Documentation Drift Corrected and Final Audit Closed
+
+Date: 2026-07-02
+Actor: Codex
+Type: Documentation / Review
+Status: PASS
+
+### Active Goal
+
+M0 — Fork Bootstrap + Ark Agent Plan API Probe Preparation
+
+### LOOP Result
+
+Bee explicitly authorized Codex to correct the documentation-only finding from
+Entry 017 after all implementation and executable verification had passed. The
+smallest loop was limited to removing the resolved production-host question
+from `docs/TASKS.md`, renumbering the remaining questions, and recording the
+final review result. No source, test, README, credential, network, or GitHub
+state was changed.
+
+### Summary
+
+The internal `docs/TASKS.md` contradiction identified in Entry 017 is closed.
+`ark.cn-beijing.volcengineapi.com` remains recorded only as a confirmed API
+finding and is no longer listed as an open question. The remaining open
+questions are:
+
+1. Least-privilege IAM policy for `GetAFPUsage`.
+2. CodexBar usage-model mapping for multiple reset windows.
+3. Widget default-window behavior.
+
+### Evidence
+
+- `docs/TASKS.md` contains one confirmed production-host decision and no
+  competing open production-host question.
+- Entry 015 remains the live-probe source of truth.
+- Entry 016 remains the implementation record.
+- Entry 017 remains the immutable failed review record that led to this
+  correction.
+- The executable evidence from Entry 017 remains valid:
+  - `swift build`: PASS.
+  - `swift run ark-probe-selftest`: PASS, 70/70 checks.
+  - `swift test`: PASS, 34 tests, 0 failures.
+  - Redacted default-host dry-run: PASS.
+- This correction changes only `docs/TASKS.md` and `docs/PROJECT_LOG.md`.
+
+### Decision
+
+PASS. M0 implementation, live probe, default-host correction, security
+hardening, executable verification, and documentation consistency are complete.
+No push, merge, or entry into M1 is authorized by this record alone.
+
+### Next Action
+
+Bee decides whether Codex may push the reviewed branch/update the draft PR and
+whether M0 may be completed so `docs/TASKS.md` can be advanced to an explicitly
+approved M1 Active Goal.
+
 ## Entry Template
 
 ```text

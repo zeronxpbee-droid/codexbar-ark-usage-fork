@@ -11,7 +11,7 @@ M0 — Fork Bootstrap + Ark Agent Plan API Probe Preparation
 ## Goal Status
 
 ```text
-Status: M0 Final Audit FAIL — Remove Resolved Production Host from Current Open Questions
+Status: M0 Final Audit PASS — Awaiting Bee Approval to Complete M0 / Enter M1
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex
@@ -239,12 +239,9 @@ Official Volcengine documentation confirms:
 
 These must be resolved during M0 or before the indicated integration milestone:
 
-1. The action example uses `ark.cn-beijing.volces.com`, while the general
-   control-plane documentation lists `ark.cn-beijing.volcengineapi.com`. Which
-   host should the production client use?
-2. What is the least-privilege IAM action/policy required for `GetAFPUsage`?
-3. Which CodexBar usage model best fits quota windows with multiple reset periods?
-4. Should the Widget default to 5-hour usage or highest-risk usage?
+1. What is the least-privilege IAM action/policy required for `GetAFPUsage`?
+2. Which CodexBar usage model best fits quota windows with multiple reset periods?
+3. Should the Widget default to 5-hour usage or highest-risk usage?
 
 ## Current Decision
 
