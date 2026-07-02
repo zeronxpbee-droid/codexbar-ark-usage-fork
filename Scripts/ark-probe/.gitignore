@@ -1,0 +1,6 @@
+# Swift build artifacts
+.build/
+*.xcodeproj
+# Python reference cache
+reference/__pycache__/
+*.pyc

@@ -370,6 +370,106 @@ Claude / GLM may start M0 in the assigned checkout, create scoped local commits,
 run the required checks, and hand the evidence back to Codex. Codex will inspect
 and push those commits before auditing the completed M0 scope.
 
+## Entry 007 — M0 Ark GetAFPUsage Probe Implemented (Isolated Package)
+
+Date: 2026-07-02
+Actor: Claude (Developer)
+Type: Development
+Status: IMPLEMENTED / UNVERIFIED
+
+### Active Goal
+
+M0 — Fork Bootstrap + Ark Agent Plan API Probe Preparation
+
+### LOOP Result
+
+Development Loop. Ran a LOOP self-check before starting (pre-dev confirmation
+report → READY) and before delivery. Smallest useful loop: an isolated,
+offline-testable local probe for `GetAFPUsage` signing + response shape, with
+no app integration. Evidence = independent-reference signature vectors + static
+checks now, `swift build`/`swift test` deferred to macOS. Scope kept to a
+standalone package; no provider/widget/registry edits. Rollback = delete
+`Scripts/ark-probe/` or revert this commit.
+
+### Summary
+
+Implemented the M0 probe as a fully standalone Swift Package at
+`Scripts/ark-probe/`, per Bee's decision. It is not referenced by the root
+`Package.swift` or `Sources/CodexBar*` and imports no CodexBar module; it reuses
+only `swift-crypto`. Contents: `VolcengineArkSigner` (HMAC-SHA256, structurally
+derived from `BedrockAWSSigner` but implementing the Volcengine signing spec),
+`GetAFPUsage` response models + tolerant parser (top-level or nested `Result`),
+a redacting report renderer, a dry-run-by-default CLI (env-var credentials only),
+and offline unit tests. Also added `docs/M0_INTEGRATION_BOUNDARY.md` mapping the
+Ark-owned files vs shared upstream integration points (S1–S7) for M1–M4 with
+conflict risk, rollback, and the upstream-sync procedure.
+
+### Files Changed
+
+```text
+Scripts/ark-probe/Package.swift
+Scripts/ark-probe/README.md
+Scripts/ark-probe/.gitignore
+Scripts/ark-probe/Sources/ArkProbeKit/VolcengineArkSigner.swift
+Scripts/ark-probe/Sources/ArkProbeKit/ArkAPIConfig.swift
+Scripts/ark-probe/Sources/ArkProbeKit/GetAFPUsageResponse.swift
+Scripts/ark-probe/Sources/ArkProbeKit/SanitizedUsageReport.swift
+Scripts/ark-probe/Sources/ArkProbe/main.swift
+Scripts/ark-probe/Tests/ArkProbeKitTests/VolcengineArkSignerTests.swift
+Scripts/ark-probe/Tests/ArkProbeKitTests/GetAFPUsageParserTests.swift
+Scripts/ark-probe/reference/volc_sign_reference.py
+docs/M0_INTEGRATION_BOUNDARY.md
+docs/PROJECT_LOG.md
+```
+
+### Evidence
+
+- Signature test vectors were computed by an INDEPENDENT Python reference
+  (`reference/volc_sign_reference.py`), not by the Swift implementation, then
+  hardcoded into the Swift tests. Fixed inputs: date 2026-07-02T00:00:00Z,
+  non-real AK/SK, region `cn-beijing`, service `ark`, host
+  `ark.cn-beijing.volces.com`, query `Action=GetAFPUsage&Version=2024-01-01`,
+  body `{}`. Reference outputs (stable across runs):
+  - body_hash `44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a`
+  - signed_headers `content-type;host;x-content-sha256;x-date`
+  - credential_scope `20260702/cn-beijing/ark/request`
+  - signature `0b9d4a47c69fbb15135625cad9f6309b7e478bca238e816897505b9373186e96`
+- `git diff --check` / `git diff --cached --check`: clean (no whitespace/conflict markers).
+- Secret scan of new files: no real credentials; only env-var names, test names,
+  and deliberately-fake fixture identifiers (which a test asserts are stripped).
+- **NOT YET VERIFIED**: `swift build` and `swift test` were NOT run — this Linux
+  workspace has no Swift toolchain and no root access. Compilation/test evidence
+  must be produced on macOS/Codex.
+
+### Commands for Codex to run (M0 evidence)
+
+```bash
+cd Scripts/ark-probe
+swift build
+swift test
+```
+
+### Issues / Risks
+
+- Status is IMPLEMENTED / UNVERIFIED, NOT PASS. If macOS `swift build`/`swift test`
+  fails, M0 does not pass; Claude fixes and re-commits.
+- Signing spec assumptions (algorithm label `HMAC-SHA256`, scope terminator
+  `request`, signing-key seed without `AWS4` prefix, `X-Date`/`X-Content-Sha256`)
+  are documented inline but must be confirmed against the official Volcengine
+  signing reference before M1. Open questions: production host (volces.com vs
+  volcengineapi.com) and least-privilege IAM policy remain unresolved.
+
+### Decision
+
+M0 implementation is delivered as a local commit (no push, no PR). Real network
+probe remains gated on Bee's explicit authorization.
+
+### Next Action
+
+Codex runs `swift build` / `swift test` on macOS, audits scope/security/upstream
+boundary, and records a PASS/FAIL in this log. Bee authorizes the live probe if
+desired.
+
 ## Entry Template
 
 Copy this template for future entries.
