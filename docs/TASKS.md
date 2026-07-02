@@ -11,11 +11,25 @@ M0 — Fork Bootstrap + Ark Agent Plan API Probe Preparation
 ## Goal Status
 
 ```text
-Status: Repository Bootstrap In Progress
+Status: Ready for Developer Start
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
+```
+
+## Repository Baseline
+
+```text
+Fork: https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork
+Visibility: Public GitHub Fork
+origin: https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork.git
+upstream: https://github.com/steipete/CodexBar.git
+Upstream push: Disabled
+Default branch: main
+Upstream baseline: 6ab1cbb7daee73b8ad531fbdd420e9aa6eb6d26b
+M0 branch: feature/m0-bootstrap-ark-probe
+M0 draft PR: https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/1
 ```
 
 ## Mandatory Pre-Execution Rule
@@ -86,7 +100,8 @@ Claude / GLM must not:
 
 ## Next Task for Claude / GLM
 
-0. Receive the M0 branch / worktree from Codex after repository bootstrap.
+0. Work only in the assigned `feature/m0-bootstrap-ark-probe` checkout and create
+   local commits without pushing.
 
 1. Read these files:
 

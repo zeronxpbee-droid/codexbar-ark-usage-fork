@@ -306,7 +306,7 @@ Codex waits for the M0 implementation and evidence package before auditing.
 Date: 2026-07-02
 Actor: Bee + Codex
 Type: Decision / Documentation
-Status: IN PROGRESS
+Status: PASS
 
 ### Active Goal
 
@@ -323,7 +323,8 @@ manage remotes, branches, worktrees, pushes, or PRs.
 
 Bee assigned GitHub Fork creation, local repository bootstrap, remotes,
 worktrees, branches, pushes, and PR operations to Codex because Claude does not
-have complete Git permissions.
+have complete Git permissions. The public Fork, local checkout, remotes, M0
+branch, governance commit, push, and draft PR were created successfully.
 
 ### Files Changed
 
@@ -338,23 +339,36 @@ docs/PROJECT_LOG.md
 
 - GitHub account identified as `zeronxpbee-droid`.
 - Official upstream confirmed as `steipete/CodexBar`, default branch `main`.
-- GitHub CLI is installed, but its existing authentication token was invalid.
-- GitHub CLI device reauthorization was started.
+- GitHub CLI device reauthorization completed successfully.
+- Fork: `https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork`.
+- Fork visibility: public.
+- `origin`: `https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork.git`.
+- `upstream`: `https://github.com/steipete/CodexBar.git`.
+- Upstream push URL is disabled to prevent accidental pushes.
+- Fork `main` and upstream `main` matched at
+  `6ab1cbb7daee73b8ad531fbdd420e9aa6eb6d26b`.
+- M0 branch: `feature/m0-bootstrap-ark-probe`.
+- Governance commit: `4821e59a0f9bd7cb7d4d821750c735f72fbd8d92`.
+- Draft PR: `https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/1`.
+- `git diff --cached --check` passed before the governance commit.
 
 ### Issues / Risks
 
-Fork creation and remote push are pending successful GitHub CLI authorization.
+GitHub requires a Fork of the public upstream repository to remain public.
+Future upstream changes can still conflict with the documented shared
+integration points and must be synchronized through dedicated maintenance PRs.
 
 ### Decision
 
 Codex is the repository operator and independent auditor. Claude / GLM remains
-the implementation owner and local commit author.
+the implementation owner and local commit author. The fork's `main` remains at
+the upstream baseline; M0 work is isolated in its draft PR branch.
 
 ### Next Action
 
-Complete GitHub authorization, create the Fork, preserve upstream history,
-configure remotes, create the M0 branch / worktree, push the governance baseline,
-and then mark the repository ready for developer start.
+Claude / GLM may start M0 in the assigned checkout, create scoped local commits,
+run the required checks, and hand the evidence back to Codex. Codex will inspect
+and push those commits before auditing the completed M0 scope.
 
 ## Entry Template
 
