@@ -1448,6 +1448,80 @@ Codex commits this governance transition locally. Claude resumes on
 and implements only the authorized M1 scope in additive local commits without
 push.
 
+## Entry 020 — M1 Credential Storage Boundary Aligned with Upstream
+
+Date: 2026-07-02
+Actor: Bee (decision) + Codex (governance update)
+Type: Decision / Documentation
+Status: APPROVED
+
+### Active Goal
+
+M1 — Ark Provider Menu Bar MVP
+
+### LOOP Result
+
+The smallest useful loop was limited to resolving the documented credential
+blocker. Codex compared the fork rules, M1 scope, and upstream Bedrock
+credential path; no product implementation was changed.
+
+### Summary
+
+- Bee chose upstream compatibility over an Ark-specific Keychain subsystem.
+- Ark M1 will follow upstream Bedrock's static-credential pattern:
+  - Access Key ID in `ProviderConfig.apiKey`.
+  - Secret Access Key in `ProviderConfig.secretKey`.
+  - Persistence through `CodexBarConfigStore` with POSIX mode `0600`.
+  - Runtime projection through `ProviderConfigEnvironment`.
+- Added S8 as the single additional M1 shared integration point required for
+  that projection.
+- Clarified that mode `0600` is filesystem-permission protection, not at-rest
+  encryption.
+- No source code, tests, credentials, generated config, or remotes were changed.
+
+### Files Changed
+
+- `AGENTS.md`
+- `docs/PRD.md`
+- `docs/TASKS.md`
+- `docs/M0_INTEGRATION_BOUNDARY.md`
+- `docs/PROJECT_LOG.md`
+
+### Evidence
+
+- Upstream `BedrockSettingsStore` stores its pair in
+  `ProviderConfig.apiKey` / `secretKey`.
+- Upstream `CodexBarConfigStore` serializes config to the resolved
+  `config.json` and applies POSIX mode `0600`.
+- Upstream `ProviderConfigEnvironment.applyBedrockOverrides` projects the pair
+  into the provider's in-memory environment.
+- Upstream documentation states that API keys are stored in the resolved
+  CodexBar config (`~/.config/codexbar/config.json` for new installs, with the
+  legacy path still supported) and the CLI writes the file with `0600`
+  permissions.
+
+### Issues / Risks
+
+- The AK/SK pair is not encrypted at rest; the current user or a privileged
+  process able to read the config file can obtain it.
+- S8 is a shared upstream file and therefore adds one line-local conflict
+  surface during future upstream synchronization.
+- These risks are explicitly accepted to avoid a competing credential
+  subsystem and reduce long-term fork divergence.
+
+### Decision
+
+The previous blanket ban on unencrypted local credential storage is narrowed:
+the upstream CodexBar config store with enforced mode `0600` is the sole
+approved static-provider exception. Custom plaintext credential files remain
+forbidden. M1 may touch S1–S4 and S8 only.
+
+### Next Action
+
+Claude / GLM re-reads the updated governance documents, confirms the approved
+S8 plan, and proceeds with the smallest M1 implementation loop. It must stop
+again if implementation requires any shared touchpoint beyond S1–S4 and S8.
+
 ## Entry Template
 
 ```text

@@ -11,7 +11,7 @@ M1 — Ark Provider Menu Bar MVP
 ## Goal Status
 
 ```text
-Status: M1 Approved by Bee — Ready for Claude / GLM Development
+Status: M1 Approved by Bee — Credential Boundary Resolved — Ready for Claude / GLM Development
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex
@@ -74,8 +74,11 @@ Claude / GLM may:
   - S2 — `IconStyle` Ark case, only if required by the descriptor pattern.
   - S3 — provider descriptor registration.
   - S4 — provider implementation registration.
-- Reuse the existing CodexBar credential/config mechanism or macOS Keychain for
-  the IAM Access Key ID / Secret Access Key pair.
+  - S8 — `ProviderConfigEnvironment` Ark credential projection.
+- Store the IAM Access Key ID in `ProviderConfig.apiKey` and Secret Access Key
+  in `ProviderConfig.secretKey`, persisted by the upstream
+  `CodexBarConfigStore` with mode `0600`, following the existing Bedrock
+  pattern. Do not introduce an Ark-specific credential store.
 - Normalize AFP windows into existing `UsageSnapshot` / rate-window models.
 - Add basic menu-bar status and safe provider error states.
 - Add M1 tests and update M1 task/history documentation.
@@ -99,7 +102,10 @@ Claude / GLM must not:
 - Add custom four-window popover UI; that belongs to M2.
 - Modify unrelated providers.
 - Refactor CodexBar architecture.
-- Commit AK/SK, API keys, cookies, screenshots with secrets, or plaintext config.
+- Commit AK/SK, API keys, cookies, screenshots with secrets, or any generated
+  `config.json`.
+- Introduce a custom plaintext credential file outside the upstream CodexBar
+  config mechanism.
 - Use environment variables as the production App credential mechanism; they
   remain permitted only for the isolated M0 probe.
 - Store the AK/SK pair by concatenating it into a normal single-token field.
@@ -143,7 +149,7 @@ docs/M0_INTEGRATION_BOUNDARY.md
 ```text
 - Done Contract.
 - Planned Ark-owned new files.
-- Planned shared files with S1–S4 identifiers.
+- Planned shared files with S1–S4/S8 identifiers.
 - Secure AK/SK storage and resolution path.
 - UsageSnapshot mapping for 5h / daily / weekly / monthly.
 - Menu-bar primary-window selection using existing CodexBar conventions.
@@ -151,9 +157,9 @@ docs/M0_INTEGRATION_BOUNDARY.md
 - Rollback path.
 ```
 
-5. If the existing architecture does not provide a safe AK/SK-pair storage path,
-   or no existing convention can support the required usage mapping without
-   expanding beyond S1–S4, stop and report the blocker before coding.
+5. Use the approved upstream-compatible AK/SK path documented above. If no
+   existing convention can support the required usage mapping without expanding
+   beyond S1–S4 and S8, stop and report the blocker before coding.
 
 6. Otherwise implement the smallest complete M1 loop:
 
@@ -185,13 +191,15 @@ make check
 M1 is Done only when:
 
 - LOOP was used or explicitly referenced before execution.
-- Ark is registered through only the necessary S1–S4 shared integration points.
+- Ark is registered through only the necessary S1–S4 and S8 shared integration
+  points.
 - Provider-specific networking, signing, parsing, credential resolution, and
   tests are isolated in Ark-owned files where the architecture permits.
 - The provider calls the confirmed `volcengineapi.com` control-plane host.
-- Production credentials use an approved secure CodexBar/Keychain mechanism;
-  no environment-only, plaintext, concatenated-token, or committed credential
-  path is introduced.
+- Production credentials use the approved upstream CodexBar
+  `ProviderConfig`/`CodexBarConfigStore` mechanism with mode `0600`; no
+  environment-only, custom plaintext-file, concatenated-token, or committed
+  credential path is introduced.
 - The menu bar can display compact Ark AFP usage using real or safely mocked
   data.
 - 5h data is the normal fallback display; Daily is used if 5h is absent; any
@@ -205,7 +213,7 @@ M1 is Done only when:
   blocker is documented honestly and reproduced by Codex.
 - No M2 popover, Widget, unrelated-provider, upstream-sync, or broad-refactor
   changes are included.
-- Actual S1–S4 touches and rollback steps are recorded in the M1 PR/log.
+- Actual S1–S4/S8 touches and rollback steps are recorded in the M1 PR/log.
 - `docs/PROJECT_LOG.md` has an M1 implementation and Codex audit record.
 - Codex review is complete.
 - Bee approves merge or moving to M2.
