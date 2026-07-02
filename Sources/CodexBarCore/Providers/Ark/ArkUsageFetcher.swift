@@ -91,7 +91,7 @@ public struct ArkUsageSnapshot: Sendable, Equatable {
     }
 }
 
-public enum ArkUsageError: LocalizedError, Sendable {
+public enum ArkUsageError: LocalizedError, Sendable, Equatable {
     case missingCredentials
     case networkError(String)
     /// Carries only the validated, redacted error code (never the raw body).

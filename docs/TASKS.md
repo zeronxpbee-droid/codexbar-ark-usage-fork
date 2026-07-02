@@ -11,9 +11,9 @@ M1 — Ark Provider Menu Bar MVP
 ## Goal Status
 
 ```text
-Status: M1 AUDIT FAIL — S12/S13 Corrective Scope Approved (see PROJECT_LOG Entries 025–026)
-Implementation State: Commit 53544438 is local/unpushed and does not compile
-Next: Claude fixes all Entry 025 findings, including approved S12/S13 compile closures, in an additive local commit
+Status: M1 CORRECTION SUBMITTED — Awaiting Codex Re-Audit (see PROJECT_LOG Entries 025–027)
+Implementation State: Additive corrective commit on M1 branch (S12/S13 compile closures + fetcher tests + Ark icon); IMPLEMENTED, UNVERIFIED
+Next: Codex re-audits the correction — swift build, focused Ark suites, make test/check — and records PASS/FAIL
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex

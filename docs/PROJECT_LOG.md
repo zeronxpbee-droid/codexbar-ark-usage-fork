@@ -2040,6 +2040,94 @@ Claude fixes all four Entry 025 findings in an additive local commit, runs the
 required build/tests/checks, updates the implementation record, and does not
 push. Codex then re-audits the correction.
 
+## Entry 027 — M1 Corrective Commit (S12/S13 + Fetcher Tests + Ark Icon)
+
+Date: 2026-07-03
+Actor: Claude Developer
+Type: Development
+Status: IMPLEMENTED / UNVERIFIED
+
+### Active Goal
+
+M1 — Ark Provider Menu Bar MVP
+
+### LOOP Result
+
+Applied LOOP strictly (production-impacting correction after an audit FAIL).
+Gather: read Entry 025 findings 1–4 and Entry 026's S12/S13 authorization, then
+located every exhaustive `switch provider` over `UsageProvider` that still
+omitted `.ark`. Reason: the CLI's three provider switches all carry `default:`
+(safe); only the Core cost-scanner and App debug-log switches were real
+blockers, exactly matching the audit. Act: added the two approved compile
+closures, the fetcher error-state suite, and the missing icon. Verify: `git
+diff --check` clean; source diff is +7/−3 across four files plus two new files;
+XML well-formed; Resources bundled via `.process`. Record: this entry. Stop:
+build/test still owned by Codex (no Swift toolchain here).
+
+### Summary
+
+- Finding 1 (S12): `CostUsageScanner.loadDailyReportCancellable` now lists
+  `.ark` in the existing unsupported-provider group returning `emptyReport`.
+  Compile-only; Ark has no local token-cost scanner in M1.
+- Finding 2 (S13): `UsageStore`'s provider debug-log switch now lists `.ark` in
+  the existing unimplemented-debug group, with a matching
+  `unimplementedDebugLogMessages[.ark]` entry. No real probe, no credential
+  output.
+- Finding 3: added `Tests/CodexBarTests/ArkUsageFetcherTests.swift`, an
+  in-memory `ProviderHTTPTransportHandler`-driven suite exercising
+  `ArkUsageFetcher.fetchUsage`: 200 success (four windows), missing-credentials
+  short-circuit (transport never touched), 401/403 redacted API error,
+  timeout/network + generic transport error, no-windows → emptyOrUnsupported,
+  malformed body → parseFailed, and cancellation propagation. Redaction
+  re-asserted at the fetcher layer (secret/RequestId never surface). To enable
+  value-based `#expect(throws:)`, `ArkUsageError` gained `Equatable` — matching
+  the `BedrockUsageError`/`OpenCodeGoLocalUsageError` blueprints; behavior-
+  neutral since all associated values are already Equatable. Ark-owned file,
+  not a shared touchpoint.
+- Finding 4: added `Sources/CodexBar/Resources/ProviderIcon-ark.svg`, an
+  ORIGINAL monochrome template glyph (a generic stylized "A"), explicitly NOT
+  derived from any Volcengine trademark; provenance recorded in the file
+  header. Extended `ProviderIconResourcesTests` to include the `ark` slug; the
+  existing all-providers icon test now also covers it.
+
+### Files Changed
+
+- `Sources/CodexBarCore/Vendored/CostUsage/CostUsageScanner.swift` (S12, +2/−1)
+- `Sources/CodexBar/UsageStore.swift` (S13, +3/−1)
+- `Sources/CodexBarCore/Providers/Ark/ArkUsageFetcher.swift` (+Equatable, +1/−1)
+- `Sources/CodexBar/Resources/ProviderIcon-ark.svg` (new)
+- `Tests/CodexBarTests/ArkUsageFetcherTests.swift` (new)
+- `Tests/CodexBarTests/ProviderIconResourcesTests.swift` (+1)
+
+### Evidence
+
+- `git diff --check` clean; source diffstat +7/−3 across four tracked files,
+  two new files added.
+- CLI provider switches at `CLIDiagnoseCommand.swift` lines 240/274/292 all
+  have `default:` — confirmed no `.ark` arm required there.
+- `ProviderIcon-ark.svg` validated as well-formed XML; `Sources/CodexBar/
+  Resources` is bundled through `.process("Resources")` in `Package.swift`.
+- `swift build` / `swift test` / `make check` NOT run — no Swift 6 toolchain in
+  the workspace. Execution deferred to Codex.
+
+### Issues / Risks
+
+- Correctness remains UNVERIFIED until Codex compiles and runs the suite; a
+  missed exhaustive switch or a Swift Testing signature issue would only surface
+  at build time.
+- The Ark icon is a placeholder mark; a designer-provided asset can replace it
+  later without affecting M1 scope.
+
+### Decision
+
+All four Entry 025 findings are addressed additively within the approved
+S12/S13 boundary. No amend/reset/rebase/push of `53544438` or this correction.
+
+### Next Action
+
+Codex re-audits the additive correction: `swift build`, the focused Ark suites,
+`make test`, and `make check` where available; records PASS/FAIL.
+
 ## Entry Template
 
 ```text
