@@ -11,7 +11,7 @@ M0 — Fork Bootstrap + Ark Agent Plan API Probe Preparation
 ## Goal Status
 
 ```text
-Status: M0 Live Probe PASS on volcengineapi.com — Default Host Fix + Source Comment Cleanup IMPLEMENTED (Entry 016), Awaiting Codex Final Audit
+Status: M0 Final Audit FAIL — Remove Resolved Production Host from Current Open Questions
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex

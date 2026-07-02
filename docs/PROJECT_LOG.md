@@ -1275,6 +1275,75 @@ Adopt `ark.cn-beijing.volcengineapi.com` as the probe default while keeping the
 Codex runs the final M0 offline audit (`swift build` / `swift run
 ark-probe-selftest`) and records PASS or FAIL. No push/amend/rebase by Claude.
 
+## Entry 017 — M0 Default-Host Correction Final Audit
+
+Date: 2026-07-02
+Actor: Codex
+Type: Review
+Status: FAIL
+
+### Active Goal
+
+M0 — Fork Bootstrap + Ark Agent Plan API Probe Preparation
+
+### LOOP Result
+
+Reviewed developer commit `25bfe91542b7943a9e662c493b79fb631ef0e8c8`
+against Entry 015 and the M0 Definition of Done. Required evidence was the
+confirmed default host, preserved override and signing vectors, source hygiene,
+build/test execution, redacted dry-run behavior, scope isolation, and consistent
+task state. No product code was modified by Codex.
+
+### Summary
+
+The implementation is correct and all executable evidence passes. However,
+`docs/TASKS.md` now states that the production host is confirmed in
+`Current Confirmed API Findings` while retaining the same host decision as item
+1 under `Current Open Questions`. Claude's delivery statement said that the
+resolved host had been removed from Open Questions, but the committed diff did
+not remove it. This internal contradiction is documentation drift in the file
+that owns current task state, so the final audit cannot pass yet.
+
+### Evidence
+
+- `swift build`: PASS.
+- `swift run ark-probe-selftest`: PASS, 70/70 checks.
+- `swift test`: PASS, 34 tests, 0 failures.
+- Fake-credential default dry-run: PASS; it targets
+  `ark.cn-beijing.volcengineapi.com`, remains redacted, and makes no network
+  request.
+- Raw control-character scan of probe sources/tests: PASS; no forbidden control
+  bytes remain.
+- `git diff --check 676391d2..25bfe915`: PASS.
+- Signer implementation and fixed `volces.com` signer/parser vectors are
+  unchanged.
+- Changed-file scope remains inside `Scripts/ark-probe/**`,
+  `docs/TASKS.md`, and `docs/PROJECT_LOG.md`.
+- `docs/TASKS.md` lines 233–236 confirm
+  `ark.cn-beijing.volcengineapi.com`; lines 242–244 simultaneously ask which
+  production host should be used.
+
+### Finding
+
+1. **[P1] Remove the resolved production-host item from Current Open
+   Questions.** Keep the confirmed finding and renumber the three remaining
+   questions. Do not change source, tests, README, Entry 015, Entry 016, or any
+   implementation behavior.
+
+### Decision
+
+FAIL due solely to current-state documentation drift. Do not push
+`25bfe915` yet. The code, build, security checks, self-test, and XCTest evidence
+all pass and do not need implementation changes.
+
+### Next Action
+
+Claude makes one additive documentation-only commit that removes the resolved
+host question from `docs/TASKS.md`, renumbers the remaining questions, updates
+the status to await Codex re-audit, and appends a short developer correction
+entry to `docs/PROJECT_LOG.md`. Codex then performs a documentation-only
+re-audit; the already-passing executable evidence need not be changed.
+
 ## Entry Template
 
 ```text
