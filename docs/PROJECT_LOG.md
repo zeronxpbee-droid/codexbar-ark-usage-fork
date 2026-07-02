@@ -1402,6 +1402,52 @@ Bee decides whether Codex may push the reviewed branch/update the draft PR and
 whether M0 may be completed so `docs/TASKS.md` can be advanced to an explicitly
 approved M1 Active Goal.
 
+## Entry 019 — M1 Gate Opened and Development Branch Created
+
+Date: 2026-07-02
+Actor: Bee (approval) + Codex (repository operation)
+Type: Milestone Transition / Branch Setup
+Status: CREATED / APPROVED
+
+### Active Goal
+
+M1 — Ark Provider Menu Bar MVP
+
+### LOOP Result
+
+Bee requested the prompt for Claude to enter the next development milestone.
+Claude correctly stopped because both mandatory gates still showed M0/main.
+Codex verified the merged M0 baseline, created the dedicated M1 branch, and
+updated the complete task structure before any product code was written.
+
+### Summary
+
+- M0 PR #1 was already merged into `main`.
+- Confirmed M0 merge baseline:
+  `2ec7378bb981b393532d9506c2b8303a0889f63e`.
+- Created and checked out:
+  `feature/m1-ark-provider-menu-bar`.
+- Advanced `docs/TASKS.md` from M0 to M1, including objective, allowed scope,
+  forbidden scope, next developer task, and Definition of Done.
+- M1 shared-file scope is restricted to S1–S4; M2 popover and M3–M4 Widget
+  work remain forbidden.
+- No product source, tests, README, remotes, upstream state, or credentials were
+  changed.
+
+### Decision
+
+M1 is approved for Claude / GLM development on the assigned branch. Claude may
+proceed only after LOOP and the documented secure-credential / usage-mapping
+preflight. If either requires scope beyond S1–S4, development must stop for a
+new Bee/Codex decision.
+
+### Next Action
+
+Codex commits this governance transition locally. Claude resumes on
+`feature/m1-ark-provider-menu-bar`, produces the required pre-coding report,
+and implements only the authorized M1 scope in additive local commits without
+push.
+
 ## Entry Template
 
 ```text

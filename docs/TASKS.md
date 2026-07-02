@@ -5,13 +5,13 @@
 ## Active Goal
 
 ```text
-M0 — Fork Bootstrap + Ark Agent Plan API Probe Preparation
+M1 — Ark Provider Menu Bar MVP
 ```
 
 ## Goal Status
 
 ```text
-Status: M0 Final Audit PASS — Awaiting Bee Approval to Complete M0 / Enter M1
+Status: M1 Approved by Bee — Ready for Claude / GLM Development
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex
@@ -29,7 +29,9 @@ Upstream push: Disabled
 Default branch: main
 Upstream baseline: 6ab1cbb7daee73b8ad531fbdd420e9aa6eb6d26b
 M0 branch: feature/m0-bootstrap-ark-probe
-M0 draft PR: https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/1
+M0 merged PR: https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/1
+M0 merge commit: 2ec7378bb981b393532d9506c2b8303a0889f63e
+M1 branch: feature/m1-ark-provider-menu-bar
 ```
 
 ## Mandatory Pre-Execution Rule
@@ -41,42 +43,48 @@ Before reviewing this task, Codex must invoke or explicitly compare the review a
 
 If LOOP, `AGENTS.md`, `docs/PRD.md`, `docs/TASKS.md`, or `docs/PROJECT_LOG.md` conflict, stop and report documentation drift.
 
-## M0 Objective
+## M1 Objective
 
-Prepare the CodexBar fork and validate the safest path for Volcengine Ark Agent Plan usage API integration.
+Integrate Volcengine Ark Agent Plan AFP usage as a native CodexBar provider and
+show a compact, decision-useful status in the macOS menu bar.
 
-M0 is not an app integration milestone. It exists to reduce uncertainty before modifying CodexBar provider or Widget code.
+M1 is limited to provider core, secure credential resolution, minimal provider
+registration, menu-bar status, basic error states, and tests. Four-window
+custom popover details remain M2; Widget snapshot, picker, and UI remain M3–M4.
 
 ## Allowed Scope
 
 Codex may:
 
-- Create the GitHub fork and initialize this directory as the working fork while
-  preserving official CodexBar history.
-- Configure the user's fork as `origin` and official CodexBar as `upstream`.
-- Record the upstream default branch and exact baseline commit.
-- Create the M0 feature branch / worktree.
-- Commit repository bootstrap and governance documentation.
-- Push scoped branches and create draft PRs.
+- Maintain the M1 branch and task-state documentation.
+- Inspect Claude / GLM commits and the complete M1 diff.
+- Run build, test, formatting, lint, security, and provider-behavior checks.
+- Commit audit records and explicitly requested governance corrections.
+- Push an accepted M1 branch and create/update its draft PR.
 
 Claude / GLM may:
 
-- Inspect upstream CodexBar structure.
-- Confirm provider architecture files.
-- Confirm Widget architecture files.
-- Create or propose a minimal local API probe.
-- Use environment variables for local API testing only:
-  - `VOLCENGINE_ACCESS_KEY_ID`
-  - `VOLCENGINE_SECRET_ACCESS_KEY`
-  - Other Volcengine variables only if official docs require them.
-- Produce a redacted response-shape report.
-- Update documentation directly related to M0.
+- Add Ark-owned provider, fetcher/parser, signer, settings/credential resolver,
+  implementation, and targeted test files.
+- Adapt the reviewed M0 probe logic into the existing CodexBar provider
+  architecture without importing the standalone probe package into the app.
+- Touch only the minimum M1 shared integration points from
+  `docs/M0_INTEGRATION_BOUNDARY.md`:
+  - S1 — `UsageProvider` Ark case.
+  - S2 — `IconStyle` Ark case, only if required by the descriptor pattern.
+  - S3 — provider descriptor registration.
+  - S4 — provider implementation registration.
+- Reuse the existing CodexBar credential/config mechanism or macOS Keychain for
+  the IAM Access Key ID / Secret Access Key pair.
+- Normalize AFP windows into existing `UsageSnapshot` / rate-window models.
+- Add basic menu-bar status and safe provider error states.
+- Add M1 tests and update M1 task/history documentation.
 
 ## Forbidden Scope
 
 Codex must not:
 
-- Implement product code or create the credentialed API probe.
+- Implement or repair M1 product code.
 - Rewrite Claude / GLM commits without Bee's explicit approval.
 - Merge a PR without Bee's explicit approval.
 
@@ -87,12 +95,17 @@ Claude / GLM must not:
 - Open, update, close, or merge Pull Requests.
 - Replace upstream history with a detached copy or squashed import.
 - Mix an upstream synchronization with Ark feature implementation.
-- Modify CodexBar provider registry for Ark yet.
-- Modify Widget provider picker yet.
-- Modify Widget UI yet.
+- Touch Widget snapshot, picker, intent, or UI files (S5–S7).
+- Add custom four-window popover UI; that belongs to M2.
 - Modify unrelated providers.
 - Refactor CodexBar architecture.
 - Commit AK/SK, API keys, cookies, screenshots with secrets, or plaintext config.
+- Use environment variables as the production App credential mechanism; they
+  remain permitted only for the isolated M0 probe.
+- Store the AK/SK pair by concatenating it into a normal single-token field.
+- Print Authorization, signatures, raw error bodies, RequestId, account IDs, or
+  other credential/account-sensitive values.
+- Add wildcard IAM grants or claim a least-privilege policy without evidence.
 - Add a backend service.
 - Add browser-cookie scraping.
 - Publish or package a release.
@@ -100,7 +113,7 @@ Claude / GLM must not:
 
 ## Next Task for Claude / GLM
 
-0. Work only in the assigned `feature/m0-bootstrap-ark-probe` checkout and create
+0. Work only in the assigned `feature/m1-ark-provider-menu-bar` checkout and create
    local commits without pushing.
 
 1. Read these files:
@@ -111,72 +124,93 @@ README.md
 docs/PRD.md
 docs/TASKS.md
 docs/PROJECT_LOG.md
+docs/M0_INTEGRATION_BOUNDARY.md
 ```
 
 2. Invoke or explicitly compare against the installed `LOOP` Skill.
 
-3. Inspect upstream/fork structure and identify:
+3. Confirm before coding:
 
 ```text
-- Upstream default branch and baseline commit.
-- Provider descriptor location.
-- Provider implementation location.
-- Fetcher / parser pattern.
-- Widget snapshot store location.
-- Widget provider picker / intent location.
-- Build/test commands.
+- Branch is feature/m1-ark-provider-menu-bar.
+- Active Goal is M1 — Ark Provider Menu Bar MVP.
+- HEAD descends from M0 merge commit 2ec7378b.
+- Worktree contains no unrelated user/Codex changes.
 ```
 
-4. Prepare an M0 report before app integration:
+4. Inspect the existing provider patterns and prepare a pre-coding report:
 
 ```text
-- Fork remotes and upstream synchronization procedure.
-- Ark-owned new files planned for M1-M4.
-- Required shared upstream integration points planned for M1-M4.
-- Conflict risk and rollback path for each shared integration point.
-- Confirmed files to modify in M1-M4.
-- Confirmed API endpoint/action/version/region assumptions.
-- Credential strategy.
-- Probe strategy.
-- Expected sanitized output shape.
-- Main blockers.
+- Done Contract.
+- Planned Ark-owned new files.
+- Planned shared files with S1–S4 identifiers.
+- Secure AK/SK storage and resolution path.
+- UsageSnapshot mapping for 5h / daily / weekly / monthly.
+- Menu-bar primary-window selection using existing CodexBar conventions.
+- Test/build/check plan.
+- Rollback path.
 ```
 
-5. If Bee approves, run the local API probe using environment variables only.
+5. If the existing architecture does not provide a safe AK/SK-pair storage path,
+   or no existing convention can support the required usage mapping without
+   expanding beyond S1–S4, stop and report the blocker before coding.
 
-## Definition of Done — M0
+6. Otherwise implement the smallest complete M1 loop:
 
-M0 is Done only when:
+```text
+- Ark descriptor and implementation registration.
+- Production host ark.cn-beijing.volcengineapi.com.
+- HMAC-signed GetAFPUsage fetch using secure resolved credentials.
+- Four-window parsing and normalization.
+- Compact menu-bar status: existing highest-risk convention, otherwise 5h,
+  with daily fallback when 5h is unavailable.
+- Safe unauthorized, timeout/network, empty/unsupported, and unknown states.
+- Targeted unit/mock tests with no real network or credentials.
+```
+
+7. Run available checks:
+
+```text
+swift build
+make test
+make check
+```
+
+8. Append an M1 implementation entry to `docs/PROJECT_LOG.md`, update this
+   task status, perform a final LOOP self-check, and create an additive local
+   commit. Do not push.
+
+## Definition of Done — M1
+
+M1 is Done only when:
 
 - LOOP was used or explicitly referenced before execution.
-- The fork preserves official CodexBar Git history.
-- `origin` and `upstream` remotes are configured and verified.
-- The upstream default branch and exact baseline commit are recorded.
-- Upstream provider architecture was inspected.
-- Upstream Widget architecture was inspected.
-- Planned changes are classified as Ark-owned files or required shared upstream
-  integration points.
-- The upstream synchronization, conflict review, and rollback procedure is
-  documented.
-- API probe plan is documented.
-- If a probe was run, output is redacted and contains no secrets.
-- No app provider integration was attempted.
-- No Widget integration was attempted.
-- `docs/PROJECT_LOG.md` has an M0 entry.
+- Ark is registered through only the necessary S1–S4 shared integration points.
+- Provider-specific networking, signing, parsing, credential resolution, and
+  tests are isolated in Ark-owned files where the architecture permits.
+- The provider calls the confirmed `volcengineapi.com` control-plane host.
+- Production credentials use an approved secure CodexBar/Keychain mechanism;
+  no environment-only, plaintext, concatenated-token, or committed credential
+  path is introduced.
+- The menu bar can display compact Ark AFP usage using real or safely mocked
+  data.
+- 5h data is the normal fallback display; Daily is used if 5h is absent; any
+  highest-risk promotion reuses existing CodexBar conventions rather than a
+  newly invented global policy.
+- Unauthorized, timeout/network, empty/unsupported, and unknown failures have
+  safe states and do not expose raw responses or identifiers.
+- Signer, parser, normalization, credential redaction, error behavior, and
+  provider registration have targeted tests.
+- `swift build`, `make test`, and `make check` pass, or any environment-only
+  blocker is documented honestly and reproduced by Codex.
+- No M2 popover, Widget, unrelated-provider, upstream-sync, or broad-refactor
+  changes are included.
+- Actual S1–S4 touches and rollback steps are recorded in the M1 PR/log.
+- `docs/PROJECT_LOG.md` has an M1 implementation and Codex audit record.
 - Codex review is complete.
-- Bee approves moving to M1.
+- Bee approves merge or moving to M2.
 
-## Planned Milestones After M0
-
-### M1 — Ark Provider Menu Bar MVP
-
-Allowed only after Bee updates this file.
-
-Target:
-
-- Add Ark provider.
-- Fetch/parse AFP usage.
-- Show compact Ark status in menu bar.
+## Planned Milestones After M1
 
 ### M2 — Ark Popover Details
 
