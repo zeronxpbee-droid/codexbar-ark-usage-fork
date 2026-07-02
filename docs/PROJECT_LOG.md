@@ -1772,6 +1772,98 @@ complete S9 and targeted tests, run available static checks, update the M1
 implementation record/status, and create the additive local commit without
 push.
 
+## Entry 024 — M1 Ark Core Complete (S1–S4/S8–S11 + Tests); Build/Test Deferred to Codex
+
+Date: 2026-07-02
+Actor: Claude Developer
+Type: Development
+Status: IMPLEMENTED / UNVERIFIED
+
+### Active Goal
+
+M1 — Ark Provider Menu Bar MVP
+
+### LOOP Result
+
+Applied LOOP strictly (production-impacting, multi-file). Gather: re-read the
+approved touchpoint list and the blueprint tests (ProviderConfigEnvironment,
+MenuBarMetricWindowResolver, CodexOAuthCredentialsStorePermissions). Act: added
+S9 and the five targeted test files. Verify: confirmed every referenced public
+API (`ArkSettingsReader` keys + `hasCredentials`, `AFPWindow`/`RateWindow`/
+`NamedRateWindow`/`UsageSnapshot` inits, `CodexBarConfigStore` save/load,
+`ArkErrorResponse.extractErrorCode`) exists with the signatures the tests call,
+and that `git diff --check` is clean with all tracked edits additive (+57/−0).
+Record: this entry. Stop: no Swift toolchain in the workspace, so build/test
+execution is the safe restart boundary handed to Codex.
+
+### Summary
+
+- S9: `MenuBarMetricWindowResolver.automaticWindow` now routes `.ark` to a new
+  `mostConstrainedArkWindow` helper that picks the highest used-% lane across
+  5h `primary`, Daily `secondary`, Weekly `tertiary`, and the Monthly extra
+  window (`ark-afp-monthly`, only when `usageKnown`), falling back to 5h then
+  Daily. Additive branch; no other provider behavior changed.
+- S10/S11 Widget compile-only stubs confirmed present (Ark → `nil` in
+  `ProviderChoice.init?`; `"Ark"` short label; static color). No functional
+  Widget capability added.
+- Added five Swift Testing suites (no network, no real credentials):
+  - `ArkVolcengineSignerTests` — pins the production signer against the M0
+    independent Python reference vectors (canonical request, scope terminator
+    `request`, signature, Authorization; secret never leaked in any header).
+  - `ArkGetAFPUsageParsingTests` — parser (nested/top-level, noWindows,
+    invalidJSON, non-positive quota → unknown) and 方案 B AFP→UsageSnapshot
+    mapping (5h/Daily/Weekly→lanes, Monthly→extra, unknown omitted).
+  - `ArkMenuBarMetricWindowResolverTests` — S9 highest-risk selection + 5h/
+    Daily fallback + unknown-monthly exclusion.
+  - `ArkCredentialProjectionTests` — S8 AK/SK projection into distinct
+    `VOLCENGINE_*` keys (never concatenated) + config-store round-trip with
+    0600 permissions (FAKE credentials; does not assert creds absent from JSON).
+  - `ArkRedactionTests` — `ArkUsageError` descriptions and `ArkErrorResponse`
+    extraction never surface the secret, RequestId, Message, or raw body.
+
+### Files Changed
+
+- `Sources/CodexBar/MenuBarMetricWindowResolver.swift` (S9, +21)
+- `Sources/CodexBar/Providers/Shared/ProviderImplementationRegistry.swift` (S4, +1)
+- `Sources/CodexBarCore/Config/ProviderConfigEnvironment.swift` (S8, +27)
+- `Sources/CodexBarCore/Logging/LogCategories.swift` (+1)
+- `Sources/CodexBarCore/Providers/ProviderDescriptor.swift` (S3, +1)
+- `Sources/CodexBarCore/Providers/Providers.swift` (S1/S2, +2)
+- `Sources/CodexBarWidget/CodexBarWidgetProvider.swift` (S10, +1)
+- `Sources/CodexBarWidget/CodexBarWidgetViews.swift` (S11, +3)
+- New Ark core: `Sources/CodexBarCore/Providers/Ark/` (ArkAPIConfig,
+  ArkErrorResponse, ArkProviderDescriptor, ArkSettingsReader, ArkUsageFetcher,
+  GetAFPUsageResponse, VolcengineArkSigner) and
+  `Sources/CodexBar/Providers/Ark/` (ArkProviderImplementation, ArkSettingsStore)
+- New tests: `Tests/CodexBarTests/Ark{VolcengineSigner,GetAFPUsageParsing,
+  MenuBarMetricWindowResolver,CredentialProjection,Redaction}Tests.swift`
+
+### Evidence
+
+- `git diff --check` clean; tracked diffstat +57/−0 across exactly the eight
+  approved shared files.
+- API-signature verification (see LOOP Result) done by reading each source of
+  truth in this session.
+- `swift build` / `swift test` NOT run — no Swift 6 toolchain in the Linux
+  workspace. Compilation and test execution are DEFERRED to Codex.
+
+### Issues / Risks
+
+- Implementation is UNVERIFIED until Codex builds and runs the suite; a
+  signature or exhaustiveness miss would only surface at compile time.
+- Test signature vectors are pinned to the M0 reference; if the production
+  signer diverges the signer suite will fail (intended).
+
+### Decision
+
+M1 developer scope (S1–S4, S8–S11 + tests) is code-complete. Correctness is
+gated on Codex build/test verification.
+
+### Next Action
+
+Codex builds `CodexBar`/`CodexBarCore`/`CodexBarWidget`, runs the five Ark test
+suites, and records PASS/FAIL. No push/branch/PR/merge by Claude.
+
 ## Entry Template
 
 ```text

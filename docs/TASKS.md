@@ -11,9 +11,9 @@ M1 — Ark Provider Menu Bar MVP
 ## Goal Status
 
 ```text
-Status: M1 IN PROGRESS — Widget Compile-Stub Boundary Resolved
-Implementation State: Ark core + S1–S4/S8 implemented (UNVERIFIED, uncommitted)
-Next: Claude resumes S9, tests, S10/S11 compile-only stubs, and local commit
+Status: M1 DEV COMPLETE — Awaiting Codex Build/Test Verification
+Implementation State: Ark core + S1–S4/S8–S11 + 5 test suites implemented (IMPLEMENTED, UNVERIFIED), committed locally on M1 branch
+Next: Codex builds CodexBar/CodexBarCore/CodexBarWidget, runs the five Ark test suites, records PASS/FAIL
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex
