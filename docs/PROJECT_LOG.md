@@ -1522,6 +1522,76 @@ Claude / GLM re-reads the updated governance documents, confirms the approved
 S8 plan, and proceeds with the smallest M1 implementation loop. It must stop
 again if implementation requires any shared touchpoint beyond S1–S4 and S8.
 
+## Entry 021 — M1 Menu-Bar Window Resolver Boundary Approved
+
+Date: 2026-07-02
+Actor: Bee (decision) + Codex (governance update)
+Type: Decision / Documentation
+Status: APPROVED
+
+### Active Goal
+
+M1 — Ark Provider Menu Bar MVP
+
+### LOOP Result
+
+Claude correctly stopped after proving that generic automatic menu-bar
+selection reads only the stable primary/secondary lanes and does not evaluate
+all Ark AFP windows. The smallest compatible loop is one additive,
+provider-specific resolver branch; no product code was changed in this
+governance step.
+
+### Summary
+
+- Approved window-selection plan B, matching existing upstream
+  provider-specific branches in `MenuBarMetricWindowResolver`.
+- Ark keeps stable snapshot semantics instead of dynamically replacing
+  `primary`:
+  - 5h remains the primary lane.
+  - Daily remains the secondary lane.
+  - Weekly and Monthly retain stable provider-owned mappings.
+- Added S9 for Ark `.automatic` menu-bar selection across known AFP windows.
+- If no valid highest-risk candidate is available, S9 falls back to 5h and
+  then Daily.
+- No source code, tests, credentials, config, remotes, or branches were
+  changed.
+
+### Files Changed
+
+- `docs/TASKS.md`
+- `docs/M0_INTEGRATION_BOUNDARY.md`
+- `docs/PROJECT_LOG.md`
+
+### Evidence
+
+- Generic `MenuBarMetricWindowResolver.automaticWindow` returns
+  `snapshot.primary ?? snapshot.secondary` for providers without a dedicated
+  branch.
+- Existing providers including Antigravity, z.ai, Copilot, Cursor, and MiniMax
+  already use provider-specific automatic resolver logic.
+- Keeping time-window identity stable avoids leaking menu presentation policy
+  into Ark's response-to-snapshot mapper and reduces later M2/Widget ambiguity.
+
+### Issues / Risks
+
+- S9 adds one shared upstream menu-policy touchpoint and may require a
+  line-local conflict resolution when upstream adds or reorganizes provider
+  branches.
+- Highest-risk selection must ignore unknown/placeholder windows and be covered
+  by focused tests, including the 5h-to-Daily fallback order.
+
+### Decision
+
+M1 may touch S1–S4, S8, and S9 only. The S9 resolver is preferred over
+dynamically assigning the highest-risk window to `UsageSnapshot.primary`
+because it follows upstream convention and preserves stable data semantics.
+
+### Next Action
+
+Claude / GLM performs its final pre-coding LOOP check and implements the
+smallest complete M1 loop. It must stop and report again before touching any
+shared file outside S1–S4, S8, and S9.
+
 ## Entry Template
 
 ```text

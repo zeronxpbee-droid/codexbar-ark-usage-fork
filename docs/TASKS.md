@@ -11,7 +11,7 @@ M1 — Ark Provider Menu Bar MVP
 ## Goal Status
 
 ```text
-Status: M1 Approved by Bee — Credential Boundary Resolved — Ready for Claude / GLM Development
+Status: M1 Approved by Bee — Credential + Menu Window Boundaries Resolved — Ready for Development
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex
@@ -75,6 +75,7 @@ Claude / GLM may:
   - S3 — provider descriptor registration.
   - S4 — provider implementation registration.
   - S8 — `ProviderConfigEnvironment` Ark credential projection.
+  - S9 — `MenuBarMetricWindowResolver` Ark automatic highest-risk selection.
 - Store the IAM Access Key ID in `ProviderConfig.apiKey` and Secret Access Key
   in `ProviderConfig.secretKey`, persisted by the upstream
   `CodexBarConfigStore` with mode `0600`, following the existing Bedrock
@@ -149,7 +150,7 @@ docs/M0_INTEGRATION_BOUNDARY.md
 ```text
 - Done Contract.
 - Planned Ark-owned new files.
-- Planned shared files with S1–S4/S8 identifiers.
+- Planned shared files with S1–S4/S8/S9 identifiers.
 - Secure AK/SK storage and resolution path.
 - UsageSnapshot mapping for 5h / daily / weekly / monthly.
 - Menu-bar primary-window selection using existing CodexBar conventions.
@@ -159,7 +160,7 @@ docs/M0_INTEGRATION_BOUNDARY.md
 
 5. Use the approved upstream-compatible AK/SK path documented above. If no
    existing convention can support the required usage mapping without expanding
-   beyond S1–S4 and S8, stop and report the blocker before coding.
+   beyond S1–S4, S8, and S9, stop and report the blocker before coding.
 
 6. Otherwise implement the smallest complete M1 loop:
 
@@ -168,8 +169,10 @@ docs/M0_INTEGRATION_BOUNDARY.md
 - Production host ark.cn-beijing.volcengineapi.com.
 - HMAC-signed GetAFPUsage fetch using secure resolved credentials.
 - Four-window parsing and normalization.
-- Compact menu-bar status: existing highest-risk convention, otherwise 5h,
-  with daily fallback when 5h is unavailable.
+- Stable window semantics with 5h as `primary` and Daily as `secondary`.
+- Compact menu-bar automatic status selected by the S9 Ark-specific
+  highest-risk resolver, with 5h then Daily fallback when no valid
+  highest-risk candidate is available.
 - Safe unauthorized, timeout/network, empty/unsupported, and unknown states.
 - Targeted unit/mock tests with no real network or credentials.
 ```
@@ -191,8 +194,8 @@ make check
 M1 is Done only when:
 
 - LOOP was used or explicitly referenced before execution.
-- Ark is registered through only the necessary S1–S4 and S8 shared integration
-  points.
+- Ark is registered through only the necessary S1–S4, S8, and S9 shared
+  integration points.
 - Provider-specific networking, signing, parsing, credential resolution, and
   tests are isolated in Ark-owned files where the architecture permits.
 - The provider calls the confirmed `volcengineapi.com` control-plane host.
@@ -202,9 +205,9 @@ M1 is Done only when:
   credential path is introduced.
 - The menu bar can display compact Ark AFP usage using real or safely mocked
   data.
-- 5h data is the normal fallback display; Daily is used if 5h is absent; any
-  highest-risk promotion reuses existing CodexBar conventions rather than a
-  newly invented global policy.
+- Ark preserves stable 5h/Daily/Weekly/Monthly window semantics. Automatic
+  menu-bar display uses the S9 provider-specific highest-risk resolver; 5h is
+  the first fallback and Daily is used if 5h is absent.
 - Unauthorized, timeout/network, empty/unsupported, and unknown failures have
   safe states and do not expose raw responses or identifiers.
 - Signer, parser, normalization, credential redaction, error behavior, and
@@ -213,7 +216,7 @@ M1 is Done only when:
   blocker is documented honestly and reproduced by Codex.
 - No M2 popover, Widget, unrelated-provider, upstream-sync, or broad-refactor
   changes are included.
-- Actual S1–S4/S8 touches and rollback steps are recorded in the M1 PR/log.
+- Actual S1–S4/S8/S9 touches and rollback steps are recorded in the M1 PR/log.
 - `docs/PROJECT_LOG.md` has an M1 implementation and Codex audit record.
 - Codex review is complete.
 - Bee approves merge or moving to M2.
