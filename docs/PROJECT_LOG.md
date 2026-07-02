@@ -1864,6 +1864,182 @@ gated on Codex build/test verification.
 Codex builds `CodexBar`/`CodexBarCore`/`CodexBarWidget`, runs the five Ark test
 suites, and records PASS/FAIL. No push/branch/PR/merge by Claude.
 
+## Entry 025 — M1 Ark Provider First Audit
+
+Date: 2026-07-02
+Actor: Codex
+Type: Review
+Status: FAIL
+
+### Active Goal
+
+M1 — Ark Provider Menu Bar MVP
+
+### LOOP Result
+
+Reviewed developer commit
+`535444380909cc47a48c401e22474efab5e41669` against the M1 Definition of
+Done, approved S1–S4/S8–S11 boundary, upstream rules, credential policy, and
+complete M1 diff from merged M0 baseline `2ec7378b`. Required evidence was
+scope isolation, clean Git state, full-target compilation, targeted Ark tests,
+credential/error redaction, stable window mapping, and non-functional Widget
+stubs. No product source was modified by Codex.
+
+### Summary
+
+The Ark-owned signer, parser, credential projection, stable window mapping,
+S9 resolver, and S10/S11 Widget stubs are directionally consistent with the
+approved design. The commit nevertheless fails M1 acceptance because adding
+`UsageProvider.ark` left two additional exhaustive switches unhandled. The
+first is a compiler-confirmed Core failure; the second is an App switch with
+the same exhaustive shape and no `default`. The submitted fetcher tests also
+do not execute the HTTP/network error paths required by the M1 Definition of
+Done.
+
+Claude's temporary-index commit left the real Git index stale, producing false
+deleted/untracked status entries. Codex verified every working-tree blob
+against commit `53544438`, removed the unowned zero-byte lock, and synchronized
+only the real index to HEAD with `git read-tree --reset HEAD`. No working-tree
+file or developer commit was changed; the repository is clean.
+
+### Evidence
+
+- Reviewed commit: `535444380909cc47a48c401e22474efab5e41669`.
+- Parent: governance commit `dcd7d9ce21cf699b9aa02eb07aee138827881a8f`.
+- `git diff --check dcd7d9ce..53544438`: PASS.
+- Complete M1 diff from `2ec7378b` contains only approved governance,
+  Ark-owned files, tests, and documented shared touchpoints.
+- Targeted added-line secret scan found only deliberately fake test
+  credentials and documented environment-variable names.
+- Credential storage/projection follows the approved upstream-compatible
+  `ProviderConfig.apiKey` / `secretKey` + mode `0600` design.
+- Direct `swift build` initially reached an environment-only Sparkle binary
+  artifact download stall. Codex independently downloaded the official 2.9.3
+  artifact and verified its SHA-256 exactly matched Sparkle's package manifest.
+- To separate that dependency-download issue from source compilation, Codex
+  built an archive of exact commit `53544438` in `/private/tmp` with only the
+  optional Sparkle package/dependency removed from the temporary manifest.
+  `CodexBarCore` compilation then failed at
+  `Sources/CodexBarCore/Vendored/CostUsage/CostUsageScanner.swift:437`:
+  `switch must be exhaustive`, with compiler note `add missing case: '.ark'`.
+- Static inspection found the same missing `.ark` arm in the no-default debug
+  switch at `Sources/CodexBar/UsageStore.swift:1050`.
+- In the temporary diagnostic copy only, adding both unsupported-feature arms
+  allowed compilation to proceed through Ark Core and into the App target;
+  no repository source was changed.
+- The five submitted Ark suites contain signer, parser/mapping, resolver,
+  credential/config, and redaction assertions, but none defines a mock
+  `ProviderHTTPTransport` or calls `ArkUsageFetcher.fetchUsage`.
+- Tests were not run because the submitted source does not compile.
+- `make check` could not be started after the build failure because the local
+  tool approval service reported its own usage limit. This is not counted as a
+  source failure, but must be rerun on the corrective commit.
+
+### Findings
+
+1. **[P1] Close the Core cost-scanner exhaustive switch.**
+   `CostUsageScanner.loadDailyReportCancellable` does not handle `.ark`, so
+   `CodexBarCore` cannot compile. Ark has no local token-cost scanner in M1;
+   add it to the existing unsupported-provider group that returns
+   `emptyReport`. This is a proposed new shared compile-closure touchpoint
+   **S12** and requires Bee/Codex boundary approval before implementation.
+
+2. **[P1] Close the App debug-log exhaustive switch.**
+   `UsageStore`'s provider debug-log switch also omits `.ark` and has no
+   `default`, so the App will fail after finding 1 is fixed. Add Ark only to
+   the existing unimplemented-debug group; do not add credential values or a
+   real debug probe. This is proposed shared touchpoint **S13** and likewise
+   requires boundary approval.
+
+3. **[P1] Add fetcher-level mock transport/error-state tests.**
+   The M1 Definition of Done requires tested unauthorized, timeout/network,
+   empty/unsupported, unknown/malformed, and safe error behavior. Current tests
+   construct error enums and test the parser but never execute
+   `ArkUsageFetcher.fetchUsage`. Add an in-memory `ProviderHTTPTransport` stub
+   covering at least successful 200, 401/403 redacted error, timeout/network,
+   no-windows/unsupported, malformed response, and cancellation behavior. No
+   real network or credentials are permitted.
+
+4. **[P2] Supply or reference a real Ark provider icon resource.**
+   `ArkProviderDescriptor` references `ProviderIcon-ark`, but
+   `Sources/CodexBar/Resources/ProviderIcon-ark.svg` does not exist. As a
+   result, `ProviderBrandIcon.image(for: .ark)` returns `nil`, leaving Ark
+   without its configured brand icon in Settings/brand-icon display modes.
+   Add an Ark-owned SVG resource (with provenance recorded) or use an existing
+   accurate resource, and extend the provider-icon resource test.
+
+### Decision
+
+FAIL. Do not push or open the M1 PR for commit `53544438`. The developer must
+submit an additive corrective commit; no amend, rebase, or reset of the
+developer commit is authorized.
+
+S12/S13 are not yet authorized implementation scope. They are proposed as the
+minimum compile-only closures forced by S1, analogous to S10/S11. Bee must
+approve them before Claude touches those shared files.
+
+### Next Action
+
+Bee approves or rejects proposed S12/S13. If approved, Codex updates the
+integration boundary and M1 allowed scope. Claude then fixes findings 1–4,
+runs `swift build`, the focused Ark suites, `make test`, and `make check` where
+available, updates the implementation record/status, and creates a new local
+commit without push. Codex re-audits the additive correction.
+
+## Entry 026 — Bee Approves M1 S12/S13 Compile Closures
+
+Date: 2026-07-03
+Actor: Bee + Codex
+Type: Decision / Documentation
+Status: APPROVED
+
+### Active Goal
+
+M1 — Ark Provider Menu Bar MVP
+
+### LOOP Result
+
+The smallest corrective loop is to authorize only the two shared exhaustive
+switch arms proven necessary by Entry 025. Product behavior, Widget scope, and
+unrelated providers remain unchanged. Rollback removes the two arms together
+with S1.
+
+### Summary
+
+Bee explicitly approved S12 and S13. Codex registered both touchpoints in the
+integration boundary and added them to the M1 developer scope.
+
+### Files Changed
+
+- `docs/TASKS.md`
+- `docs/M0_INTEGRATION_BOUNDARY.md`
+- `docs/PROJECT_LOG.md`
+
+### Evidence
+
+- A native `swift build`, rerun after Bee allowed SwiftPM's macOS Keychain
+  request and Sparkle downloaded successfully, failed at
+  `CostUsageScanner.swift:437` with `switch must be exhaustive` and compiler
+  guidance to add `.ark`.
+- Entry 025 records the second no-default exhaustive switch in
+  `UsageStore.swift`.
+- Bee approved both proposed compile-closure touchpoints on 2026-07-03.
+
+### Decision
+
+- S12 authorizes only adding `.ark` to the existing unsupported cost-scanner
+  group returning `emptyReport`.
+- S13 authorizes only adding `.ark` to the existing unimplemented debug-log
+  group, without a real debug probe or credential-bearing output.
+- Neither touchpoint authorizes new Ark product behavior, unrelated refactors,
+  or functional Widget work.
+
+### Next Action
+
+Claude fixes all four Entry 025 findings in an additive local commit, runs the
+required build/tests/checks, updates the implementation record, and does not
+push. Codex then re-audits the correction.
+
 ## Entry Template
 
 ```text

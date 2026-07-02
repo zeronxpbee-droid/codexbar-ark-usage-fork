@@ -11,9 +11,9 @@ M1 — Ark Provider Menu Bar MVP
 ## Goal Status
 
 ```text
-Status: M1 DEV COMPLETE — Awaiting Codex Build/Test Verification
-Implementation State: Ark core + S1–S4/S8–S11 + 5 test suites implemented (IMPLEMENTED, UNVERIFIED), committed locally on M1 branch
-Next: Codex builds CodexBar/CodexBarCore/CodexBarWidget, runs the five Ark test suites, records PASS/FAIL
+Status: M1 AUDIT FAIL — S12/S13 Corrective Scope Approved (see PROJECT_LOG Entries 025–026)
+Implementation State: Commit 53544438 is local/unpushed and does not compile
+Next: Claude fixes all Entry 025 findings, including approved S12/S13 compile closures, in an additive local commit
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex
@@ -82,6 +82,12 @@ Claude / GLM may:
     `case .ark: return nil`.
   - S11 — `CodexBarWidgetViews` exhaustive-switch compile stubs for the Ark
     short label and static color.
+  - S12 — `CostUsageScanner.loadDailyReportCancellable` exhaustive-switch
+    compile stub: add `.ark` to the existing unsupported-provider group that
+    returns `emptyReport`.
+  - S13 — `UsageStore` provider debug-log exhaustive-switch compile stub: add
+    `.ark` to the existing unimplemented-debug group without adding a probe or
+    exposing credentials.
 - Store the IAM Access Key ID in `ProviderConfig.apiKey` and Secret Access Key
   in `ProviderConfig.secretKey`, persisted by the upstream
   `CodexBarConfigStore` with mode `0600`, following the existing Bedrock
@@ -160,7 +166,7 @@ docs/M0_INTEGRATION_BOUNDARY.md
 ```text
 - Done Contract.
 - Planned Ark-owned new files.
-- Planned shared files with S1–S4/S8–S11 identifiers.
+- Planned shared files with S1–S4/S8–S13 identifiers.
 - Secure AK/SK storage and resolution path.
 - UsageSnapshot mapping for 5h / daily / weekly / monthly.
 - Menu-bar primary-window selection using existing CodexBar conventions.
@@ -170,7 +176,7 @@ docs/M0_INTEGRATION_BOUNDARY.md
 
 5. Use the approved upstream-compatible AK/SK path documented above. If no
    existing convention can support the required usage mapping without expanding
-   beyond S1–S4 and S8–S11, stop and report the blocker before coding.
+   beyond S1–S4 and S8–S13, stop and report the blocker before coding.
 
 6. Otherwise implement the smallest complete M1 loop:
 
@@ -185,6 +191,8 @@ docs/M0_INTEGRATION_BOUNDARY.md
   highest-risk candidate is available.
 - S10/S11 compile-only Widget exhaustive-switch arms; Ark remains unavailable
   in Widget configuration and rendering during M1.
+- S12/S13 compile-only unsupported cost-scanner and debug-log arms; do not add
+  Ark cost scanning, debug probing, or credential-bearing diagnostics.
 - Safe unauthorized, timeout/network, empty/unsupported, and unknown states.
 - Targeted unit/mock tests with no real network or credentials.
 ```
@@ -206,7 +214,7 @@ make check
 M1 is Done only when:
 
 - LOOP was used or explicitly referenced before execution.
-- Ark is registered through only the necessary S1–S4 and S8–S11 shared
+- Ark is registered through only the necessary S1–S4 and S8–S13 shared
   integration points.
 - Provider-specific networking, signing, parsing, credential resolution, and
   tests are isolated in Ark-owned files where the architecture permits.
@@ -229,7 +237,7 @@ M1 is Done only when:
 - No M2 popover, functional Widget, unrelated-provider, upstream-sync, or
   broad-refactor changes are included; Widget changes are limited exactly to
   the S10/S11 compiler-closure arms.
-- Actual S1–S4/S8–S11 touches and rollback steps are recorded in the M1 PR/log.
+- Actual S1–S4/S8–S13 touches and rollback steps are recorded in the M1 PR/log.
 - `docs/PROJECT_LOG.md` has an M1 implementation and Codex audit record.
 - Codex review is complete.
 - Bee approves merge or moving to M2.
