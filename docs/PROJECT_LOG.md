@@ -1451,6 +1451,89 @@ Bee reviews draft PR #2 and decides whether it may merge. If Bee requests
 changes, update `docs/TASKS.md` with the exact corrective scope before any
 developer edit.
 
+## Entry 036 — M1 Merged and M2 Gate Opened
+
+Date: 2026-07-03
+Actor: Bee (approval) + Codex (repository operation)
+Type: Milestone Transition / Branch Setup
+Status: M1 MERGED / M2 APPROVED
+
+### Active Goal
+
+M2 — Ark Popover Details
+
+### LOOP Result
+
+Bee explicitly approved opening M2. The smallest governance loop was to verify
+the M1 merge, fast-forward local `main`, create the M2 branch from the exact
+merge commit, inspect the existing popover model seam, and advance the durable
+task state. Product code, push, PR creation, functional Widget work, and any
+unapproved shared menu-card edit remained outside this loop.
+
+### Summary
+
+- Verified `origin/main` is M1 merge commit `239e4272` with parents
+  `2ec7378b` and `347e15d1`.
+- Fast-forwarded local `main` from the M0 merge to `239e4272`.
+- Created local branch `feature/m2-ark-popover-details` at that exact merge
+  commit.
+- Advanced `docs/TASKS.md` from the completed M1 review/merge gate to the M2
+  popover-details preflight and Definition of Done.
+- Read the existing menu-card path. M1 already maps 5h to `primary`, Daily to
+  `secondary`, Weekly to `tertiary`, and Monthly to a named extra window.
+  The generic card currently hides `tertiary` unless provider metadata enables
+  the third lane, and treats `resetDescription` as reset text. Claude / GLM
+  must therefore prove whether Ark-owned presentation metadata is sufficient;
+  any shared menu-card edit must be proposed as S15+ and approved before use.
+- No source, test, generated, dependency, remote, or product configuration file
+  was changed.
+
+### Files Changed
+
+- `docs/TASKS.md`
+- `docs/PROJECT_LOG.md`
+
+### Evidence
+
+- M1 PR:
+  `https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/2`.
+- M1 merge commit:
+  `239e42721d4b4e4a623b10efc8b52f70d4420287`.
+- Merge parents:
+  `2ec7378bb981b393532d9506c2b8303a0889f63e` and
+  `347e15d16626d00c0a9d887d6a57d0c665d8ce6f`.
+- M2 branch: `feature/m2-ark-popover-details`.
+- M2 branch base before this governance commit: `239e4272`.
+- Source inspection:
+  `ArkUsageSnapshot.toUsageSnapshot`,
+  `UsageMenuCardView.Model.rateWindowLabels`,
+  `UsageMenuCardView.Model.metrics`, and
+  `extraRateWindowMetrics`.
+- The pre-transition real index and worktree were clean; no orphan
+  `HEAD.lock` or `index.lock` was present.
+
+### Issues / Risks
+
+- A likely shared integration need exists for the Weekly third lane and
+  used/quota/remaining detail presentation. This entry does not approve or
+  implement that edit; the developer must report the exact S15+ boundary first.
+- `make test` had an M1 environment-only Xcode `PreviewsMacros` blocker. M2
+  must retry it and record the actual result rather than assuming the blocker
+  persists.
+- Opening M2 does not authorize push, PR creation, merge, M3, or M4.
+
+### Decision
+
+M1 is merged and Bee has opened M2. Claude / GLM may begin the M2 preflight on
+the local M2 branch and may implement only within the approved scope. Any
+shared upstream-owned popover touch remains gated by an explicit S15+ proposal.
+
+### Next Action
+
+Claude / GLM performs the M2 preflight in `docs/TASKS.md`. If a shared
+menu-card touch is required, stop after documenting the proposed S15+ point and
+return it to Codex/Bee for approval. Do not push or create a PR.
+
 ## Entry Template
 
 ```text
