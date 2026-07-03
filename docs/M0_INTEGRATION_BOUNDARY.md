@@ -59,9 +59,124 @@
 | S12 | `Sources/CodexBarCore/Vendored/CostUsage/CostUsageScanner.swift` `loadDailyReportCancellable` | add only `.ark` to the existing unsupported-provider group that returns `emptyReport` | Low — one compiler-closure arm; Ark gains no local token-cost scanner. | Remove the arm together with S1. |
 | S13 | `Sources/CodexBar/UsageStore.swift` provider debug-log switch | add only `.ark` to the existing unimplemented-debug group; do not add a probe or credential-bearing output | Low — one compiler-closure arm; Ark gains no debug-log implementation. | Remove the arm together with S1. |
 | S14 | `Sources/CodexBarCore/Generated/CodexParserHash.generated.swift` | run `Scripts/regenerate-codex-parser-hash.sh` after S12 and commit only the generated hash update | Low — mechanical integrity companion to the vendored scanner change; no runtime logic. | Regenerate again after reverting S12. |
+| S15 (APPROVED — M2, Bee 2026-07-03) | `Sources/CodexBar/MenuCardView.swift` `UsageMenuCardView.Model.metrics(input:)` | add one Ark router branch: `if input.provider == .ark { return ArkPopoverMetrics.metrics(input:snapshot:) }`; all Ark rendering logic stays in new Ark-owned `ArkPopoverMetrics.swift` | Low–Med — additive provider branch in shared menu-card router; Ark logic isolated | Remove the branch; Ark reverts to standard path (M1 behavior) |
 
 All shared edits are additive registrations/wiring. None rename, move, or
 reformat upstream code. Each milestone's PR must list the S# points it touches.
+
+## M2 Approved Shared Touchpoint — S15
+
+### Problem
+
+Ark's four AFP windows (5h / Daily / Weekly / Monthly) cannot be rendered
+correctly through the standard `metrics(input:)` path with Ark-owned code
+alone. Two blockers:
+
+1. **Weekly (tertiary) row is gated by `supportsOpus`** (currently `false`).
+   Setting `supportsOpus = true` would show the row, but `supportsOpus` is a
+   **global switch** that also writes a tertiary row into the Widget snapshot
+   (`UsageStore+WidgetSnapshot.swift:162`), which is explicitly deferred to
+   M3 (S5/S10/S11 keep Ark out of the Widget). It also changes CLI tertiary
+   display, the native menu bar tertiary label, and the Preferences tertiary
+   option — all outside M2's popover scope. M2 must not touch the M3 Widget
+   snapshot boundary.
+2. **Quota is misrouted through `resetDescription`.** Ark's
+   `rateWindow(from:)` packs `"used/quota"` into
+   `RateWindow.resetDescription`. `UsageFormatter.resetLine` (lines 130-162)
+   treats this field as reset text:
+   - When `resetsAt` is present (the normal case), `resetDescription` is
+     **ignored entirely** — quota never appears.
+   - When `resetsAt` is absent, the quota string is rendered as
+     `"Resets 100/500"`, which is semantically wrong.
+
+   FR4 requires each row to show used / quota / remaining / reset as distinct
+   values; the current standard path cannot express this.
+
+### Approved S15 touch
+
+| Aspect | Value |
+|---|---|
+| ID | S15 |
+| File | `Sources/CodexBar/MenuCardView.swift` |
+| Symbol | `UsageMenuCardView.Model.metrics(input:)` (line ~1095, between `.antigravity` and `.minimax` branches) |
+| Minimal edit | One additive router branch: `if input.provider == .ark { return ArkPopoverMetrics.metrics(input: input, snapshot: snapshot) }` |
+| Conflict risk | Low–Med — shared menu-card router, but additive branch only; all Ark logic stays in Ark-owned file |
+| Rollback | Remove the branch; Ark reverts to standard path (M1 behavior: Weekly hidden, Monthly via extraRateWindows) |
+
+### Ark-owned companion file
+
+`Sources/CodexBar/Providers/Ark/ArkPopoverMetrics.swift` (new, Ark-owned):
+
+- Builds the four `[Metric]` rows (5h / Daily / Weekly / Monthly) directly from
+  `UsageSnapshot`, reusing `Metric`, `PercentStyle`, and `UsageFormatter`.
+- **Quota detail (compatibility trade-off, Option A)**: `RateWindow` has no
+  typed used/quota/remaining fields (only `usedPercent`, `resetsAt`,
+  `resetDescription`, `windowMinutes`, `nextRegenPercent`). To avoid adding a
+  new shared `RateWindow` field (which would require S16), the Ark-owned
+  `rateWindow(from:)` mapper packs a **complete display string** into
+  `RateWindow.resetDescription`, e.g. `"100 / 500 AFP · 400 remaining"` —
+  containing used, quota, AND remaining (remaining = quota − used). This is a
+  **mapper format change** from M1's `"used/quota"`: the `resetDescription`
+  content is enriched so that `detailText` carries all three numeric values,
+  satisfying FR4's four-value requirement (used/quota/remaining/reset)
+  regardless of which percent-mode (`usageBarsShowUsed`) the user selected.
+  `Metric.percent` still shows used% or remaining% (per `usageBarsShowUsed`),
+  but `detailText` supplements with the full numeric trio. `ArkPopoverMetrics`
+  reads `window.resetDescription` directly into `Metric.detailText` — treating
+  it as **opaque display text, never parsing it back into numeric values**.
+  `resetDescription` is semantically a reset field (per upstream comment:
+  "Optional textual reset description, used by Claude CLI UI scrape"), but Ark
+  reuses it as a quota-detail carrier because `RateWindow` has no dedicated
+  quota slot. This borrow is documented and isolated to Ark's presentation
+  layer; it does not leak into `resetText`.
+- **Reset text**: `resetText` is generated ONLY from `resetsAt`, via
+  `UsageFormatter.resetLine` invoked only when `resetsAt != nil`. When
+  `resetsAt` is nil, `resetText` is nil — it never falls back to
+  `resetDescription`, so quota text never appears as `"Resets …"`.
+- Unknown/missing windows are omitted (guard `usedPercent`), never rendered as
+  0%; Monthly `usageKnown=false` shows "Unavailable" via `statusText`.
+- Error/stale states reuse the existing `Input.lastError` / `placeholder`
+  paths — no parallel architecture.
+- **Test coverage required**:
+  - All four windows complete (used/quota/remaining/reset all present).
+  - `usageBarsShowUsed = true` (percent shows used%) and `= false` (remaining%)
+    — `detailText` must show the full numeric trio in both modes.
+  - `resetsAt` present (`resetText` from `UsageFormatter.resetLine`) and absent
+    (`resetText = nil`, no fallback to `resetDescription`).
+  - Missing/partial windows (omitted, not rendered as 0%).
+  - Monthly `usageKnown = false` (statusText = "Unavailable").
+  - Error/stale states (lastError, placeholder paths).
+
+### Why Ark-owned code alone is insufficient
+
+`metrics(input:)` is the provider router entry point. Without an Ark branch,
+Ark falls through to the standard path, which gates tertiary on
+`supportsOpus` and reuses `RateWindow.resetDescription` for quota — both
+broken for Ark's four-window model. An Ark-owned presentation file cannot
+intercept the router without S15; it would be dead code.
+
+### Out of scope for S15
+
+- No change to `supportsOpus` (stays `false`).
+- No change to Widget snapshot, CLI, menu bar, or Preferences tertiary paths.
+- No change to `ArkProviderDescriptor` metadata fields beyond what M1 set.
+- No change to `ArkUsageFetcher.toUsageSnapshot()` window-slot mapping (M1
+  primary/secondary/tertiary/extraRateWindows assignment preserved). The
+  Ark-owned `rateWindow(from:)` mapper IS modified: `resetDescription` content
+  changes from M1's `"used/quota"` to a complete display string
+  `"used / quota AFP · remaining remaining"` to satisfy FR4's four-value
+  requirement. This is an Ark-owned file change, not a shared-file change.
+- **No string parsing of `resetDescription`** to recover numeric used/quota
+  values. The quota text is displayed as-is; any future need for numeric
+  quota fields requires Option B (S16).
+
+### Future alternative — Option B (not proposed for M2)
+
+Add a typed Ark quota payload (e.g. `ArkQuotaDetail { used: Double?, quota:
+Double?, remaining: Double? }`) attached to `UsageSnapshot` or `RateWindow`.
+This would remove the `resetDescription` compatibility borrow but requires a
+new shared `RateWindow` or `UsageSnapshot` field — a new **S16** touchpoint.
+Defer to a future milestone if the compatibility trade-off proves insufficient.
 
 ## Upstream synchronization, conflict review & rollback procedure
 

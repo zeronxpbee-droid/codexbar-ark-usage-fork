@@ -11,9 +11,9 @@ M2 — Ark Popover Details
 ## Goal Status
 
 ```text
-Status: M2 GATE OPEN — Development Branch Created (see PROJECT_LOG Entry 036)
-Implementation State: M1 merged in PR #2 at 239e4272; M2 product code has not started
-Next: Claude / GLM performs the M2 preflight below, then implements only the approved popover scope
+Status: M2 S15 APPROVED — Implementation Authorized (see PROJECT_LOG Entry 039)
+Implementation State: M2 preflight complete; S15 Option A approved; product code has not started
+Next: Claude / GLM implements only the exact S15 Option A scope below
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex
@@ -78,12 +78,16 @@ Claude / GLM may:
   the four confirmed AFP windows and expose used/quota/remaining/reset values.
 - Reuse the existing `UsageMenuCardView.Model`, `Metric`, `RateWindow`, and
   `NamedRateWindow` paths rather than creating a parallel popover architecture.
-- Propose at most the smallest shared menu-card integration touch needed to
-  render Ark's Weekly slot and Ark-specific quota detail correctly.
-- Before editing any shared upstream-owned menu-card file, identify the exact
-  file/symbol, assign the next integration-boundary identifier beginning at
-  S15, document why Ark-owned code alone is insufficient, and stop for
-  Codex/Bee approval.
+- Implement approved S15 only: add one Ark routing branch in
+  `UsageMenuCardView.Model.metrics(input:)` and keep all Ark-specific metric
+  construction in new Ark-owned
+  `Sources/CodexBar/Providers/Ark/ArkPopoverMetrics.swift`.
+- In Ark-owned `ArkUsageFetcher.rateWindow(from:)`, change only the
+  `resetDescription` presentation payload from M1's `"used/quota"` form to a
+  complete opaque `used / quota AFP · remaining remaining` display string.
+- Route that opaque string to `Metric.detailText` without parsing it; generate
+  `resetText` only when `resetsAt` is non-nil so quota detail can never fall
+  through `UsageFormatter.resetLine` as fake reset text.
 - Add M2 tests and update M2 task/history documentation.
 
 ## Forbidden Scope
@@ -109,8 +113,10 @@ Claude / GLM must not:
 - Change Ark signing, networking, endpoint, credential persistence, or menu-bar
   selection behavior unless a separately approved correctness defect requires
   it.
-- Modify a shared menu-card integration point before the S15+ preflight gate is
-  approved.
+- Modify any shared menu-card integration point beyond the exact approved S15
+  one-branch router edit.
+- Add a typed Ark payload to shared `RateWindow` or `UsageSnapshot` (proposed
+  future S16); Option B is not approved for M2.
 - Modify unrelated providers.
 - Refactor CodexBar architecture.
 - Commit AK/SK, API keys, cookies, screenshots with secrets, or any generated
@@ -128,28 +134,31 @@ Claude / GLM must not:
 - Publish or package a release.
 - Submit an upstream PR.
 
-## Next Task — Claude / GLM M2 Preflight
+## Next Task — Claude / GLM M2 S15 Implementation
 
 1. Re-read `AGENTS.md`, `README.md`, `docs/PRD.md`, this file,
    `docs/PROJECT_LOG.md`, and `docs/M0_INTEGRATION_BOUNDARY.md`; compare the
    task against LOOP and the upstream baseline `AGENTS.md`.
 2. Verify the branch is `feature/m2-ark-popover-details`, its history descends
-   from `239e4272`, and the real index/worktree are clean.
-3. Report a Done Contract before coding:
-   - exact Ark-owned files proposed;
-   - the existing popover/model seam to reuse;
-   - row semantics for 5h/Daily/Weekly/Monthly;
-   - used/quota/remaining/reset formatting and unknown-value behavior;
-   - stale/error behavior;
-   - targeted and full verification commands;
-   - rollback path.
-4. If any shared upstream-owned file is required, identify the exact
-   file/symbol as S15+ and stop for Codex/Bee approval before editing it.
-5. If no shared boundary expansion is required, implement the smallest complete
-   M2 slice, run `git diff --check`, `swift build`,
-   `swift test --filter Ark`, relevant menu-card tests, `make test`, and
-   `make check`, then update task/log evidence and create an additive local
-   commit. Do not push or create a PR.
+   from this governance commit, and the real index/worktree are clean.
+3. State a concise Done Contract limited to:
+   - S15 one-branch shared router edit;
+   - new Ark-owned `ArkPopoverMetrics.swift`;
+   - Ark-owned complete quota-detail formatting;
+   - focused Ark popover/model tests;
+   - M2 implementation records.
+4. Implement Option A exactly as approved in
+   `docs/M0_INTEGRATION_BOUNDARY.md`. Keep `supportsOpus = false`; do not touch
+   Widget, CLI, native-menu, Preferences, shared snapshot schema, S16, or
+   unrelated providers.
+5. Test all four complete windows, both `usageBarsShowUsed` modes, reset
+   present/absent, missing/partial windows, Monthly unavailable, and
+   error/stale states.
+6. Run `git diff --check`, `swift build`, `swift test --filter Ark`, relevant
+   menu-card tests, `make test`, and `make check`; record exact outcomes and
+   create one additive local commit. Do not push or create a PR.
+7. Stop and report before any shared touch beyond S15 or any change to the
+   approved data flow.
 
 ## Definition of Done — M2
 

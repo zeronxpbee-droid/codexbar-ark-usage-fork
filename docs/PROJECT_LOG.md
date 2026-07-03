@@ -1534,6 +1534,292 @@ Claude / GLM performs the M2 preflight in `docs/TASKS.md`. If a shared
 menu-card touch is required, stop after documenting the proposed S15+ point and
 return it to Codex/Bee for approval. Do not push or create a PR.
 
+## Entry 037 — M2 Preflight Revised: S15 Proposed (supportsOpus Path Rejected)
+
+Date: 2026-07-03
+Actor: Claude (Developer)
+Type: Decision / Documentation
+Status: SUPERSEDED — S15 data-flow revised in Entry 038
+
+### Active Goal
+
+M2 — Ark Popover Details
+
+### LOOP Result
+
+LOOP applied as Project Governance Loop. Planner=Codex (audit rejection) +
+Bee (direction), Generator=Claude (revised preflight + S15 proposal),
+Evaluator=Codex/Bee (approval gate). Done Contract: verify Codex's three
+rejections, retain supportsOpus=false, propose S15, record, stop.
+
+### Summary
+
+Codex audit rejected the initial M2 preflight conclusion ("no S15+ needed"). Three
+blockers were verified against source:
+
+1. **Quota misrouted through resetDescription**: Ark's `rateWindow(from:)`
+   packs `"used/quota"` into `RateWindow.resetDescription`.
+   `UsageFormatter.resetLine` (lines 130-162) treats it as reset text — when
+   `resetsAt` is present, `resetDescription` is ignored (quota lost); when
+   `resetsAt` is absent, it renders as `"Resets 100/500"` (semantically wrong).
+   FR4 cannot be satisfied through the standard path.
+2. **supportsOpus is a global switch touching M3**: Setting
+   `supportsOpus=true` writes a tertiary row into the Widget snapshot
+   (`UsageStore+WidgetSnapshot.swift:162`), which is explicitly deferred to
+   M3 (S5/S10/S11 keep Ark out of the Widget). It also changes CLI, native
+   menu bar, and Preferences tertiary paths — all outside M2's popover scope.
+3. **AGENTS.md uncommitted 51-line change**: A "Section 6.1 Secret Storage
+   Rule" (cross-project file-hygiene rule from a prior session, recorded in
+   memory `feedback_secret_storage`) was present as unstaged modification.
+   The initial preflight's "worktree clean" claim was wrong (caused by a
+   temporary-index check that masked the dirty file). Codex subsequently
+   committed this change as governance commit `d93c22b1` on branch
+   `codex/governance-secret-storage-rule` and removed the duplicate from the
+   M2 branch; AGENTS.md is no longer dirty.
+
+### Files Changed
+
+- `docs/M0_INTEGRATION_BOUNDARY.md` — S15 row added to table; full S15
+  proposal section added (PROPOSED, awaiting Bee approval).
+- `docs/PROJECT_LOG.md` — this entry.
+
+### Evidence
+
+- `UsageFormatter.swift:130-162` — `resetLine` prefers `resetsAt` (line 135),
+  falls back to `resetDescription` (line 150) with `"Resets %@"` prefix
+  (line 159).
+- `ArkUsageFetcher.swift:72-84` — `rateWindow(from:)` sets
+  `resetDescription = "used/quota"`.
+- `UsageStore+WidgetSnapshot.swift:162-167` — `supportsOpus == true` writes
+  Widget snapshot tertiary row.
+- `MenuCardView.swift:1093-1097` — `metrics(input:)` provider router
+  (S15 insertion point, between `.antigravity` and `.minimax` branches).
+- `MenuCardView.swift:27-40` — `Metric` struct has
+  `detailText`/`detailLeftText`/`detailRightText` fields that can carry
+  quota separately from `resetText`.
+- `git diff -- AGENTS.md` — 51 insertions (Section 6.1 Secret Storage Rule).
+- `git status --short` — `M AGENTS.md` (only dirty file).
+
+### S15 Proposal (recorded in M0_INTEGRATION_BOUNDARY.md)
+
+- **Touch**: `Sources/CodexBar/MenuCardView.swift`
+  `UsageMenuCardView.Model.metrics(input:)` — add one Ark router branch
+  `if input.provider == .ark { return ArkPopoverMetrics.metrics(input:snapshot:) }`.
+- **Ark-owned companion**: `Sources/CodexBar/Providers/Ark/ArkPopoverMetrics.swift`
+  (new) — four-window Metric construction; quota via `Metric.detailText`
+  (reading `resetDescription` as opaque text per Option A, not parsing);
+  `resetText` only from `resetsAt`. Data-flow gap identified by Codex
+  audit — revised in Entry 038.
+- **Conflict risk**: Low–Med (additive branch). **Rollback**: remove branch.
+- **Out of scope**: no `supportsOpus` change, no Widget/CLI/menu/Preferences
+  changes, no `toUsageSnapshot()` mapping change.
+
+### Issues / Risks
+
+- S15 is PROPOSED only. Codex/Bee must approve before any implementation.
+- AGENTS.md's 51-line Secret Storage Rule change was committed by Codex as
+  governance commit `d93c22b1` (`codex/governance-secret-storage-rule` branch,
+  not pushed). The M2 branch no longer has this file dirty.
+- Local environment has no Swift toolchain; `swift build`/`make test`/
+  `make check` will defer to Codex after implementation.
+
+### Decision
+
+`supportsOpus` path abandoned. S15 proposed as the minimal shared touchpoint
+(one router branch) with all Ark rendering logic in a new Ark-owned file. No
+code written. Stopped per Bee's instruction. Data-flow gap (RateWindow has no
+typed quota fields; "no resetDescription" + "no mapping change" contradiction)
+identified by Codex audit — see Entry 038 for revised Option A design.
+
+### Next Action
+
+SUPERSEDED — S15 data-flow revised in Entry 038 to close the
+used/quota/remaining/reset gap (Option A compatibility trade-off). See
+Entry 038 for current status and next action.
+
+## Entry 038 — M2 S15 Data-Flow Revised (Option A Compatibility Trade-off)
+
+Date: 2026-07-03
+Actor: Claude (Developer)
+Type: Decision / Documentation
+Status: BLOCKED — S15 data-flow revised, awaiting Codex/Bee approval
+
+### Active Goal
+
+M2 — Ark Popover Details
+
+### LOOP Result
+
+LOOP applied. Planner=Codex (data-flow gap identified) + Bee (Option A
+direction), Generator=Claude (revised S15 data flow), Evaluator=Codex/Bee.
+Done Contract: close the used/quota/remaining/reset data-flow gap; document
+the resetDescription compatibility trade-off; record Option B (S16) as
+future alternative; stop.
+
+### Summary
+
+Codex audit identified that Entry 037's S15 proposal had a data-flow
+contradiction: it claimed "no `resetDescription` use" AND "no snapshot mapping
+change" simultaneously, but `RateWindow` has no typed used/quota/remaining
+fields (only `usedPercent`, `resetsAt`, `resetDescription`, `windowMinutes`,
+`nextRegenPercent`). Without a mapping change, quota can only travel through
+`resetDescription`; refusing to use it loses quota entirely.
+
+Revised per Codex/Bee Option A direction (third revision — complete display
+string):
+
+- **Ark mapper modified**: `rateWindow(from:)` changes `resetDescription`
+  content from M1's `"used/quota"` to a complete display string
+  `"used / quota AFP · remaining remaining"` (remaining = quota − used).
+  This ensures `detailText` carries all three numeric values (used, quota,
+  remaining) regardless of `usageBarsShowUsed` setting, satisfying FR4's
+  four-value requirement (`Metric.percent` shows used% or remaining% per
+  setting; `detailText` supplements with the full numeric trio).
+- **ArkPopoverMetrics reads `resetDescription` into `Metric.detailText`** as
+  opaque display text — **never parsed back into numeric values**.
+- **`resetText` generated ONLY from `resetsAt`**: `UsageFormatter.resetLine`
+  invoked only when `resetsAt != nil`; when nil, `resetText = nil` (no
+  fallback to `resetDescription`).
+- This is a **documented compatibility trade-off**: `resetDescription` is
+  semantically a reset field (upstream comment: "Optional textual reset
+  description, used by Claude CLI UI scrape"), but Ark reuses it as a
+  quota-detail carrier because `RateWindow` has no dedicated quota slot.
+  The borrow is isolated to Ark's presentation layer.
+
+Option B (typed `ArkQuotaDetail` payload + new shared `RateWindow`/`UsageSnapshot`
+field) was recorded as a future alternative requiring S16, deferred to a later
+milestone if the trade-off proves insufficient.
+
+### Files Changed
+
+- `docs/M0_INTEGRATION_BOUNDARY.md` — S15 "Ark-owned companion file" section
+  revised (Option A data flow); "Out of scope" updated; "Future alternative —
+  Option B (S16)" section added.
+- `docs/PROJECT_LOG.md` — Entry 037 corrected (Actor=Codex, AGENTS.md status);
+  this entry added.
+
+### Evidence
+
+- `UsageFetcher.swift:3-18` — `RateWindow` struct: `usedPercent`,
+  `windowMinutes`, `resetsAt`, `resetDescription`, `nextRegenPercent` (no
+  typed used/quota/remaining fields).
+- `UsageFormatter.swift:130-162` — `resetLine`: prefers `resetsAt` (line 135),
+  falls back to `resetDescription` (line 150). ArkPopoverMetrics avoids the
+  fallback by guarding on `resetsAt != nil`.
+- `ArkUsageFetcher.swift:72-84` — `rateWindow(from:)` currently sets
+  `resetDescription = "used/quota"` (M1). S15 modifies this to a complete
+  display string `"used / quota AFP · remaining remaining"`.
+- `MenuCardView.swift:27-40` — `Metric.detailText` field receives the
+  `resetDescription` text as opaque display content.
+- `git status --short` — only `docs/M0_INTEGRATION_BOUNDARY.md` and
+  `docs/PROJECT_LOG.md` dirty (AGENTS.md cleaned by governance commit
+  `d93c22b1`).
+
+### Issues / Risks
+
+- S15 is PROPOSED with revised data flow. Codex/Bee must approve before
+  implementation.
+- The `resetDescription` compatibility borrow is a semantic stretch — it
+  works for M2 but Option B (S16 typed payload) is the clean long-term fix.
+- `ArkPopoverMetrics` must NOT call `UsageFormatter.resetLine` unconditionally;
+  it must guard on `resetsAt != nil` to avoid the `resetDescription` fallback.
+  This invariant must be enforced in tests.
+- **Test coverage required**: all four windows complete;
+  `usageBarsShowUsed = true` and `= false` (detailText shows full trio in both);
+  `resetsAt` present and absent; missing/partial windows; Monthly
+  `usageKnown = false`; error/stale states.
+- Local environment has no Swift toolchain; build/test/check defer to Codex.
+
+### Decision
+
+Option A proposed for S15 (not yet approved): `resetDescription` carries a
+complete display string (`"used / quota AFP · remaining remaining"`) →
+`Metric.detailText`; `resetText` from `resetsAt` only. Option B (S16 typed
+payload) deferred. No code written. Stopped per Codex/Bee instruction.
+
+### Next Action
+
+Await Codex/Bee approval of revised S15 (Option A data flow). If approved,
+implement S15 router branch + `ArkPopoverMetrics.swift` (with `resetsAt`
+guard) + M2 tests → `git diff --check` → additive commit → hand to Codex
+for `swift build`/`swift test --filter Ark`/`make test`/`make check`.
+
+## Entry 039 — Bee Approves M2 S15 Option A Boundary
+
+Date: 2026-07-03
+Actor: Bee (approval) + Codex (boundary registration)
+Type: Decision / Documentation
+Status: APPROVED / IMPLEMENTATION AUTHORIZED
+
+### Active Goal
+
+M2 — Ark Popover Details
+
+### LOOP Result
+
+Bee explicitly approved S15 after three preflight revisions closed the
+Weekly-row, Widget-scope, reset/quota-routing, and complete
+used/quota/remaining/reset data-flow gaps. The smallest governance loop is to
+register the exact one-branch shared touch, authorize its Ark-owned companion
+work and tests, advance `docs/TASKS.md`, commit only governance documents, and
+stop before product implementation.
+
+### Summary
+
+- S15 is approved for M2:
+  `Sources/CodexBar/MenuCardView.swift`
+  `UsageMenuCardView.Model.metrics(input:)` may receive one additive `.ark`
+  router branch.
+- All Ark metric construction must remain in new Ark-owned
+  `Sources/CodexBar/Providers/Ark/ArkPopoverMetrics.swift`.
+- Ark-owned `ArkUsageFetcher.rateWindow(from:)` may change only its
+  `resetDescription` presentation payload from M1's `"used/quota"` form to a
+  complete opaque string containing used, quota, and remaining.
+- `ArkPopoverMetrics` must route that opaque value to `Metric.detailText`
+  without parsing it. `resetText` may be generated only when `resetsAt` exists,
+  preventing the quota payload from falling through as `"Resets …"`.
+- `supportsOpus` remains `false`. S15 does not authorize Widget snapshot,
+  Widget UI, CLI, native-menu, Preferences, shared snapshot-schema, S16, or
+  unrelated-provider changes.
+- No product or test source was changed in this approval loop.
+
+### Files Changed
+
+- `docs/TASKS.md`
+- `docs/M0_INTEGRATION_BOUNDARY.md`
+- `docs/PROJECT_LOG.md`
+
+### Evidence
+
+- Bee explicitly replied `批准S15`.
+- Entry 038 and the boundary map record the final Option A data flow,
+  compatibility trade-off, required test matrix, conflict risk, and rollback.
+- `RateWindow` has no typed raw used/quota/remaining fields; S16 remains
+  unapproved and deferred.
+- S15 changes one shared provider router only. Removing that branch restores
+  M1 popover behavior without affecting other providers.
+
+### Issues / Risks
+
+- `resetDescription` remains a semantically imperfect carrier for Ark quota
+  detail. The trade-off is accepted for M2 to avoid a broader shared schema
+  change.
+- Full build/test/check evidence remains required after implementation.
+- Approval does not authorize push, PR creation, merge, M3, or M4.
+
+### Decision
+
+Approve S15 Option A exactly as registered. Claude / GLM may implement the
+authorized M2 slice after re-reading the committed governance state and stating
+its Done Contract. Any shared touch beyond S15 requires a new stop-and-report
+decision.
+
+### Next Action
+
+Codex commits this governance record locally. Claude / GLM then implements the
+exact S15 Option A scope and creates one additive local commit without push.
+Codex performs the acceptance audit afterward.
+
 ## Entry Template
 
 ```text
