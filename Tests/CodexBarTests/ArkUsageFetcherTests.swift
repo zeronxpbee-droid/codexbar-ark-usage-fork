@@ -67,9 +67,11 @@ struct ArkUsageFetcherTests {
 
     @Test
     func `missing credentials throws before any network call`() async {
-        var touched = false
+        // The spy must never run: missing credentials short-circuit before any
+        // transport call. Record the failure inside the Sendable closure instead
+        // of mutating a captured variable (Swift 6 concurrency-safe).
         let spy = ProviderHTTPTransportHandler { _ in
-            touched = true
+            Issue.record("transport was invoked despite missing credentials")
             throw URLError(.badServerResponse)
         }
         await #expect(throws: ArkUsageError.missingCredentials) {
@@ -77,7 +79,6 @@ struct ArkUsageFetcherTests {
                 credentials: .init(accessKeyID: "", secretAccessKey: ""),
                 session: spy)
         }
-        #expect(touched == false)
     }
 
     // MARK: - Unauthorized

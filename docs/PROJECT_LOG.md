@@ -2279,6 +2279,80 @@ hash regeneration script, then creates one additive local commit. Claude runs
 `swift build`, `swift test --filter Ark`, `make test`, and `make check`, records
 the evidence, and does not push. Codex re-audits the result.
 
+## Entry 030 — M1 Corrective Commit 2 (Test Compile Fixes + S14 Hash)
+
+Date: 2026-07-03
+Actor: Claude Developer
+Type: Development
+Status: IMPLEMENTED / UNVERIFIED
+
+### Active Goal
+
+M1 — Ark Provider Menu Bar MVP
+
+### LOOP Result
+
+Applied LOOP strictly (production-impacting correction after a second audit
+FAIL). Gather: read Entry 028's three findings and Entry 029's S14
+authorization. Reason: findings 1–2 are test-only Swift 6 compile fixes;
+finding 3 is a mechanical regenerated-hash refresh whose expected value Codex
+already computed (`cc33c89a2253a9a3`). Act: fixed both tests and ran the
+approved regeneration script. Verify: `git diff --check` clean; the regen
+script's `check` mode now passes; diff limited to three files with no product-
+behavior change. Record: this entry. Stop: `swift build` / `swift test` /
+`make test` / `make check` still owned by Codex — no Swift toolchain here.
+
+### Summary
+
+- Finding 1 (test): `ArkUsageFetcherTests.missing credentials throws before any
+  network call` no longer mutates a captured `Bool` inside the
+  `ProviderHTTPTransportHandler` `Sendable` closure. The spy now calls
+  `Issue.record(...)` directly if it is ever invoked, which is concurrency-safe
+  and preserves the test's intent (transport must not run when credentials are
+  missing). Removed the now-redundant `#expect(touched == false)`.
+- Finding 2 (test): `ArkCredentialProjectionTests` round-trip now unwraps the
+  optional `CodexBarConfigStore.load()` result via
+  `try #require(try store.load())` before calling `providerConfig(for: .ark)`.
+- Finding 3 / S14 (generated): ran `Scripts/regenerate-codex-parser-hash.sh` to
+  refresh `Sources/CodexBarCore/Generated/CodexParserHash.generated.swift` from
+  the stale `2e350d981415198e` to `cc33c89a2253a9a3` — exactly the value Codex
+  reported as expected. This is the mechanical integrity companion to S12; no
+  vendored parser logic or other generated file was touched.
+
+### Files Changed
+
+- `Tests/CodexBarTests/ArkUsageFetcherTests.swift` (Finding 1, +3/−2)
+- `Tests/CodexBarTests/ArkCredentialProjectionTests.swift` (Finding 2, +2/−1)
+- `Sources/CodexBarCore/Generated/CodexParserHash.generated.swift` (S14, +1/−1)
+
+### Evidence
+
+- `git diff --check` clean; diff limited to the three files above.
+- `Scripts/regenerate-codex-parser-hash.sh write` → "Updated ... to
+  cc33c89a2253a9a3"; `... check` → "Codex parser hash is current
+  (cc33c89a2253a9a3)".
+- Regenerated value matches Entry 028's expected `cc33c89a2253a9a3`.
+- `swift build` / `swift test --filter Ark` / `make test` / `make check` NOT run
+  — no Swift 6 toolchain in the workspace (`swift: command not found`).
+  Execution deferred to Codex, which previously confirmed all 40 Ark tests pass
+  in six suites after exactly these two test edits plus this hash regeneration.
+
+### Issues / Risks
+
+- Correctness remains UNVERIFIED here until Codex compiles and runs the suite,
+  though Codex's Entry 028 diagnostic run already validated identical edits in a
+  temporary copy.
+
+### Decision
+
+All three Entry 028 findings are addressed additively within the approved
+S12/S13/S14 boundary. No amend/reset/rebase/push.
+
+### Next Action
+
+Codex re-audits the additive correction: `swift build`, `swift test --filter
+Ark`, `make test`, `make check`; records PASS/FAIL.
+
 ## Entry Template
 
 ```text

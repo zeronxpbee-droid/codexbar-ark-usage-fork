@@ -72,7 +72,8 @@ struct ArkCredentialProjectionTests {
         #expect(permissions.intValue & 0o777 == 0o600)
 
         // Round-trip preserves both credential fields in their dedicated slots.
-        let loaded = try store.load()
+        // `load()` returns an optional config; unwrap it before the lookup.
+        let loaded = try #require(try store.load())
         let arkConfig = try #require(loaded.providerConfig(for: .ark))
         #expect(arkConfig.apiKey == fakeAccessKeyID)
         #expect(arkConfig.secretKey == fakeSecretAccessKey)

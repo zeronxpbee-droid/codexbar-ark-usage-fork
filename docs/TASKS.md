@@ -11,9 +11,9 @@ M1 — Ark Provider Menu Bar MVP
 ## Goal Status
 
 ```text
-Status: M1 RE-AUDIT FAIL — S14 Corrective Scope Approved (see PROJECT_LOG Entries 028–029)
-Implementation State: Commit c6c60cfc builds the app, but Ark test compilation and make check fail
-Next: Claude fixes all Entry 028 findings, including approved S14 generated-hash update, in an additive local commit
+Status: M1 CORRECTION 2 SUBMITTED — Awaiting Codex Re-Audit (see PROJECT_LOG Entries 028–030)
+Implementation State: Second additive corrective commit on M1 branch (Finding 1/2 test compile fixes + S14 regenerated parser hash); IMPLEMENTED, UNVERIFIED
+Next: Codex re-audits — swift build, swift test --filter Ark, make test, make check — and records PASS/FAIL
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex
