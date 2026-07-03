@@ -87,6 +87,8 @@ public enum ProviderConfigEnvironment {
             self.applyOpenAIOverrides(base: base, config: config)
         case .bedrock:
             self.applyBedrockOverrides(base: base, config: config)
+        case .ark:
+            self.applyArkOverrides(base: base, config: config)
         case .deepgram:
             self.applyDeepgramOverrides(base: base, config: config)
         case .llmproxy, .litellm:
@@ -227,6 +229,31 @@ public enum ProviderConfigEnvironment {
 
         if let region = config.sanitizedRegion {
             env[BedrockSettingsReader.regionKeys[0]] = region
+        }
+
+        return env
+    }
+
+    /// Project the stored Ark credentials into the environment keys that
+    /// `ArkSettingsReader` (and the isolated M0 probe) read. Ark uses long-lived
+    /// IAM keys with no Keychain and no auth-mode switching (AGENTS.md §6):
+    /// `apiKey` carries the Access Key ID and `secretKey` the Secret Access Key.
+    /// Only non-empty sanitized values are projected so an env-driven setup is
+    /// left untouched when the config omits a field.
+    private static func applyArkOverrides(
+        base: [String: String],
+        config: ProviderConfig?) -> [String: String]
+    {
+        guard let config else { return base }
+
+        var env = base
+
+        if let accessKeyID = config.sanitizedAPIKey {
+            env[ArkSettingsReader.accessKeyIDKey] = accessKeyID
+        }
+
+        if let secretAccessKey = config.sanitizedSecretKey {
+            env[ArkSettingsReader.secretAccessKeyKey] = secretAccessKey
         }
 
         return env

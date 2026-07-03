@@ -1,6 +1,7 @@
 # M0 Ark Integration Boundary Map
 
-> Status: IMPLEMENTED / UNVERIFIED (M0 planning artifact). This document maps
+> Status: REVIEWED / M0 COMPLETE (planning artifact retained for integration
+> governance). This document maps
 > the upstream extension points located during M0 and classifies every planned
 > M1–M4 change as either an **Ark-owned new file** or a **required shared
 > upstream integration point**. It exists to keep the upstream conflict surface
@@ -23,7 +24,7 @@
 | Fetcher/parser pattern | `Sources/CodexBarCore/Providers/<Name>/<Name>UsageFetcher.swift` (e.g. Doubao) | `…UsageSnapshot.toUsageSnapshot()` → `UsageSnapshot`. |
 | Multi-window usage model | `Sources/CodexBarCore/UsageFetcher.swift` (`UsageSnapshot`: `primary/secondary/tertiary` + `extraRateWindows: [NamedRateWindow]?`) | 4 AFP windows fit `primary` + `extraRateWindows` (or the three slots + one extra). |
 | HMAC-SHA256 signing precedent | `Sources/CodexBarCore/Providers/Bedrock/BedrockAWSSigner.swift` | Structural blueprint for the Ark signer. |
-| AK/SK credential resolution | `ProviderTokenResolver.swift`, `Bedrock/BedrockCredentialResolver.swift` | Precedent for AK/SK (not Bearer) resolution. |
+| AK/SK credential storage and resolution | `CodexBarConfig.swift`, `CodexBarConfigStore.swift`, `ProviderConfigEnvironment.swift`, `Bedrock/BedrockSettingsStore.swift`, `Bedrock/BedrockCredentialResolver.swift` | Upstream precedent: store the pair in `ProviderConfig.apiKey` / `secretKey`, persist the resolved config with mode `0600`, and project it into the fetch environment at runtime. |
 | Widget snapshot store | `Sources/CodexBarCore/WidgetSnapshot.swift` (`WidgetSnapshot.ProviderEntry`, `usageRows`) | Ark writes into existing snapshot path. |
 | Widget provider picker/intent | `Sources/CodexBarWidget/CodexBarWidgetProvider.swift` (`enum ProviderChoice: AppEnum`, `caseDisplayRepresentations`, `init?(provider:)`) | Add `.ark` case + display representation; map instead of returning `nil`. |
 | Widget UI | `Sources/CodexBarWidget/CodexBarWidgetViews.swift`, `BurnDownWidgetViews.swift` | Small/medium rendering. |
@@ -51,6 +52,13 @@
 | S5 | `WidgetSnapshot.swift` | none expected (schema already generic via `usageRows`/windows) | Low — only touched if a new field is truly required. | Revert field. |
 | S6 | `CodexBarWidgetProvider.swift` `ProviderChoice` | add `.ark` enum case, display rep, and `init?(provider:)` mapping | Med — this enum is edited on every widget-enabled provider; expect conflicts on upstream sync. | Return `nil` for `.ark` / remove case. |
 | S7 | `CodexBarWidgetViews.swift` | minimal row wiring if needed | Low–Med. | Revert wiring. |
+| S8 | `ProviderConfigEnvironment.swift` | add Ark-specific projection from `ProviderConfig.apiKey` / `secretKey` into the existing in-memory provider environment | Low–Med — shared credential router, but the edit follows the upstream Bedrock convention and remains an additive provider case/helper. | Remove the Ark case/helper; Ark then has no production credential projection. |
+| S9 | `MenuBarMetricWindowResolver.swift` | add an Ark branch for `.automatic` that selects the highest-risk known AFP window and falls back to 5h, then Daily | Med — shared menu policy is provider-switched and frequently extended, but the Ark edit follows existing provider-specific resolver branches and remains line-local. | Remove the Ark branch; generic automatic behavior falls back to stable `primary` (5h), then `secondary` (Daily). |
+| S10 | `CodexBarWidgetProvider.swift` `ProviderChoice.init?(provider:)` | add only `case .ark: return nil` to close the exhaustive switch; do not add `ProviderChoice.ark` or a display representation | Low — one compile-only arm; Ark remains unsupported and unselectable in Widgets. | Remove the arm together with S1. |
+| S11 | `CodexBarWidgetViews.swift` | add only exhaustive `case .ark` arms for `shortLabel` (`"Ark"`) and a static color; no layout or rendering wiring | Low — two compile-only arms with no new Widget entry path. | Remove both arms together with S1. |
+| S12 | `Sources/CodexBarCore/Vendored/CostUsage/CostUsageScanner.swift` `loadDailyReportCancellable` | add only `.ark` to the existing unsupported-provider group that returns `emptyReport` | Low — one compiler-closure arm; Ark gains no local token-cost scanner. | Remove the arm together with S1. |
+| S13 | `Sources/CodexBar/UsageStore.swift` provider debug-log switch | add only `.ark` to the existing unimplemented-debug group; do not add a probe or credential-bearing output | Low — one compiler-closure arm; Ark gains no debug-log implementation. | Remove the arm together with S1. |
+| S14 | `Sources/CodexBarCore/Generated/CodexParserHash.generated.swift` | run `Scripts/regenerate-codex-parser-hash.sh` after S12 and commit only the generated hash update | Low — mechanical integrity companion to the vendored scanner change; no runtime logic. | Regenerate again after reverting S12. |
 
 All shared edits are additive registrations/wiring. None rename, move, or
 reformat upstream code. Each milestone's PR must list the S# points it touches.
@@ -66,8 +74,8 @@ reformat upstream code. Each milestone's PR must list the S# points it touches.
    widget snapshot/preview checks.
 5. Report conflicts and behavior changes explicitly; do not auto-merge.
 6. Rollback: because Ark logic is isolated in `Providers/Ark/*` new files, a
-   revert of the S1–S7 additive edits fully removes Ark without touching other
-   providers.
+   revert of the applicable S1–S14 additive edits fully removes Ark without
+   touching other providers.
 
 ## M0-specific rollback
 

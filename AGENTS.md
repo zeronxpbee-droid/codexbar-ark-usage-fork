@@ -219,7 +219,10 @@ Unless Bee explicitly changes `docs/TASKS.md`, agents must not:
 - Rewrite WidgetKit architecture globally.
 - Change unrelated provider behavior.
 - Add analytics, telemetry, account tracking, or network calls beyond the active provider.
-- Store secrets in source files, markdown logs, test fixtures, screenshots, or unencrypted local files.
+- Store secrets in source files, markdown logs, test fixtures, screenshots, or
+  arbitrary unencrypted local files. The sole approved static-provider
+  exception is CodexBar's upstream config store, protected with POSIX mode
+  `0600` as described in Section 6.
 - Require browser cookies as the primary credential path.
 - Create a new standalone app when the current goal is a CodexBar fork.
 - Add a backend service unless explicitly approved.
@@ -232,14 +235,27 @@ Unless Bee explicitly changes `docs/TASKS.md`, agents must not:
 
 Allowed credential sources, in priority order:
 
-1. Existing CodexBar credential/config mechanism, if appropriate.
-2. macOS Keychain.
+1. Existing upstream CodexBar credential/config mechanism. Static provider
+   credentials may use `ProviderConfig` persisted by `CodexBarConfigStore` in
+   the resolved CodexBar `config.json`, provided the store enforces POSIX mode
+   `0600`.
+2. macOS Keychain when that is the existing upstream convention for the
+   credential type or Bee explicitly approves it.
 3. Environment variables for local probe only.
+
+For Ark M1, Bee has accepted the same storage pattern used by upstream AWS
+Bedrock: Access Key ID in `ProviderConfig.apiKey`, Secret Access Key in
+`ProviderConfig.secretKey`, and runtime projection through
+`ProviderConfigEnvironment`. This is filesystem-permission protection, not
+at-rest encryption. The compatibility tradeoff is intentional so the fork does
+not introduce a competing credential subsystem.
 
 Forbidden:
 
 - Hard-coded AK/SK.
 - Plaintext committed config.
+- Custom plaintext credential files outside the upstream CodexBar config
+  mechanism.
 - Printing full credentials in logs.
 - Persisting API responses that expose account identifiers unless redacted.
 

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ProviderIcon-ark.svg
+  Original, monochrome template glyph created for this fork's Ark (Volcengine
+  Agent Plan) provider. NOT derived from any Volcengine trademark or logo; it is
+  a generic stylized "A" (an upward peak over a base bar) intended purely as a
+  neutral placeholder brand mark. Rendered as a template image (fill is ignored;
+  isTemplate = true), matching the other ProviderIcon-*.svg resources.
+-->
+<svg width="100" height="100" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g fill="#FFFFFF">
+            <!-- Outer "A" chevron -->
+            <path d="M50,10 L84,80 L68,80 L50,42 L32,80 L16,80 L50,10 Z" />
+            <!-- Crossbar of the "A" -->
+            <path d="M38,58 L62,58 L69,72 L31,72 L38,58 Z" />
+        </g>
+    </g>
+</svg>

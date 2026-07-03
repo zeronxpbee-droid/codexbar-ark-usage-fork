@@ -151,7 +151,28 @@ enum MenuBarMetricWindowResolver {
         if provider == .claude, let spendLimit = Self.claudeSpendLimitWindow(snapshot: snapshot) {
             return spendLimit
         }
+        if provider == .ark {
+            return Self.mostConstrainedArkWindow(snapshot: snapshot)
+                ?? snapshot.primary ?? snapshot.secondary
+        }
         return snapshot.primary ?? snapshot.secondary
+    }
+
+    private static let arkMonthlyWindowID = "ark-afp-monthly"
+
+    /// Ark automatic menu-bar selection: the highest used-percentage AFP window across the four
+    /// stable lanes (5h `primary`, Daily `secondary`, Weekly `tertiary`, Monthly extra window).
+    /// Windows with unknown usage are already omitted upstream, so only real, known-usage lanes are
+    /// compared. Returns nil when no known window exists so the caller can fall back to 5h then Daily.
+    private static func mostConstrainedArkWindow(snapshot: UsageSnapshot) -> RateWindow? {
+        var windows = [snapshot.primary, snapshot.secondary, snapshot.tertiary].compactMap(\.self)
+        if let monthly = snapshot.extraRateWindows?.first(where: {
+            $0.usageKnown && $0.id == Self.arkMonthlyWindowID
+        })?.window {
+            windows.append(monthly)
+        }
+        guard !windows.isEmpty else { return nil }
+        return windows.max(by: { $0.usedPercent < $1.usedPercent })
     }
 
     private static let antigravityQuotaSummaryWindowIDPrefix = "antigravity-quota-summary-"

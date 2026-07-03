@@ -1045,6 +1045,7 @@ extension UsageStore {
                 .litellm: "LiteLLM debug log not yet implemented",
                 .deepgram: "Deepgram debug log not yet implemented",
                 .chutes: "Chutes debug log not yet implemented",
+                .ark: "Ark debug log not yet implemented",
             ]
             let buildText = {
                 switch provider {
@@ -1122,7 +1123,8 @@ extension UsageStore {
                 case .gemini, .antigravity, .opencode, .opencodego, .alibabatokenplan, .factory, .copilot, .devin,
                      .vertexai, .kilo, .kiro, .kimi, .kimik2, .moonshot, .jetbrains, .perplexity, .mimo, .doubao,
                      .sakana, .abacus, .mistral, .codebuff, .crof, .windsurf, .venice, .manus, .commandcode, .stepfun,
-                     .bedrock, .grok, .groq, .t3chat, .llmproxy, .litellm, .zed, .deepgram, .poe, .chutes:
+                     .bedrock, .grok, .groq, .t3chat, .llmproxy, .litellm, .zed, .deepgram, .poe, .chutes, .ark:
+                    // Ark (S13): unimplemented debug log group; no real probe, no credential output.
                     return unimplementedDebugLogMessages[provider] ?? "Debug log not yet implemented"
                 }
             }

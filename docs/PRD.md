@@ -216,9 +216,14 @@ The MVP must not:
 
 ## 9. Security Requirements
 
-- AK/SK or API keys must be stored using secure mechanisms.
+- Ark AK/SK may use the upstream CodexBar static-provider mechanism:
+  `ProviderConfig` persisted by `CodexBarConfigStore` with POSIX mode `0600`.
+  This accepted compatibility choice protects the file by user-only
+  permissions but does not provide at-rest encryption.
 - Local probe may use environment variables only.
 - No credentials in commits, screenshots, logs, markdown, or test fixtures.
+- No custom plaintext credential file may be introduced outside the upstream
+  CodexBar config mechanism.
 - Error messages must not echo secret-bearing request headers.
 - If a request fails, show safe diagnostic categories:
   - unauthorized.
