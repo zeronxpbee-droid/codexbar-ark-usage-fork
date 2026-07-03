@@ -79,8 +79,7 @@ public struct ArkUsageSnapshot: Sendable, Equatable {
     private static func rateWindow(from afp: AFPWindow?) -> RateWindow? {
         guard let afp, let usedPercent = afp.usedPercent else { return nil }
         let description: String? = if let quota = afp.quota, let used = afp.used {
-            let remaining = max(0, quota - used)
-            "\(Self.format(used)) / \(Self.format(quota)) AFP · \(Self.format(remaining)) remaining"
+            "\(Self.format(used)) / \(Self.format(quota)) AFP · \(Self.format(max(0, quota - used))) remaining"
         } else {
             nil
         }

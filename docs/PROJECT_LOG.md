@@ -2042,6 +2042,84 @@ Claude / GLM fixes findings 1–3, runs all required commands where available,
 records exact outcomes, and creates one additive local commit. Codex then
 re-audits the correction.
 
+## Entry 042 — M2 S15 Corrective Commit
+
+Date: 2026-07-03
+Actor: Claude (implementation)
+Type: Bugfix
+Status: CREATED — awaiting Codex re-audit
+
+### Active Goal
+
+M2 — Ark Popover Details (S15 Option A corrective)
+
+### LOOP Result
+
+Debugging Loop applied after Codex Entry 041 audit FAIL. Three findings
+fixed by inspecting the trace: (1) if-expression body contained a `let`
+statement (Swift requires single expression); (2) test functions declared
+unnecessary `throws` and one `Self.` access that SwiftFormat flagged; (3)
+approved test matrix omitted refresh-error and stale-snapshot coverage.
+Generator=Claude, Evaluator=Codex (pending re-audit).
+
+### Summary
+
+Finding 1 (P1 — compile): `ArkUsageFetcher.rateWindow(from:)` if-expression
+body declared `let remaining = max(0, quota - used)` before the string
+literal, causing `non-expression branch of 'if' expression`. Fixed by
+inlining the expression: `\(Self.format(max(0, quota - used)))`.
+
+Finding 2 (P1 — SwiftFormat): `ArkPopoverMetricsTests.swift` had 9
+`redundantThrows` findings (every `@Test func` declared `throws` but none
+used `try`) and 1 `redundantSelf` finding. Fixed by removing all `throws`,
+introducing a `makeSnapshot` helper that wraps `UsageSnapshot` construction
+so `Self.now`/`Self.resetDate` no longer appear in instance-method call
+sites, and extending `makeModel` with `resetTimeDisplayStyle` and
+`lastError` parameters so the absolute-style test reuses the helper.
+
+Finding 3 (P1 — missing tests): Added two approved test cases:
+`refreshErrorShowsErrorStyleButMetricsRender` — verifies a non-nil
+`lastError` surfaces `subtitleStyle == .error` while cached metrics still
+render; `staleSnapshotStillRendersMetrics` — verifies a 2-hour-old
+snapshot still renders its cached rows.
+
+### Files Changed
+
+- `Sources/CodexBarCore/Providers/Ark/ArkUsageFetcher.swift` (1 line —
+  inline remaining expression)
+- `Tests/CodexBarTests/ArkPopoverMetricsTests.swift` (rewritten — 11 test
+  cases, helpers consolidated, `throws` removed, `makeSnapshot` added)
+- `docs/PROJECT_LOG.md` (this entry)
+- `docs/TASKS.md` (status update)
+
+### Evidence
+
+- `git diff --check`: PASS.
+- Diff scope: 2 product/test files + 2 governance files. No shared-file
+  change beyond the already-approved S15 router branch (unchanged from
+  `02539d87`). No S16/Widget/CLI/native-menu/Preferences change.
+- `ArkUsageFetcher.swift` if-expression body is now a single string
+  literal expression.
+- Test file has 11 `@Test` functions, none with `throws`; no `Self.`
+  access in instance-method bodies (only in a doc comment).
+- No local Swift toolchain; build/test/check deferred to Codex.
+
+### Issues / Risks
+
+- Build/test/check not yet run (no local Swift toolchain). Codex must
+  verify compilation and test passage.
+- `make test` retains the known external `PreviewsMacros` environment
+  risk; Codex should retry on this commit.
+
+### Decision
+
+Corrective commit limited to the two Ark-owned files and two governance
+files as authorized by Entry 041. No amend/reset/rebase/push.
+
+### Next Action
+
+Codex re-audits the correction. If green, M2 implementation is accepted.
+
 ## Entry Template
 
 ```text

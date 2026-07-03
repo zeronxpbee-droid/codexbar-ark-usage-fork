@@ -13,6 +13,9 @@ import Testing
 ///   - `percent` shows used% or remaining% per `usageBarsShowUsed`.
 ///   - Missing windows are omitted (not rendered as 0%).
 ///   - Monthly `usageKnown = false` shows "Unavailable".
+///   - Refresh errors surface via `subtitleStyle == .error` without dropping
+///     cached metrics.
+///   - Stale snapshots still render their cached rows.
 struct ArkPopoverMetricsTests {
     // MARK: - Helpers
 
@@ -48,9 +51,29 @@ struct ArkPopoverMetricsTests {
             loginMethod: nil)
     }
 
+    /// Build a `UsageSnapshot` with Ark identity, using the static `now` as
+    /// `updatedAt` so tests do not need `Self.now` at call sites.
+    private static func makeSnapshot(
+        primary: RateWindow? = nil,
+        secondary: RateWindow? = nil,
+        tertiary: RateWindow? = nil,
+        extraRateWindows: [NamedRateWindow]? = nil,
+        updatedAt: Date = now) -> UsageSnapshot
+    {
+        UsageSnapshot(
+            primary: primary,
+            secondary: secondary,
+            tertiary: tertiary,
+            extraRateWindows: extraRateWindows,
+            updatedAt: updatedAt,
+            identity: makeIdentity())
+    }
+
     private static func makeModel(
         snapshot: UsageSnapshot?,
         usageBarsShowUsed: Bool = true,
+        resetTimeDisplayStyle: ResetTimeDisplayStyle = .countdown,
+        lastError: String? = nil,
         now: Date = now) -> UsageMenuCardView.Model
     {
         UsageMenuCardView.Model.make(.init(
@@ -65,9 +88,9 @@ struct ArkPopoverMetricsTests {
             tokenError: nil,
             account: AccountInfo(email: nil, plan: nil),
             isRefreshing: false,
-            lastError: nil,
+            lastError: lastError,
             usageBarsShowUsed: usageBarsShowUsed,
-            resetTimeDisplayStyle: .countdown,
+            resetTimeDisplayStyle: resetTimeDisplayStyle,
             tokenCostUsageEnabled: false,
             showOptionalCreditsAndExtraUsage: true,
             hidePersonalInfo: false,
@@ -77,19 +100,17 @@ struct ArkPopoverMetricsTests {
     // MARK: - Four windows complete
 
     @Test
-    func fourWindowsCompleteShowsAllValues() throws {
+    func fourWindowsCompleteShowsAllValues() {
         let monthly = NamedRateWindow(
             id: "ark-afp-monthly",
             title: "Monthly",
             window: arkWindow(usedPercent: 10),
             usageKnown: true)
-        let snapshot = UsageSnapshot(
+        let snapshot = makeSnapshot(
             primary: arkWindow(usedPercent: 20),
             secondary: arkWindow(usedPercent: 30),
             tertiary: arkWindow(usedPercent: 40),
-            extraRateWindows: [monthly],
-            updatedAt: Self.now,
-            identity: makeIdentity())
+            extraRateWindows: [monthly])
 
         let model = makeModel(snapshot: snapshot, usageBarsShowUsed: true)
 
@@ -118,13 +139,8 @@ struct ArkPopoverMetricsTests {
     // MARK: - usageBarsShowUsed = false (remaining %)
 
     @Test
-    func usageBarsShowRemainingStillShowsCompleteDetail() throws {
-        let snapshot = UsageSnapshot(
-            primary: arkWindow(usedPercent: 20),
-            secondary: nil,
-            tertiary: nil,
-            updatedAt: Self.now,
-            identity: makeIdentity())
+    func usageBarsShowRemainingStillShowsCompleteDetail() {
+        let snapshot = makeSnapshot(primary: arkWindow(usedPercent: 20))
 
         let model = makeModel(snapshot: snapshot, usageBarsShowUsed: false)
 
@@ -138,14 +154,9 @@ struct ArkPopoverMetricsTests {
     // MARK: - resetsAt nil → resetText nil (no fallback)
 
     @Test
-    func resetsAtNilOmitsResetTextNoFallback() throws {
+    func resetsAtNilOmitsResetTextNoFallback() {
         let window = arkWindow(usedPercent: 20, resetsAt: nil)
-        let snapshot = UsageSnapshot(
-            primary: window,
-            secondary: nil,
-            tertiary: nil,
-            updatedAt: Self.now,
-            identity: makeIdentity())
+        let snapshot = makeSnapshot(primary: window)
 
         let model = makeModel(snapshot: snapshot, usageBarsShowUsed: true)
 
@@ -161,14 +172,9 @@ struct ArkPopoverMetricsTests {
     // MARK: - Missing windows omitted
 
     @Test
-    func missingWindowsOmittedNotRenderedAsZero() throws {
+    func missingWindowsOmittedNotRenderedAsZero() {
         // Only primary present; secondary/tertiary/monthly all nil.
-        let snapshot = UsageSnapshot(
-            primary: arkWindow(usedPercent: 20),
-            secondary: nil,
-            tertiary: nil,
-            updatedAt: Self.now,
-            identity: makeIdentity())
+        let snapshot = makeSnapshot(primary: arkWindow(usedPercent: 20))
 
         let model = makeModel(snapshot: snapshot, usageBarsShowUsed: true)
 
@@ -177,14 +183,11 @@ struct ArkPopoverMetricsTests {
     }
 
     @Test
-    func onlyPrimaryAndTertiary() throws {
+    func onlyPrimaryAndTertiary() {
         // Secondary missing — primary and tertiary still render.
-        let snapshot = UsageSnapshot(
+        let snapshot = makeSnapshot(
             primary: arkWindow(usedPercent: 20),
-            secondary: nil,
-            tertiary: arkWindow(usedPercent: 40),
-            updatedAt: Self.now,
-            identity: makeIdentity())
+            tertiary: arkWindow(usedPercent: 40))
 
         let model = makeModel(snapshot: snapshot, usageBarsShowUsed: true)
 
@@ -195,19 +198,15 @@ struct ArkPopoverMetricsTests {
     // MARK: - Monthly usageKnown = false
 
     @Test
-    func monthlyUsageUnknownShowsUnavailable() throws {
+    func monthlyUsageUnknownShowsUnavailable() {
         let monthly = NamedRateWindow(
             id: "ark-afp-monthly",
             title: "Monthly",
             window: arkWindow(usedPercent: 0),
             usageKnown: false)
-        let snapshot = UsageSnapshot(
+        let snapshot = makeSnapshot(
             primary: arkWindow(usedPercent: 20),
-            secondary: nil,
-            tertiary: nil,
-            extraRateWindows: [monthly],
-            updatedAt: Self.now,
-            identity: makeIdentity())
+            extraRateWindows: [monthly])
 
         let model = makeModel(snapshot: snapshot, usageBarsShowUsed: true)
 
@@ -223,7 +222,7 @@ struct ArkPopoverMetricsTests {
     // MARK: - No snapshot
 
     @Test
-    func noSnapshotReturnsEmptyMetrics() throws {
+    func noSnapshotReturnsEmptyMetrics() {
         let model = makeModel(snapshot: nil, usageBarsShowUsed: true)
         #expect(model.metrics.isEmpty)
     }
@@ -231,19 +230,10 @@ struct ArkPopoverMetricsTests {
     // MARK: - resetDescription nil but resetsAt present
 
     @Test
-    func resetDescriptionNilStillShowsReset() throws {
+    func resetDescriptionNilStillShowsReset() {
         // Window with no resetDescription (quota values missing from API).
-        let window = RateWindow(
-            usedPercent: 20,
-            windowMinutes: nil,
-            resetsAt: Self.resetDate,
-            resetDescription: nil)
-        let snapshot = UsageSnapshot(
-            primary: window,
-            secondary: nil,
-            tertiary: nil,
-            updatedAt: Self.now,
-            identity: makeIdentity())
+        let window = arkWindow(usedPercent: 20, resetDescription: nil)
+        let snapshot = makeSnapshot(primary: window)
 
         let model = makeModel(snapshot: snapshot, usageBarsShowUsed: true)
 
@@ -257,38 +247,55 @@ struct ArkPopoverMetricsTests {
     // MARK: - Absolute reset style
 
     @Test
-    func absoluteResetStyleShowsDate() throws {
-        let snapshot = UsageSnapshot(
-            primary: arkWindow(usedPercent: 20),
-            secondary: nil,
-            tertiary: nil,
-            updatedAt: Self.now,
-            identity: makeIdentity())
+    func absoluteResetStyleShowsDate() {
+        let snapshot = makeSnapshot(primary: arkWindow(usedPercent: 20))
 
-        let model = UsageMenuCardView.Model.make(.init(
-            provider: .ark,
-            metadata: metadata,
+        let model = makeModel(
             snapshot: snapshot,
-            credits: nil,
-            creditsError: nil,
-            dashboard: nil,
-            dashboardError: nil,
-            tokenSnapshot: nil,
-            tokenError: nil,
-            account: AccountInfo(email: nil, plan: nil),
-            isRefreshing: false,
-            lastError: nil,
             usageBarsShowUsed: true,
-            resetTimeDisplayStyle: .absolute,
-            tokenCostUsageEnabled: false,
-            showOptionalCreditsAndExtraUsage: true,
-            hidePersonalInfo: false,
-            now: Self.now))
+            resetTimeDisplayStyle: .absolute)
 
         #expect(model.metrics.count == 1)
         // Absolute style produces "Resets <date>".
         #expect(model.metrics[0].resetText?.hasPrefix("Resets") == true)
         // detailText unaffected by reset style.
+        #expect(model.metrics[0].detailText == "100 / 500 AFP · 400 remaining")
+    }
+
+    // MARK: - Refresh error with cached snapshot
+
+    @Test
+    func refreshErrorShowsErrorStyleButMetricsRender() {
+        // A cached snapshot exists from a previous successful fetch, but the
+        // latest refresh failed. The popover must still show the cached rows
+        // while surfacing the error via subtitleStyle.
+        let snapshot = makeSnapshot(primary: arkWindow(usedPercent: 20))
+
+        let model = makeModel(
+            snapshot: snapshot,
+            lastError: "Ark API error (HTTP 500)")
+
+        // Metrics still render from the cached snapshot.
+        #expect(model.metrics.count == 1)
+        #expect(model.metrics[0].detailText == "100 / 500 AFP · 400 remaining")
+        // Subtitle reflects the error.
+        #expect(model.subtitleStyle == .error)
+    }
+
+    // MARK: - Stale snapshot still renders
+
+    @Test
+    func staleSnapshotStillRendersMetrics() {
+        // Snapshot is 2 hours old but still has valid data. The popover must
+        // render the cached rows rather than going blank.
+        let staleUpdated = now.addingTimeInterval(-7200)
+        let snapshot = makeSnapshot(
+            primary: arkWindow(usedPercent: 20),
+            updatedAt: staleUpdated)
+
+        let model = makeModel(snapshot: snapshot, usageBarsShowUsed: true)
+
+        #expect(model.metrics.count == 1)
         #expect(model.metrics[0].detailText == "100 / 500 AFP · 400 remaining")
     }
 }

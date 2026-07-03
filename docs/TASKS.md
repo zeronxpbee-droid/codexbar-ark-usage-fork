@@ -11,9 +11,9 @@ M2 — Ark Popover Details
 ## Goal Status
 
 ```text
-Status: M2 S15 AUDIT FAIL — additive corrective commit required (see PROJECT_LOG Entry 041)
-Implementation State: Commit 02539d87 does not compile; new test file also fails SwiftFormat and omits required error/stale coverage
-Next: Claude / GLM fixes only Entry 041 findings in one additive commit; no amend/reset/rebase/push
+Status: M2 S15 CORRECTIVE COMMIT — awaiting Codex re-audit (see PROJECT_LOG Entry 042)
+Implementation State: Compile fix (if-expression) + SwiftFormat fix (throws/Self) + 2 new tests (refresh-error, stale-snapshot); 11 test cases total
+Next: Codex re-audits the correction; if green, M2 implementation accepted
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex
