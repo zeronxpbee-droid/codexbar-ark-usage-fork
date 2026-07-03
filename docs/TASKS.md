@@ -11,9 +11,9 @@ M1 — Ark Provider Menu Bar MVP
 ## Goal Status
 
 ```text
-Status: M1 CORRECTION 2 SUBMITTED — Awaiting Codex Re-Audit (see PROJECT_LOG Entries 028–030)
-Implementation State: Second additive corrective commit on M1 branch (Finding 1/2 test compile fixes + S14 regenerated parser hash); IMPLEMENTED, UNVERIFIED
-Next: Codex re-audits — swift build, swift test --filter Ark, make test, make check — and records PASS/FAIL
+Status: M1 RE-AUDIT FAIL — SwiftFormat Correction Required (see PROJECT_LOG Entry 032)
+Implementation State: Commit 132cad87 builds, all 40 Ark tests pass, and S14 is current; make check fails on 9 Ark files
+Next: Claude submits one additive formatting-only corrective commit, then Codex re-audits
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex
@@ -142,7 +142,7 @@ Claude / GLM must not:
 0. Work only in the assigned `feature/m1-ark-provider-menu-bar` checkout and create
    local commits without pushing.
 
-1. Read these files:
+1. Re-read these files and explicitly apply LOOP:
 
 ```text
 AGENTS.md
@@ -153,66 +153,57 @@ docs/PROJECT_LOG.md
 docs/M0_INTEGRATION_BOUNDARY.md
 ```
 
-2. Invoke or explicitly compare against the installed `LOOP` Skill.
-
-3. Confirm before coding:
+2. Confirm before editing:
 
 ```text
 - Branch is feature/m1-ark-provider-menu-bar.
 - Active Goal is M1 — Ark Provider Menu Bar MVP.
-- HEAD descends from M0 merge commit 2ec7378b.
+- HEAD descends from developer commit 132cad87 and the latest Codex
+  audit/governance commits.
 - Worktree contains no unrelated user/Codex changes.
 ```
 
-4. Inspect the existing provider patterns and prepare a pre-coding report:
+3. Make only the repository-pinned SwiftFormat changes reported in Entry 032
+   for these nine Ark-owned source/test files:
 
 ```text
-- Done Contract.
-- Planned Ark-owned new files.
-- Planned shared files with S1–S4/S8–S14 identifiers.
-- Secure AK/SK storage and resolution path.
-- UsageSnapshot mapping for 5h / daily / weekly / monthly.
-- Menu-bar primary-window selection using existing CodexBar conventions.
-- Test/build/check plan.
-- Rollback path.
+Sources/CodexBarCore/Providers/Ark/ArkAPIConfig.swift
+Sources/CodexBarCore/Providers/Ark/ArkErrorResponse.swift
+Sources/CodexBarCore/Providers/Ark/GetAFPUsageResponse.swift
+Sources/CodexBarCore/Providers/Ark/VolcengineArkSigner.swift
+Tests/CodexBarTests/ArkCredentialProjectionTests.swift
+Tests/CodexBarTests/ArkMenuBarMetricWindowResolverTests.swift
+Tests/CodexBarTests/ArkRedactionTests.swift
+Tests/CodexBarTests/ArkUsageFetcherTests.swift
+Tests/CodexBarTests/ArkVolcengineSignerTests.swift
 ```
 
-5. Use the approved upstream-compatible AK/SK path documented above. If no
-   existing convention can support the required usage mapping without expanding
-   beyond S1–S4 and S8–S14, stop and report the blocker before coding.
-
-6. Otherwise implement the smallest complete M1 loop:
+4. This correction is formatting-only:
 
 ```text
-- Ark descriptor and implementation registration.
-- Production host ark.cn-beijing.volcengineapi.com.
-- HMAC-signed GetAFPUsage fetch using secure resolved credentials.
-- Four-window parsing and normalization.
-- Stable window semantics with 5h as `primary` and Daily as `secondary`.
-- Compact menu-bar automatic status selected by the S9 Ark-specific
-  highest-risk resolver, with 5h then Daily fallback when no valid
-  highest-risk candidate is available.
-- S10/S11 compile-only Widget exhaustive-switch arms; Ark remains unavailable
-  in Widget configuration and rendering during M1.
-- S12/S13 compile-only unsupported cost-scanner and debug-log arms; do not add
-  Ark cost scanning, debug probing, or credential-bearing diagnostics.
-- S14 generated parser-hash refresh required by S12; run the repository script
-  and commit only its expected generated output.
-- Safe unauthorized, timeout/network, empty/unsupported, and unknown states.
-- Targeted unit/mock tests with no real network or credentials.
+- Do not change runtime behavior, fixtures, expected values, or test coverage.
+- Do not run a repository-wide formatter or include unrelated formatting churn.
+- Do not touch shared S1–S14 files, generated files, dependencies, Widget
+  behavior, M2 scope, or unrelated providers.
 ```
 
-7. Run available checks:
+5. Run:
 
 ```text
+git diff --check
 swift build
+swift test --filter Ark
 make test
 make check
 ```
 
-8. Append an M1 implementation entry to `docs/PROJECT_LOG.md`, update this
-   task status, perform a final LOOP self-check, and create an additive local
-   commit. Do not push.
+If `make test` again fails only because Xcode cannot load the external
+`KeyboardShortcuts` `PreviewsMacros` plugin, record the exact environment
+failure; do not modify the dependency or test harness.
+
+6. Append a corrective implementation entry to `docs/PROJECT_LOG.md`, update
+   this task status, perform a final LOOP self-check, and create one additive
+   local commit. Do not amend, reset, rebase, push, or open a PR.
 
 ## Definition of Done — M1
 

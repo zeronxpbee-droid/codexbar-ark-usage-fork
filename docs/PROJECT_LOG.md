@@ -1031,6 +1031,130 @@ file, leaving the active log lean.
 Resume the pending M1 corrective-commit re-audit. Future milestone closures
 follow the same archive pattern.
 
+## Entry 032 — M1 Corrective Commit 2 Re-Audit
+
+Date: 2026-07-03
+Actor: Codex
+Type: Review
+Status: FAIL
+
+### Active Goal
+
+M1 — Ark Provider Menu Bar MVP
+
+### LOOP Result
+
+Re-audited developer commit
+`132cad877ef6afb6909a3aa92cc60cd247ca62fd` against Entry 028's three
+findings, the approved S14 boundary, the M1 Definition of Done, the complete
+M1 diff from merge baseline `2ec7378b`, and the upstream build/test/check
+rules. The loop required exact additive ancestry, clean repository state,
+full-target compilation, all Ark tests, full test/check gates, credential and
+error redaction, no real network tests, and no M2 or functional Widget scope.
+Codex modified no product or test source.
+
+### Summary
+
+All three Entry 028 findings are correctly closed: both Swift 6 test compile
+errors are fixed, and S14 is the exact generated one-line parser-hash update.
+The app and all targeted Ark tests now compile and pass. Acceptance still
+fails because the repository's pinned SwiftFormat check reports nine Ark
+source/test files requiring formatting.
+
+The full `make test` gate also encountered a reproducible but intermittent
+Xcode toolchain failure while compiling the external `KeyboardShortcuts`
+package's `#Preview` declarations: `PreviewsMacros.SwiftUIView` could not be
+loaded. A direct `swift test list` succeeded once without any source change,
+then the original `make test` failed again at the same external macro. No M1
+commit changes `Package.swift`, `Package.resolved`, the test harness, or that
+dependency, so this is recorded as an environment/toolchain blocker rather
+than an Ark source finding.
+
+### Files Reviewed
+
+- Corrective commit scope:
+  - `Sources/CodexBarCore/Generated/CodexParserHash.generated.swift`
+  - `Tests/CodexBarTests/ArkCredentialProjectionTests.swift`
+  - `Tests/CodexBarTests/ArkUsageFetcherTests.swift`
+  - `docs/TASKS.md`
+  - `docs/PROJECT_LOG.md`
+- Complete M1 diff from `2ec7378b` through `132cad87`, including Ark-owned
+  files and approved S1–S4/S8–S14 shared integration points.
+
+### Evidence
+
+- Ancestry: `132cad87` has direct parent `8912c2af`; no amend, reset, rebase,
+  or developer-history rewrite was found.
+- `git diff --check 8912c2af..132cad87`: PASS.
+- Corrective diff contains exactly the five expected files above.
+- S14 changes only `CodexParserHash.generated.swift` from
+  `2e350d981415198e` to `cc33c89a2253a9a3`.
+- Native `swift build`: PASS (`Build complete!`, 10.65 seconds), including
+  App, CLI, Core, and Widget products.
+- Native `swift test --filter Ark`: PASS, 40 tests in 6 suites.
+- `make test`: FAIL twice during `swift test list` because the external
+  `KeyboardShortcuts/Sources/KeyboardShortcuts/Recorder.swift` could not load
+  Xcode's `PreviewsMacros` plugin. A direct `swift test list` passed once
+  between those failures without a source change, reproducing toolchain
+  instability.
+- `make check`: FAIL. All preceding script checks passed, including
+  documentation links, shell tests, test-sharding tests, and
+  `Codex parser hash is current (cc33c89a2253a9a3)`. SwiftFormat then reported
+  `9/1226 files require formatting`.
+- The nine failing files are:
+  - `Sources/CodexBarCore/Providers/Ark/ArkAPIConfig.swift`
+  - `Sources/CodexBarCore/Providers/Ark/ArkErrorResponse.swift`
+  - `Sources/CodexBarCore/Providers/Ark/GetAFPUsageResponse.swift`
+  - `Sources/CodexBarCore/Providers/Ark/VolcengineArkSigner.swift`
+  - `Tests/CodexBarTests/ArkCredentialProjectionTests.swift`
+  - `Tests/CodexBarTests/ArkMenuBarMetricWindowResolverTests.swift`
+  - `Tests/CodexBarTests/ArkRedactionTests.swift`
+  - `Tests/CodexBarTests/ArkUsageFetcherTests.swift`
+  - `Tests/CodexBarTests/ArkVolcengineSignerTests.swift`
+- Security scan and static review found only explicitly fake/reference
+  credentials in tests. Production logging emits HTTP status, validated error
+  code, numeric `URLError`, or fixed categories only; it does not emit AK/SK,
+  Authorization, signatures, RequestId, raw bodies, or account identifiers.
+- Ark fetcher tests use only in-memory `ProviderHTTPTransportHandler` stubs;
+  no real network test was added.
+- Widget edits remain exactly S10/S11 compiler closures. Ark still maps to
+  `nil` in `ProviderChoice`, so no picker, snapshot, intent, or visible Widget
+  capability was introduced.
+- Worktree and real index were clean before the audit record was written.
+
+### Finding
+
+1. **[P1] Make all nine Ark files pass the repository-pinned SwiftFormat
+   check.** Apply formatting only to the files listed above. Do not change
+   runtime semantics, test expectations, shared S1–S14 integration files,
+   generated files, dependencies, Widget behavior, or unrelated providers.
+   Do not run a repository-wide formatter that creates unrelated churn.
+
+### Issues / Risks
+
+- Full-suite execution evidence remains unavailable because the Xcode
+  `PreviewsMacros` plugin failure prevents `make test` from reaching its test
+  groups. Codex must rerun the exact command on the next correction; if the
+  same external failure persists, it remains an explicitly reproduced
+  environment blocker under the M1 Definition of Done.
+
+### Decision
+
+FAIL. Do not push or open the M1 PR. Commit `132cad87` closes Entry 028 but
+does not satisfy the mandatory `make check` gate.
+
+No new shared touchpoint approval is required. Claude may submit one additive,
+formatting-only corrective commit limited to the nine Ark-owned files plus
+`docs/TASKS.md` and `docs/PROJECT_LOG.md`. No amend, reset, rebase, push, or PR
+is authorized.
+
+### Next Action
+
+Claude applies only the pinned formatter changes, runs `git diff --check`,
+`swift build`, `swift test --filter Ark`, `make test`, and `make check`,
+records exact outcomes, and creates one additive local commit. Codex then
+re-audits.
+
 ## Entry Template
 
 ```text
