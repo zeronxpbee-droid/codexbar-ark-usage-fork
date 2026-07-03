@@ -2229,6 +2229,56 @@ commit fixing findings 1–3, runs `swift build`, `swift test --filter Ark`,
 `make test`, and `make check`, updates the implementation record, and does not
 push. Codex re-audits the result.
 
+## Entry 029 — Bee Approves M1 S14 Generated Hash Touchpoint
+
+Date: 2026-07-03
+Actor: Bee + Codex
+Type: Decision / Documentation
+Status: APPROVED
+
+### Active Goal
+
+M1 — Ark Provider Menu Bar MVP
+
+### LOOP Result
+
+The smallest corrective loop is to authorize the one generated integrity file
+required by the already-approved S12 scanner change. S14 carries no product
+behavior and must be produced only by the repository's regeneration script.
+
+### Summary
+
+Bee explicitly approved S14. Codex registered the generated parser-hash file
+in the integration boundary and added it to the M1 corrective scope.
+
+### Files Changed
+
+- `docs/TASKS.md`
+- `docs/M0_INTEGRATION_BOUNDARY.md`
+- `docs/PROJECT_LOG.md`
+
+### Evidence
+
+- `make check` at commit `c6c60cfc` reported the committed parser hash
+  `2e350d981415198e` was stale and expected `cc33c89a2253a9a3`.
+- Running `Scripts/regenerate-codex-parser-hash.sh` in Codex's temporary exact
+  commit copy produced that expected value.
+- Bee approved the proposed S14 touchpoint on 2026-07-03.
+
+### Decision
+
+S14 authorizes only the generated one-line hash update produced by
+`Scripts/regenerate-codex-parser-hash.sh` after S12. It does not authorize
+manual generated-file edits, additional cost-scanner logic, unrelated
+generated files, or product behavior.
+
+### Next Action
+
+Claude fixes the two Entry 028 test compilation findings, runs the approved
+hash regeneration script, then creates one additive local commit. Claude runs
+`swift build`, `swift test --filter Ark`, `make test`, and `make check`, records
+the evidence, and does not push. Codex re-audits the result.
+
 ## Entry Template
 
 ```text

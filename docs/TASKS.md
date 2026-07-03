@@ -11,9 +11,9 @@ M1 — Ark Provider Menu Bar MVP
 ## Goal Status
 
 ```text
-Status: M1 RE-AUDIT FAIL — Second Corrective Commit Required (see PROJECT_LOG Entry 028)
+Status: M1 RE-AUDIT FAIL — S14 Corrective Scope Approved (see PROJECT_LOG Entries 028–029)
 Implementation State: Commit c6c60cfc builds the app, but Ark test compilation and make check fail
-Next: Bee decides whether to authorize proposed S14 generated-hash touchpoint; Claude then fixes all Entry 028 findings in an additive local commit
+Next: Claude fixes all Entry 028 findings, including approved S14 generated-hash update, in an additive local commit
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex
@@ -88,6 +88,9 @@ Claude / GLM may:
   - S13 — `UsageStore` provider debug-log exhaustive-switch compile stub: add
     `.ark` to the existing unimplemented-debug group without adding a probe or
     exposing credentials.
+  - S14 — `CodexParserHash.generated.swift` mechanical integrity update
+    produced by `Scripts/regenerate-codex-parser-hash.sh` after S12; no manual
+    generated-file edits or runtime behavior changes.
 - Store the IAM Access Key ID in `ProviderConfig.apiKey` and Secret Access Key
   in `ProviderConfig.secretKey`, persisted by the upstream
   `CodexBarConfigStore` with mode `0600`, following the existing Bedrock
@@ -166,7 +169,7 @@ docs/M0_INTEGRATION_BOUNDARY.md
 ```text
 - Done Contract.
 - Planned Ark-owned new files.
-- Planned shared files with S1–S4/S8–S13 identifiers.
+- Planned shared files with S1–S4/S8–S14 identifiers.
 - Secure AK/SK storage and resolution path.
 - UsageSnapshot mapping for 5h / daily / weekly / monthly.
 - Menu-bar primary-window selection using existing CodexBar conventions.
@@ -176,7 +179,7 @@ docs/M0_INTEGRATION_BOUNDARY.md
 
 5. Use the approved upstream-compatible AK/SK path documented above. If no
    existing convention can support the required usage mapping without expanding
-   beyond S1–S4 and S8–S13, stop and report the blocker before coding.
+   beyond S1–S4 and S8–S14, stop and report the blocker before coding.
 
 6. Otherwise implement the smallest complete M1 loop:
 
@@ -193,6 +196,8 @@ docs/M0_INTEGRATION_BOUNDARY.md
   in Widget configuration and rendering during M1.
 - S12/S13 compile-only unsupported cost-scanner and debug-log arms; do not add
   Ark cost scanning, debug probing, or credential-bearing diagnostics.
+- S14 generated parser-hash refresh required by S12; run the repository script
+  and commit only its expected generated output.
 - Safe unauthorized, timeout/network, empty/unsupported, and unknown states.
 - Targeted unit/mock tests with no real network or credentials.
 ```
@@ -214,7 +219,7 @@ make check
 M1 is Done only when:
 
 - LOOP was used or explicitly referenced before execution.
-- Ark is registered through only the necessary S1–S4 and S8–S13 shared
+- Ark is registered through only the necessary S1–S4 and S8–S14 shared
   integration points.
 - Provider-specific networking, signing, parsing, credential resolution, and
   tests are isolated in Ark-owned files where the architecture permits.
@@ -237,7 +242,7 @@ M1 is Done only when:
 - No M2 popover, functional Widget, unrelated-provider, upstream-sync, or
   broad-refactor changes are included; Widget changes are limited exactly to
   the S10/S11 compiler-closure arms.
-- Actual S1–S4/S8–S13 touches and rollback steps are recorded in the M1 PR/log.
+- Actual S1–S4/S8–S14 touches and rollback steps are recorded in the M1 PR/log.
 - `docs/PROJECT_LOG.md` has an M1 implementation and Codex audit record.
 - Codex review is complete.
 - Bee approves merge or moving to M2.

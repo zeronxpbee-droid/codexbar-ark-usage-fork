@@ -58,6 +58,7 @@
 | S11 | `CodexBarWidgetViews.swift` | add only exhaustive `case .ark` arms for `shortLabel` (`"Ark"`) and a static color; no layout or rendering wiring | Low — two compile-only arms with no new Widget entry path. | Remove both arms together with S1. |
 | S12 | `Sources/CodexBarCore/Vendored/CostUsage/CostUsageScanner.swift` `loadDailyReportCancellable` | add only `.ark` to the existing unsupported-provider group that returns `emptyReport` | Low — one compiler-closure arm; Ark gains no local token-cost scanner. | Remove the arm together with S1. |
 | S13 | `Sources/CodexBar/UsageStore.swift` provider debug-log switch | add only `.ark` to the existing unimplemented-debug group; do not add a probe or credential-bearing output | Low — one compiler-closure arm; Ark gains no debug-log implementation. | Remove the arm together with S1. |
+| S14 | `Sources/CodexBarCore/Generated/CodexParserHash.generated.swift` | run `Scripts/regenerate-codex-parser-hash.sh` after S12 and commit only the generated hash update | Low — mechanical integrity companion to the vendored scanner change; no runtime logic. | Regenerate again after reverting S12. |
 
 All shared edits are additive registrations/wiring. None rename, move, or
 reformat upstream code. Each milestone's PR must list the S# points it touches.
@@ -73,7 +74,7 @@ reformat upstream code. Each milestone's PR must list the S# points it touches.
    widget snapshot/preview checks.
 5. Report conflicts and behavior changes explicitly; do not auto-merge.
 6. Rollback: because Ark logic is isolated in `Providers/Ark/*` new files, a
-   revert of the applicable S1–S13 additive edits fully removes Ark without
+   revert of the applicable S1–S14 additive edits fully removes Ark without
    touching other providers.
 
 ## M0-specific rollback
