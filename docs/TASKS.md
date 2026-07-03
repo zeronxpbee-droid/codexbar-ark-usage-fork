@@ -11,9 +11,9 @@ M1 — Ark Provider Menu Bar MVP
 ## Goal Status
 
 ```text
-Status: M1 CODEX AUDIT PASS — Awaiting Bee Push/PR Decision (see PROJECT_LOG Entry 034)
-Implementation State: Commit 7221ab7b builds, all 40 Ark tests pass, and make check passes; make test has a reproduced external Xcode PreviewsMacros blocker
-Next: Bee decides whether Codex may push the M1 branch and open a draft PR; merge remains separately gated
+Status: M1 DRAFT PR #2 OPEN — Awaiting Bee Review/Merge Decision (see PROJECT_LOG Entry 035)
+Implementation State: Reviewed implementation 7221ab7b and audit record 7dba2509 are pushed; draft PR #2 targets fork main and is mergeable
+Next: Bee reviews draft PR #2; merge and entry into M2 remain separately gated
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex
@@ -34,6 +34,7 @@ M0 branch: feature/m0-bootstrap-ark-probe
 M0 merged PR: https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/1
 M0 merge commit: 2ec7378bb981b393532d9506c2b8303a0889f63e
 M1 branch: feature/m1-ark-provider-menu-bar
+M1 draft PR: https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/2
 ```
 
 ## Mandatory Pre-Execution Rule
@@ -139,15 +140,13 @@ Claude / GLM must not:
 
 ## Next Repository Action
 
-1. Bee reviews the PASS evidence in `docs/PROJECT_LOG.md` Entry 034.
+1. Bee reviews draft PR #2 and the PASS evidence in
+   `docs/PROJECT_LOG.md` Entry 034.
 2. No further Claude / GLM product or formatting change is authorized while
    this gate is pending.
-3. If Bee explicitly approves, Codex may push
-   `feature/m1-ark-provider-menu-bar` and open or update its draft PR with the
-   complete M1 file list, S1–S14 integration points, verification evidence,
-   known `make test` environment blocker, and rollback path.
-4. Push/PR approval does not authorize merge. Merge and entry into M2 each
-   require a separate explicit Bee decision.
+3. If review requests changes, Bee must first authorize the corrective scope
+   here before Claude / GLM edits the branch.
+4. Merge and entry into M2 each require a separate explicit Bee decision.
 
 ## Definition of Done — M1
 

@@ -1375,6 +1375,82 @@ Bee decides whether Codex may push `feature/m1-ark-provider-menu-bar` and open
 or update its draft PR. If approved, Codex records the pushed commit and PR
 URL; merge remains blocked pending a separate Bee decision.
 
+## Entry 035 — M1 Branch Pushed and Draft PR #2 Opened
+
+Date: 2026-07-03
+Actor: Bee (approval) + Codex (repository operation)
+Type: Repository Operation / Pull Request
+Status: PUSHED / DRAFT PR OPEN
+
+### Active Goal
+
+M1 — Ark Provider Menu Bar MVP
+
+### LOOP Result
+
+Bee approved the exact next action recorded in Entry 034 and `docs/TASKS.md`:
+push the reviewed M1 branch to the user's fork and create a draft PR. The loop
+was limited to remote/repository verification, one origin push, draft PR
+creation, PR-state verification, and this durable record. Merge, upstream
+push, M2 work, and additional product changes remained forbidden.
+
+### Summary
+
+- Confirmed the local branch and worktree were clean at audit commit
+  `7dba2509dca5014684811c773af8fac321404f28`.
+- Confirmed `origin` is
+  `zeronxpbee-droid/codexbar-ark-usage-fork` and `upstream` push remains
+  disabled.
+- Confirmed the fork default/base branch is `main` and no existing M1 PR
+  existed.
+- Pushed `feature/m1-ark-provider-menu-bar` to `origin` with tracking.
+- Opened draft PR #2:
+  `https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/2`.
+- The PR body records the Active Goal, Ark-owned files, S1–S14 shared
+  integration points, security model, verification evidence, known
+  `make test` environment blocker, M2/Widget exclusions, and rollback path.
+- No merge, upstream PR, release, or M2 transition was performed.
+
+### Repository / PR Evidence
+
+- Repository:
+  `https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork`.
+- Base: `main` at
+  `2ec7378bb981b393532d9506c2b8303a0889f63e`.
+- Head branch: `feature/m1-ark-provider-menu-bar`.
+- Head at PR creation:
+  `7dba2509dca5014684811c773af8fac321404f28`.
+- Reviewed implementation commit:
+  `7221ab7bd0ff97881670f49cb3ce4c9a2dcc8c5c`.
+- PR #2 is `OPEN`, `DRAFT`, `MERGEABLE`, with merge state `CLEAN`.
+- GitHub reported 14 commits and 34 changed files at PR creation.
+- No GitHub status checks were present in `statusCheckRollup`; local audit
+  evidence remains authoritative and is recorded in Entry 034.
+- This post-PR governance record changes only `docs/TASKS.md` and
+  `docs/PROJECT_LOG.md`; pushing it advances the same draft PR without changing
+  product scope.
+
+### Issues / Risks
+
+- `make test` remains environment-blocked by the external Xcode
+  `PreviewsMacros` issue documented in Entries 032 and 034.
+- A clean/mergeable draft PR is not merge authorization and does not complete
+  the Bee approval gate in the M1 Definition of Done.
+
+### Decision
+
+The approved push and draft-PR operation is complete. Draft PR #2 is the
+review surface for M1. No further product change is authorized unless Bee
+records a new corrective scope.
+
+Do not merge PR #2 or enter M2 without a separate explicit Bee decision.
+
+### Next Action
+
+Bee reviews draft PR #2 and decides whether it may merge. If Bee requests
+changes, update `docs/TASKS.md` with the exact corrective scope before any
+developer edit.
+
 ## Entry Template
 
 ```text
