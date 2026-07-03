@@ -114,13 +114,12 @@ public enum GetAFPUsageParser {
         }
 
         // Prefer a nested `Result` object if the four windows live there.
-        let container: [String: Any]
-        if let result = root["Result"] as? [String: Any],
-           Self.containsAnyWindow(result)
+        let container: [String: Any] = if let result = root["Result"] as? [String: Any],
+                                          Self.containsAnyWindow(result)
         {
-            container = result
+            result
         } else {
-            container = root
+            root
         }
 
         let decoder = JSONDecoder()

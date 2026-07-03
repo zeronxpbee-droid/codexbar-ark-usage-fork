@@ -11,9 +11,9 @@ M1 — Ark Provider Menu Bar MVP
 ## Goal Status
 
 ```text
-Status: M1 RE-AUDIT FAIL — SwiftFormat Correction Required (see PROJECT_LOG Entry 032)
-Implementation State: Commit 132cad87 builds, all 40 Ark tests pass, and S14 is current; make check fails on 9 Ark files
-Next: Claude submits one additive formatting-only corrective commit, then Codex re-audits
+Status: M1 CORRECTION 3 SUBMITTED — Awaiting Codex Re-Audit (see PROJECT_LOG Entry 033)
+Implementation State: Pinned SwiftFormat 0.59.1 applied to the 9 Ark files; full-repo lint now 0/1226; build/test/check deferred to Codex
+Next: Codex re-audits (swift build, swift test --filter Ark, make test, make check)
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex

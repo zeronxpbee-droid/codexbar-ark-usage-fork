@@ -24,8 +24,8 @@ struct ArkCredentialProjectionTests {
             provider: .ark,
             config: config)
 
-        #expect(env[ArkSettingsReader.accessKeyIDKey] == fakeAccessKeyID)
-        #expect(env[ArkSettingsReader.secretAccessKeyKey] == fakeSecretAccessKey)
+        #expect(env[ArkSettingsReader.accessKeyIDKey] == self.fakeAccessKeyID)
+        #expect(env[ArkSettingsReader.secretAccessKeyKey] == self.fakeSecretAccessKey)
         #expect(ArkSettingsReader.hasCredentials(environment: env))
         // AK and SK are projected into distinct keys — never concatenated.
         #expect(ArkSettingsReader.accessKeyIDKey != ArkSettingsReader.secretAccessKeyKey)
@@ -75,16 +75,16 @@ struct ArkCredentialProjectionTests {
         // `load()` returns an optional config; unwrap it before the lookup.
         let loaded = try #require(try store.load())
         let arkConfig = try #require(loaded.providerConfig(for: .ark))
-        #expect(arkConfig.apiKey == fakeAccessKeyID)
-        #expect(arkConfig.secretKey == fakeSecretAccessKey)
+        #expect(arkConfig.apiKey == self.fakeAccessKeyID)
+        #expect(arkConfig.secretKey == self.fakeSecretAccessKey)
 
         // And the loaded config projects cleanly into the runtime environment.
         let env = ProviderConfigEnvironment.applyProviderConfigOverrides(
             base: [:],
             provider: .ark,
             config: arkConfig)
-        #expect(env[ArkSettingsReader.accessKeyIDKey] == fakeAccessKeyID)
-        #expect(env[ArkSettingsReader.secretAccessKeyKey] == fakeSecretAccessKey)
+        #expect(env[ArkSettingsReader.accessKeyIDKey] == self.fakeAccessKeyID)
+        #expect(env[ArkSettingsReader.secretAccessKeyKey] == self.fakeSecretAccessKey)
         #else
         #expect(Bool(true))
         #endif

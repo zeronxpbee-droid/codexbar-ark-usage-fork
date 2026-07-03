@@ -64,21 +64,21 @@ public enum ArkErrorResponse {
     /// grammar; otherwise returns `nil`. The value is NOT trimmed or normalized.
     public static func validatedCode(_ candidate: String) -> String? {
         let scalars = candidate.unicodeScalars
-        guard scalars.count >= 1, scalars.count <= maxCodeLength else { return nil }
+        guard scalars.count >= 1, scalars.count <= self.maxCodeLength else { return nil }
 
         for (index, scalar) in scalars.enumerated() {
             let value = scalar.value
-            let isDigit = value >= 0x30 && value <= 0x39            // 0-9
-            let isUpper = value >= 0x41 && value <= 0x5A            // A-Z
-            let isLower = value >= 0x61 && value <= 0x7A            // a-z
+            let isDigit = value >= 0x30 && value <= 0x39 // 0-9
+            let isUpper = value >= 0x41 && value <= 0x5A // A-Z
+            let isLower = value >= 0x61 && value <= 0x7A // a-z
             let isAlnum = isDigit || isUpper || isLower
 
             if index == 0 {
                 guard isAlnum else { return nil }
             } else {
-                let isDot = value == 0x2E                           // .
-                let isUnderscore = value == 0x5F                    // _
-                let isHyphen = value == 0x2D                        // -
+                let isDot = value == 0x2E // .
+                let isUnderscore = value == 0x5F // _
+                let isHyphen = value == 0x2D // -
                 guard isAlnum || isDot || isUnderscore || isHyphen else { return nil }
             }
         }
@@ -91,6 +91,6 @@ public enum ArkErrorResponse {
         guard let error = object as? [String: Any],
               let code = error["Code"] as? String
         else { return nil }
-        return validatedCode(code)
+        return self.validatedCode(code)
     }
 }

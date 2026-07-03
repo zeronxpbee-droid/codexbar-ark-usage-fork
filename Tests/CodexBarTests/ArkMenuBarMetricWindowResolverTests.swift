@@ -21,7 +21,7 @@ struct ArkMenuBarMetricWindowResolverTests {
         }
         let extra: [NamedRateWindow]? = monthly.map {
             [NamedRateWindow(
-                id: monthlyID,
+                id: self.monthlyID,
                 title: "Monthly",
                 window: RateWindow(usedPercent: $0, windowMinutes: nil, resetsAt: nil, resetDescription: nil))]
         }
@@ -35,7 +35,7 @@ struct ArkMenuBarMetricWindowResolverTests {
 
     @Test
     func `automatic ark metric selects the highest-risk window across all four lanes`() {
-        let snapshot = arkSnapshot(fiveHour: 10, daily: 20, weekly: 30, monthly: 95)
+        let snapshot = self.arkSnapshot(fiveHour: 10, daily: 20, weekly: 30, monthly: 95)
 
         let window = MenuBarMetricWindowResolver.rateWindow(
             preference: .automatic,
@@ -49,7 +49,7 @@ struct ArkMenuBarMetricWindowResolverTests {
 
     @Test
     func `automatic ark metric picks the weekly lane when it is most constrained`() {
-        let snapshot = arkSnapshot(fiveHour: 12, daily: 44, weekly: 88, monthly: 5)
+        let snapshot = self.arkSnapshot(fiveHour: 12, daily: 44, weekly: 88, monthly: 5)
 
         let window = MenuBarMetricWindowResolver.rateWindow(
             preference: .automatic,
@@ -62,7 +62,7 @@ struct ArkMenuBarMetricWindowResolverTests {
 
     @Test
     func `automatic ark metric falls back to 5h when only the primary lane is known`() {
-        let snapshot = arkSnapshot(fiveHour: 37, daily: nil, weekly: nil, monthly: nil)
+        let snapshot = self.arkSnapshot(fiveHour: 37, daily: nil, weekly: nil, monthly: nil)
 
         let window = MenuBarMetricWindowResolver.rateWindow(
             preference: .automatic,
@@ -75,7 +75,7 @@ struct ArkMenuBarMetricWindowResolverTests {
 
     @Test
     func `automatic ark metric falls back to Daily when 5h is absent`() {
-        let snapshot = arkSnapshot(fiveHour: nil, daily: 41, weekly: nil, monthly: nil)
+        let snapshot = self.arkSnapshot(fiveHour: nil, daily: 41, weekly: nil, monthly: nil)
 
         let window = MenuBarMetricWindowResolver.rateWindow(
             preference: .automatic,

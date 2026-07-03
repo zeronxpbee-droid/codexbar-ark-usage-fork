@@ -24,8 +24,8 @@ public enum ArkAPIConfig {
     /// Query items required on the signed request.
     public static func queryItems() -> [(String, String)] {
         [
-            ("Action", Self.action),
-            ("Version", Self.version),
+            ("Action", self.action),
+            ("Version", self.version),
         ]
     }
 }

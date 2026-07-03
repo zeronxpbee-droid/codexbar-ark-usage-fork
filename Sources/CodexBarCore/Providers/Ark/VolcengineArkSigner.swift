@@ -194,7 +194,7 @@ public enum VolcengineArkSigner {
     static func canonicalQueryString(_ query: [(String, String)]) -> String {
         guard !query.isEmpty else { return "" }
         return query
-            .map { "\(Self.uriEncode($0.0))=\(Self.uriEncode($0.1))" }
+            .map { "\(self.uriEncode($0.0))=\(self.uriEncode($0.1))" }
             .sorted()
             .joined(separator: "&")
     }
@@ -207,7 +207,7 @@ public enum VolcengineArkSigner {
 
     static func uriEncodePath(_ path: String) -> String {
         path.split(separator: "/", omittingEmptySubsequences: false)
-            .map { Self.uriEncode(String($0)) }
+            .map { self.uriEncode(String($0)) }
             .joined(separator: "/")
     }
 

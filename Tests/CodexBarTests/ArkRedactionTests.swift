@@ -20,8 +20,8 @@ struct ArkRedactionTests {
         #expect(description.contains("403"))
         #expect(description.contains("SignatureDoesNotMatch"))
         // Never the secret, never a raw message body.
-        #expect(!description.contains(fakeSecret))
-        #expect(!description.contains(fakeAccessKeyID))
+        #expect(!description.contains(self.fakeSecret))
+        #expect(!description.contains(self.fakeAccessKeyID))
     }
 
     @Test
@@ -31,7 +31,7 @@ struct ArkRedactionTests {
             .errorDescription ?? ""
 
         #expect(description.contains("500"))
-        #expect(!description.contains(fakeSecret))
+        #expect(!description.contains(self.fakeSecret))
     }
 
     @Test
@@ -45,8 +45,8 @@ struct ArkRedactionTests {
         ]
         for error in errors {
             let description = error.errorDescription ?? ""
-            #expect(!description.contains(fakeSecret))
-            #expect(!description.contains(fakeAccessKeyID))
+            #expect(!description.contains(self.fakeSecret))
+            #expect(!description.contains(self.fakeAccessKeyID))
         }
     }
 
@@ -70,7 +70,7 @@ struct ArkRedactionTests {
         #expect(code == "SignatureDoesNotMatch")
         // The RequestId, Message text, and any embedded credential must not surface.
         #expect(code?.contains("REQUEST-ID") != true)
-        #expect(code?.contains(fakeAccessKeyID) != true)
+        #expect(code?.contains(self.fakeAccessKeyID) != true)
     }
 
     @Test

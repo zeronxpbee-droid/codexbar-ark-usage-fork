@@ -1155,6 +1155,108 @@ Claude applies only the pinned formatter changes, runs `git diff --check`,
 records exact outcomes, and creates one additive local commit. Codex then
 re-audits.
 
+## Entry 033 — M1 Corrective Commit 3 (Formatting-Only)
+
+Date: 2026-07-03
+Actor: Claude Developer
+Type: Development
+Status: IMPLEMENTED / UNVERIFIED
+
+### Active Goal
+
+M1 — Ark Provider Menu Bar MVP
+
+### LOOP Result
+
+Applied LOOP strictly (production-impacting correction after Entry 032 audit
+FAIL). Gather: read Entry 032's single finding and the 9-file list;
+investigated the repo's pinned formatter — Nicklockwood SwiftFormat 0.59.1
+(`Scripts/install_lint_tools.sh` → `.build/lint-tools/bin/`, gitignored),
+invoked by `make check`/`make format` via `Scripts/lint.sh` as
+`swiftformat Sources Tests [--lint]`. Reason: `make format` runs over all
+`Sources Tests` and would create unrelated churn, so the 9 files must be
+formatted individually with the same pinned binary and `.swiftformat` config.
+Act: installed the pinned swiftformat binary, ran it on exactly the 9 files.
+Verify: full-repo `swiftformat Sources Tests --lint` = `0/1226 files require
+formatting`; targeted re-lint = `0/9`; `git diff --check` clean; diffstat
++53/−54 across exactly the 9 approved files; per-file review confirmed only
+`redundantSelf`/`redundantStaticSelf` (Self ↔ self), `conditionalAssignment`
+(if-else assignment → if-expression, semantically equivalent), `docComments`
+(`//` → `///`), and comment-alignment whitespace — no runtime semantics, test
+expectation, or control-flow change. Record: this entry. Stop: `swift build` /
+`swift test --filter Ark` / `make test` / `make check` still owned by Codex —
+no Swift toolchain in the workspace.
+
+### Summary
+
+- Finding 1 (Entry 032): applied pinned SwiftFormat 0.59.1 (config
+  `.swiftformat`) to the 9 Ark-owned files only. No other file touched.
+- Rules applied: `redundantSelf`/`redundantStaticSelf` (Self ↔ self in
+  static/instance member access), `conditionalAssignment` (if-else assignment
+  → Swift if-expression in `GetAFPUsageResponse.swift`, semantically
+  equivalent), `docComments` (`//` → `///` above a declaration), and
+  comment-alignment whitespace.
+- All test assertion values (signature hashes, canonical request, credential
+  scope, usedPercent, redaction) are unchanged. No runtime semantics, shared
+  S1–S14 file, generated file, dependency, Widget behavior, or unrelated
+  provider changed.
+
+### Files Changed
+
+- `Sources/CodexBarCore/Providers/Ark/ArkAPIConfig.swift`
+- `Sources/CodexBarCore/Providers/Ark/ArkErrorResponse.swift`
+- `Sources/CodexBarCore/Providers/Ark/GetAFPUsageResponse.swift`
+- `Sources/CodexBarCore/Providers/Ark/VolcengineArkSigner.swift`
+- `Tests/CodexBarTests/ArkCredentialProjectionTests.swift`
+- `Tests/CodexBarTests/ArkMenuBarMetricWindowResolverTests.swift`
+- `Tests/CodexBarTests/ArkRedactionTests.swift`
+- `Tests/CodexBarTests/ArkUsageFetcherTests.swift`
+- `Tests/CodexBarTests/ArkVolcengineSignerTests.swift`
+- `docs/PROJECT_LOG.md` (this entry)
+- `docs/TASKS.md` (status update)
+
+Diffstat for the 9 Swift files: +53/−54.
+
+### Evidence
+
+- Pinned SwiftFormat version: `0.59.1` (matches
+  `Scripts/install_lint_tools.sh` `SWIFTFORMAT_VERSION="0.59.1"`).
+- `.build` is gitignored; the installed binary does not appear in `git status`.
+- Full-repo `swiftformat Sources Tests --lint` (same invocation as
+  `make check`): `0/1226 files require formatting` (PASS, 38.18s).
+- Targeted re-lint of the 9 files: `0/9 files require formatting`.
+- `git diff --stat HEAD`: exactly 9 Swift files, +53/−54.
+- `git diff --check`: clean.
+- Per-file diff review: only formatting-class changes; no semantic change.
+- `swift build` / `swift test --filter Ark` / `make test` / `make check` NOT
+  run — no Swift 6 toolchain in the workspace (`swift: command not found`). The
+  SwiftFormat portion of `make check` was reproduced locally with the pinned
+  binary; the remaining gates are deferred to Codex. `conditionalAssignment`
+  produced a Swift if-expression (requires Swift 5.9+); Codex's Swift 6
+  toolchain supports it.
+
+### Issues / Risks
+
+- Correctness remains UNVERIFIED here until Codex runs `swift build`,
+  `swift test --filter Ark`, `make test`, and `make check` on the new commit.
+- `conditionalAssignment` changed `GetAFPUsageResponse.swift`'s container
+  initialization from an if-else statement to an if-expression; this is a
+  syntax-level transformation with identical runtime behavior, but only
+  Codex's build can confirm it compiles cleanly.
+- The `make test` environment blocker (external `KeyboardShortcuts` package
+  `PreviewsMacros` plugin, Entry 032) may persist and is not addressed by this
+  formatting-only commit.
+
+### Decision
+
+Entry 032's single finding is addressed additively within the authorized 9-file
+scope. No amend/reset/rebase/push.
+
+### Next Action
+
+Codex re-audits the additive correction: `swift build`, `swift test --filter
+Ark`, `make test`, `make check`; records PASS/FAIL.
+
 ## Entry Template
 
 ```text

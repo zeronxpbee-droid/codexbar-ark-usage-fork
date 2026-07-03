@@ -9,7 +9,7 @@ import Testing
 /// malformed response, and cancellation. Also asserts that error material stays
 /// redacted (never the secret, RequestId, or raw body).
 struct ArkUsageFetcherTests {
-    // FAKE credentials — never real.
+    /// FAKE credentials — never real.
     private static let credentials = VolcengineArkSigner.Credentials(
         accessKeyID: "AKFAKE000000000000EXAMPLE",
         secretAccessKey: "FAKESECRET0000000000000000000000EXAMPLE")
@@ -54,7 +54,7 @@ struct ArkUsageFetcherTests {
         let snapshot = try await ArkUsageFetcher.fetchUsage(
             credentials: Self.credentials,
             now: now,
-            session: transport(status: 200, body: body))
+            session: self.transport(status: 200, body: body))
 
         #expect(snapshot.fiveHour?.usedPercent == 25)
         #expect(snapshot.daily?.usedPercent == 20)
@@ -110,7 +110,7 @@ struct ArkUsageFetcherTests {
         do {
             _ = try await ArkUsageFetcher.fetchUsage(
                 credentials: Self.credentials,
-                session: transport(status: 403, body: body))
+                session: self.transport(status: 403, body: body))
             Issue.record("expected an ArkUsageError")
         } catch let error as ArkUsageError {
             let description = error.errorDescription ?? ""
@@ -130,7 +130,7 @@ struct ArkUsageFetcherTests {
         do {
             _ = try await ArkUsageFetcher.fetchUsage(
                 credentials: Self.credentials,
-                session: transport(throwing: URLError(.timedOut)))
+                session: self.transport(throwing: URLError(.timedOut)))
             Issue.record("expected an ArkUsageError")
         } catch let ArkUsageError.networkError(message) {
             // Carries only the URLError code, never anything sensitive.
