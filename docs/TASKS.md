@@ -11,9 +11,9 @@ M2 — Ark Popover Details
 ## Goal Status
 
 ```text
-Status: M2 S15 IMPLEMENTED — awaiting Codex build/test/check audit (see PROJECT_LOG Entry 040)
-Implementation State: S15 Option A code complete; 3 code changes + 9 test cases; build/test/check deferred to Codex
-Next: Codex performs build/test/check audit; if green, M2 implementation accepted
+Status: M2 S15 AUDIT FAIL — additive corrective commit required (see PROJECT_LOG Entry 041)
+Implementation State: Commit 02539d87 does not compile; new test file also fails SwiftFormat and omits required error/stale coverage
+Next: Claude / GLM fixes only Entry 041 findings in one additive commit; no amend/reset/rebase/push
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex
@@ -134,31 +134,37 @@ Claude / GLM must not:
 - Publish or package a release.
 - Submit an upstream PR.
 
-## Next Task — Claude / GLM M2 S15 Implementation
+## Next Task — Claude / GLM M2 S15 Corrective Commit 1
 
 1. Re-read `AGENTS.md`, `README.md`, `docs/PRD.md`, this file,
    `docs/PROJECT_LOG.md`, and `docs/M0_INTEGRATION_BOUNDARY.md`; compare the
    task against LOOP and the upstream baseline `AGENTS.md`.
 2. Verify the branch is `feature/m2-ark-popover-details`, its history descends
-   from this governance commit, and the real index/worktree are clean.
-3. State a concise Done Contract limited to:
-   - S15 one-branch shared router edit;
-   - new Ark-owned `ArkPopoverMetrics.swift`;
-   - Ark-owned complete quota-detail formatting;
-   - focused Ark popover/model tests;
-   - M2 implementation records.
-4. Implement Option A exactly as approved in
-   `docs/M0_INTEGRATION_BOUNDARY.md`. Keep `supportsOpus = false`; do not touch
-   Widget, CLI, native-menu, Preferences, shared snapshot schema, S16, or
-   unrelated providers.
-5. Test all four complete windows, both `usageBarsShowUsed` modes, reset
-   present/absent, missing/partial windows, Monthly unavailable, and
-   error/stale states.
-6. Run `git diff --check`, `swift build`, `swift test --filter Ark`, relevant
-   menu-card tests, `make test`, and `make check`; record exact outcomes and
-   create one additive local commit. Do not push or create a PR.
-7. Stop and report before any shared touch beyond S15 or any change to the
-   approved data flow.
+   directly from audit commit `02539d87`, and the real index/worktree are
+   clean.
+3. Fix the Swift compile error in Ark-owned
+   `ArkUsageFetcher.rateWindow(from:)` without changing the approved complete
+   display string or Option A data flow. Use ordinary assignment/helper syntax
+   accepted by Swift 6; do not alter parsing, networking, credentials, or
+   window-slot mapping.
+4. Apply the repository-pinned formatter only to
+   `Tests/CodexBarTests/ArkPopoverMetricsTests.swift`; do not run a
+   repository-wide formatting rewrite or change existing expectations.
+5. Add focused model tests for the approved refresh-error and stale-snapshot
+   states. Preserve all existing four-window, percent-mode, reset,
+   missing-window, and unavailable-window coverage.
+6. Limit the corrective diff to:
+   - `Sources/CodexBarCore/Providers/Ark/ArkUsageFetcher.swift`;
+   - `Tests/CodexBarTests/ArkPopoverMetricsTests.swift`;
+   - `docs/TASKS.md`;
+   - `docs/PROJECT_LOG.md`.
+7. Run `git diff --check`, `swift build`, `swift test --filter Ark`, the
+   relevant menu-card tests, `make test`, and `make check`; record exact
+   outcomes and create one additive local commit. Do not amend, reset, rebase,
+   push, or create a PR.
+8. Stop and report before touching `ArkPopoverMetrics.swift`, the S15 shared
+   router, Widget, CLI, native menu, Preferences, S16, dependencies, generated
+   files, or unrelated providers.
 
 ## Definition of Done — M2
 

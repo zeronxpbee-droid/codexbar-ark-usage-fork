@@ -1915,6 +1915,133 @@ Codex performs build/test/check audit. If green, M2 implementation is
 accepted. If red, Claude creates an additive correction commit (no
 amend/reset).
 
+## Entry 041 — M2 S15 Option A First Audit
+
+Date: 2026-07-03
+Actor: Codex
+Type: Review
+Status: FAIL
+
+### Active Goal
+
+M2 — Ark Popover Details
+
+### LOOP Result
+
+Audited additive developer commit
+`02539d875529cb786572be574f69126e06ab6fcc` against the approved S15
+Option A boundary, M2 Definition of Done, complete M2 diff from merge baseline
+`239e4272`, complete fork diff from upstream baseline `6ab1cbb7`, and upstream
+build/test/check rules. Required evidence was exact ancestry, clean real
+index/worktree, full compilation, Ark and popover-model tests, full repository
+gates, complete error/stale coverage, no S16 or functional Widget expansion,
+and credential/error redaction. Codex changed no product or test source.
+
+### Summary
+
+The submitted scope is structurally narrow and follows S15: one shared router
+branch, Ark-owned presentation/mapping code, focused tests, and governance
+records. It nevertheless fails M2 acceptance because the production mapper
+does not compile. The new test file also fails the pinned SwiftFormat check and
+does not implement the explicitly approved refresh-error/stale-snapshot test
+coverage.
+
+Claude's commit operation left five zero-byte lock artifacts:
+`index.lock`, `HEAD.lock`, `objects/maintenance.lock`, `index.lock.bak`, and
+`index.lock.stale`. Codex verified there was no repository-writing Git process,
+confirmed all six changed working-tree and real-index blobs exactly matched
+commit `02539d87`, removed only those orphan zero-byte locks, and synchronized
+only the real index with `git read-tree --reset HEAD`.
+
+### Files Reviewed
+
+- `Sources/CodexBar/MenuCardView.swift` — approved S15 shared router.
+- `Sources/CodexBar/Providers/Ark/ArkPopoverMetrics.swift` — new Ark-owned
+  presentation.
+- `Sources/CodexBarCore/Providers/Ark/ArkUsageFetcher.swift` — Option A
+  complete quota-detail string.
+- `Tests/CodexBarTests/ArkPopoverMetricsTests.swift` — nine submitted tests.
+- `docs/TASKS.md`
+- `docs/PROJECT_LOG.md`
+
+### Evidence
+
+- Branch: `feature/m2-ark-popover-details`.
+- Reviewed commit: `02539d875529cb786572be574f69126e06ab6fcc`.
+- Direct parent and approved governance baseline:
+  `b0c59749e63c906be75afb097886844e12c0136d`.
+- `git diff --check b0c59749..02539d87`: PASS.
+- Diff scope: exactly six files; shared upstream change is only the approved
+  three-line S15 `.ark` router branch. No Widget, CLI, native-menu,
+  Preferences, shared snapshot schema, S16, dependency, generated, or
+  unrelated-provider file changed.
+- Native `swift build`: FAIL in
+  `ArkUsageFetcher.swift:84`. The Swift if-expression branch declares local
+  `remaining` before the string expression, so the compiler reports
+  `non-expression branch of 'if' expression may only end with a 'throw'`; the
+  string literal is consequently unused.
+- `swift test --filter Ark`: FAIL during the same production-source
+  compilation error; no Ark test executed.
+- `make test`: environment-blocked during `swift test list` by the unchanged
+  external `KeyboardShortcuts` `PreviewsMacros.SwiftUIView` plugin-loading
+  failure previously recorded in M1. This command did not reach test
+  discovery; the independent native build/test failures above remain source
+  failures.
+- `make check`: FAIL. All portable checks passed, including parser hash,
+  documentation links, shell, package/signing, locale, sharding, and CI path
+  gates. Pinned SwiftFormat then reported
+  `1/1228 files require formatting` for
+  `ArkPopoverMetricsTests.swift`: one `redundantSelf` finding and nine
+  `redundantThrows` findings.
+- The test file defines nine `@Test` cases, but every constructed input has
+  `isRefreshing: false` and `lastError: nil`; there is no assertion for a
+  refresh error or stale snapshot despite both being required by
+  `docs/TASKS.md` and the approved S15 test matrix.
+- Static security review found no added real AK/SK, Authorization, signature,
+  RequestId, raw response, account identifier, committed config, or real
+  network test. Existing credential/error comments and fake test data remain
+  non-sensitive.
+- `supportsOpus` remains `false`; no functional Widget capability is added.
+
+### Findings
+
+1. **[P1] Make the Option A mapper compile under Swift 6.**
+   Replace the invalid multi-statement if-expression in
+   `ArkUsageFetcher.rateWindow(from:)` with ordinary assignment or a small
+   Ark-owned helper. Preserve the exact approved display content and data flow.
+
+2. **[P1] Make the new test file pass pinned SwiftFormat.**
+   Format only `ArkPopoverMetricsTests.swift`; remove the reported redundant
+   `throws` declarations and apply the required explicit-`self` rule without
+   changing test expectations.
+
+3. **[P1] Add the approved refresh-error and stale-snapshot model tests.**
+   Exercise non-nil safe `lastError` presentation and an old snapshot/update
+   state through the stable menu-card model seam. No live AppKit menu, network,
+   credential, Widget, or new product behavior is authorized.
+
+### Issues / Risks
+
+- Additional compiler/test findings may appear only after finding 1 allows the
+  App and test targets to compile.
+- `make test` retains the known external Xcode Preview macro environment risk
+  and must be retried on the corrective commit.
+
+### Decision
+
+FAIL. Do not push, open a PR, merge, or enter M3 for commit `02539d87`.
+
+Claude / GLM may create one additive corrective commit limited to the two
+Ark-owned files and two governance files listed in `docs/TASKS.md`. No amend,
+reset, rebase, temporary-index workaround, or product-scope expansion is
+authorized.
+
+### Next Action
+
+Claude / GLM fixes findings 1–3, runs all required commands where available,
+records exact outcomes, and creates one additive local commit. Codex then
+re-audits the correction.
+
 ## Entry Template
 
 ```text
