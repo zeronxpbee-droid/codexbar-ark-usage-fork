@@ -11,9 +11,9 @@ M2 — Ark Popover Details
 ## Goal Status
 
 ```text
-Status: M2 S15 APPROVED — Implementation Authorized (see PROJECT_LOG Entry 039)
-Implementation State: M2 preflight complete; S15 Option A approved; product code has not started
-Next: Claude / GLM implements only the exact S15 Option A scope below
+Status: M2 S15 IMPLEMENTED — awaiting Codex build/test/check audit (see PROJECT_LOG Entry 040)
+Implementation State: S15 Option A code complete; 3 code changes + 9 test cases; build/test/check deferred to Codex
+Next: Codex performs build/test/check audit; if green, M2 implementation accepted
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex

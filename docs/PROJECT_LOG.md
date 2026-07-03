@@ -1820,6 +1820,101 @@ Codex commits this governance record locally. Claude / GLM then implements the
 exact S15 Option A scope and creates one additive local commit without push.
 Codex performs the acceptance audit afterward.
 
+## Entry 040 — M2 S15 Option A Implemented
+
+Date: 2026-07-03
+Actor: Claude (implementation)
+Type: Development
+Status: CREATED — awaiting Codex build/test/check audit
+
+### Active Goal
+
+M2 — Ark Popover Details (S15 Option A)
+
+### LOOP Result
+
+Development Loop applied: Planner=Bee (Entry 039 approval), Generator=Claude,
+Evaluator=Codex (pending build/test/check), Recorder=Claude. Done Contract:
+implement the three S15 code changes, write tests covering the required matrix,
+update governance docs, create one additive local commit, stop. No S16,
+Widget, CLI, native menu, Preferences, or `supportsOpus` changes.
+
+### Summary
+
+Three code changes implementing the approved S15 Option A boundary:
+
+1. `ArkUsageFetcher.rateWindow(from:)` — `resetDescription` changed from
+   M1's `"used/quota"` to the complete display string
+   `"used / quota AFP · remaining remaining"` (remaining = quota − used).
+   This packs all three numeric values (used/quota/remaining) into the
+   existing `RateWindow.resetDescription` field so `ArkPopoverMetrics` can
+   display them without a typed quota slot.
+
+2. `Sources/CodexBar/Providers/Ark/ArkPopoverMetrics.swift` (new, Ark-owned) —
+   builds the four `[Metric]` rows (5h / Daily / Weekly / Monthly) directly
+   from `UsageSnapshot`. Weekly (tertiary) renders unconditionally because
+   the Ark router bypasses the `supportsOpus` gate. `detailText` reads
+   `window.resetDescription` as opaque display text (never parsed).
+   `resetText` is generated ONLY when `resetsAt != nil` via
+   `UsageFormatter.resetLine`, guarded so it never falls back to
+   `resetDescription` (which would render quota as `"Resets …"`).
+
+3. `Sources/CodexBar/MenuCardView.swift` `metrics(input:)` — one additive
+   router branch: `if input.provider == .ark { return Self.arkMetrics(...) }`,
+   placed before the `.antigravity` branch. All Ark rendering logic stays
+   in `ArkPopoverMetrics.swift`.
+
+### Files Changed
+
+- `Sources/CodexBarCore/Providers/Ark/ArkUsageFetcher.swift` (modified —
+  `rateWindow(from:)` mapper format)
+- `Sources/CodexBar/Providers/Ark/ArkPopoverMetrics.swift` (new — Ark-owned
+  presentation file)
+- `Sources/CodexBar/MenuCardView.swift` (modified — S15 router branch, 3 lines)
+- `Tests/CodexBarTests/ArkPopoverMetricsTests.swift` (new — 9 test cases)
+- `docs/PROJECT_LOG.md` (this entry)
+- `docs/TASKS.md` (M2 status update)
+
+### Evidence
+
+- `git diff --check` passes (no whitespace errors).
+- Diff confirms only the three approved changes plus two new Ark-owned files.
+- `ArkPopoverMetricsTests.swift` covers the required test matrix:
+  (1) four windows complete — detailText carries the full display string,
+      resetText from resetsAt;
+  (2) `usageBarsShowUsed = false` — percent shows remaining%, detailText
+      still shows the complete trio;
+  (3) `resetsAt = nil` — resetText is nil (no fallback to resetDescription),
+      detailText still present;
+  (4) missing/partial windows — omitted, not rendered as 0%;
+  (5) Monthly `usageKnown = false` — statusText = "Unavailable",
+      detailText nil;
+  (6) no snapshot — empty metrics;
+  (7) `resetDescription = nil` but `resetsAt` present — resetText generated,
+      detailText nil;
+  (8) absolute reset style — resetText shows date, detailText unaffected.
+- No local Swift toolchain; build/test/check deferred to Codex.
+
+### Issues / Risks
+
+- Build/test/check not yet run (no local Swift toolchain). Codex must
+  verify compilation and test passage before merging.
+- `resetDescription` borrow remains a compatibility trade-off (S16 is the
+  future typed alternative).
+- `arkMetrics` is `static func` (internal), accessible via `@testable import`.
+
+### Decision
+
+Implementation complete within the authorized S15 scope. No shared touch
+beyond the one approved router branch. `supportsOpus` stays `false`. No
+Widget/CLI/native-menu/Preferences changes.
+
+### Next Action
+
+Codex performs build/test/check audit. If green, M2 implementation is
+accepted. If red, Claude creates an additive correction commit (no
+amend/reset).
+
 ## Entry Template
 
 ```text

@@ -69,10 +69,18 @@ public struct ArkUsageSnapshot: Sendable, Equatable {
     /// Map a single AFP window into a `RateWindow`. Returns nil when the window
     /// is absent or has no trustworthy quota, so the UI never renders unknown
     /// usage as 0%.
+    ///
+    /// S15 (M2, Option A): `resetDescription` carries a complete display string
+    /// `"used / quota AFP · remaining remaining"` so that `ArkPopoverMetrics`
+    /// can show all three numeric values (used/quota/remaining) in
+    /// `Metric.detailText` without a typed `RateWindow` quota field. This is a
+    /// documented compatibility trade-off — the string is treated as opaque
+    /// display text and never parsed back into numeric values.
     private static func rateWindow(from afp: AFPWindow?) -> RateWindow? {
         guard let afp, let usedPercent = afp.usedPercent else { return nil }
         let description: String? = if let quota = afp.quota, let used = afp.used {
-            "\(Self.format(used))/\(Self.format(quota))"
+            let remaining = max(0, quota - used)
+            "\(Self.format(used)) / \(Self.format(quota)) AFP · \(Self.format(remaining)) remaining"
         } else {
             nil
         }
