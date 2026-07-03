@@ -11,9 +11,9 @@ M1 — Ark Provider Menu Bar MVP
 ## Goal Status
 
 ```text
-Status: M1 CORRECTION 3 SUBMITTED — Awaiting Codex Re-Audit (see PROJECT_LOG Entry 033)
-Implementation State: Pinned SwiftFormat 0.59.1 applied to the 9 Ark files; full-repo lint now 0/1226; build/test/check deferred to Codex
-Next: Codex re-audits (swift build, swift test --filter Ark, make test, make check)
+Status: M1 CODEX AUDIT PASS — Awaiting Bee Push/PR Decision (see PROJECT_LOG Entry 034)
+Implementation State: Commit 7221ab7b builds, all 40 Ark tests pass, and make check passes; make test has a reproduced external Xcode PreviewsMacros blocker
+Next: Bee decides whether Codex may push the M1 branch and open a draft PR; merge remains separately gated
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex
@@ -137,73 +137,17 @@ Claude / GLM must not:
 - Publish or package a release.
 - Submit an upstream PR.
 
-## Next Task for Claude / GLM
+## Next Repository Action
 
-0. Work only in the assigned `feature/m1-ark-provider-menu-bar` checkout and create
-   local commits without pushing.
-
-1. Re-read these files and explicitly apply LOOP:
-
-```text
-AGENTS.md
-README.md
-docs/PRD.md
-docs/TASKS.md
-docs/PROJECT_LOG.md
-docs/M0_INTEGRATION_BOUNDARY.md
-```
-
-2. Confirm before editing:
-
-```text
-- Branch is feature/m1-ark-provider-menu-bar.
-- Active Goal is M1 — Ark Provider Menu Bar MVP.
-- HEAD descends from developer commit 132cad87 and the latest Codex
-  audit/governance commits.
-- Worktree contains no unrelated user/Codex changes.
-```
-
-3. Make only the repository-pinned SwiftFormat changes reported in Entry 032
-   for these nine Ark-owned source/test files:
-
-```text
-Sources/CodexBarCore/Providers/Ark/ArkAPIConfig.swift
-Sources/CodexBarCore/Providers/Ark/ArkErrorResponse.swift
-Sources/CodexBarCore/Providers/Ark/GetAFPUsageResponse.swift
-Sources/CodexBarCore/Providers/Ark/VolcengineArkSigner.swift
-Tests/CodexBarTests/ArkCredentialProjectionTests.swift
-Tests/CodexBarTests/ArkMenuBarMetricWindowResolverTests.swift
-Tests/CodexBarTests/ArkRedactionTests.swift
-Tests/CodexBarTests/ArkUsageFetcherTests.swift
-Tests/CodexBarTests/ArkVolcengineSignerTests.swift
-```
-
-4. This correction is formatting-only:
-
-```text
-- Do not change runtime behavior, fixtures, expected values, or test coverage.
-- Do not run a repository-wide formatter or include unrelated formatting churn.
-- Do not touch shared S1–S14 files, generated files, dependencies, Widget
-  behavior, M2 scope, or unrelated providers.
-```
-
-5. Run:
-
-```text
-git diff --check
-swift build
-swift test --filter Ark
-make test
-make check
-```
-
-If `make test` again fails only because Xcode cannot load the external
-`KeyboardShortcuts` `PreviewsMacros` plugin, record the exact environment
-failure; do not modify the dependency or test harness.
-
-6. Append a corrective implementation entry to `docs/PROJECT_LOG.md`, update
-   this task status, perform a final LOOP self-check, and create one additive
-   local commit. Do not amend, reset, rebase, push, or open a PR.
+1. Bee reviews the PASS evidence in `docs/PROJECT_LOG.md` Entry 034.
+2. No further Claude / GLM product or formatting change is authorized while
+   this gate is pending.
+3. If Bee explicitly approves, Codex may push
+   `feature/m1-ark-provider-menu-bar` and open or update its draft PR with the
+   complete M1 file list, S1–S14 integration points, verification evidence,
+   known `make test` environment blocker, and rollback path.
+4. Push/PR approval does not authorize merge. Merge and entry into M2 each
+   require a separate explicit Bee decision.
 
 ## Definition of Done — M1
 

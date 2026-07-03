@@ -1257,6 +1257,124 @@ scope. No amend/reset/rebase/push.
 Codex re-audits the additive correction: `swift build`, `swift test --filter
 Ark`, `make test`, `make check`; records PASS/FAIL.
 
+## Entry 034 — M1 Formatting Correction Final Re-Audit
+
+Date: 2026-07-03
+Actor: Codex
+Type: Review
+Status: PASS / AWAITING BEE
+
+### Active Goal
+
+M1 — Ark Provider Menu Bar MVP
+
+### LOOP Result
+
+Re-audited additive formatting commit
+`7221ab7bd0ff97881670f49cb3ce4c9a2dcc8c5c` against Entry 032's finding,
+the exact nine-file corrective scope, the M1 Definition of Done, the complete
+M1 diff from merge baseline `2ec7378b`, and upstream build/test/check rules.
+Required evidence was exact ancestry, a clean real index and worktree,
+formatting-only semantics, full-target compilation, all Ark tests, repository
+checks, security/redaction, no real network tests, and no M2 or functional
+Widget scope. Codex modified no product or test source.
+
+### Summary
+
+The Entry 032 formatting finding is closed. Commit `7221ab7b` changes exactly
+the nine authorized Ark-owned source/test files plus `docs/TASKS.md` and this
+log. The Swift changes are limited to pinned SwiftFormat transformations:
+explicit `self`, static `Self`/`self` normalization, comment alignment,
+one documentation-comment conversion, and the semantically equivalent Swift
+if-expression in `GetAFPUsageResponse`.
+
+The complete app builds, all 40 Ark tests pass, and the full repository
+`make check` passes. `make test` remains blocked before test discovery by the
+same external Xcode `PreviewsMacros` loading failure recorded in Entry 032.
+That failure occurs in the unchanged `KeyboardShortcuts` dependency, is
+reproduced by Codex, and is accepted as an honestly documented
+environment-only blocker under the M1 Definition of Done.
+
+### Files Reviewed
+
+- Corrective commit: the nine Ark files listed in Entry 033 plus
+  `docs/TASKS.md` and `docs/PROJECT_LOG.md`.
+- Complete M1 diff from `2ec7378b` through `7221ab7b`, including Ark-owned
+  files, tests, governance records, and approved S1–S4/S8–S14 shared
+  integration points.
+
+### Evidence
+
+- Branch: `feature/m1-ark-provider-menu-bar`.
+- Reviewed commit: `7221ab7bd0ff97881670f49cb3ce4c9a2dcc8c5c`.
+- Direct parent:
+  `57b0967629f708ef09c21a5320cdf33b805a722b`.
+- All 11 working-tree blobs matched the reviewed commit exactly. The real
+  index was stale at the parent because Claude used a temporary index; Codex
+  verified three zero-byte orphan locks, removed them, and synchronized only
+  the real index with `git read-tree --reset HEAD`.
+- `git diff --check 57b09676..7221ab7b`: PASS.
+- Corrective diff scope: exactly 9 authorized Ark files plus
+  `docs/TASKS.md` and `docs/PROJECT_LOG.md`; no shared S1–S14, generated,
+  dependency, Widget, M2, or unrelated-provider file changed.
+- Line-level review found no changed test expectations, credential material,
+  host/action/version values, signature vectors, error behavior, or runtime
+  policy. The parser if-expression preserves the prior nested-`Result`
+  selection and root fallback.
+- Native `swift build`: PASS (`Build complete!`, 13.49 seconds), including
+  App, CLI, Core, and Widget products.
+- Native `swift test --filter Ark`: PASS, 40 tests in 6 suites.
+- `make check`: PASS:
+  - Codex parser hash current: `cc33c89a2253a9a3`.
+  - SwiftFormat: `0/1226 files require formatting`.
+  - SwiftLint: `0 violations, 0 serious in 1225 files`.
+  - Shell, documentation-link, package, signing, localization, test-sharding,
+    and CI path-gate checks passed; locale missing-key output remained warning
+    only.
+- `make test`: environment-blocked during `swift test list` before any test
+  group ran. The unchanged external
+  `KeyboardShortcuts/Sources/KeyboardShortcuts/Recorder.swift` could not load
+  `PreviewsMacros.SwiftUIView`. Entry 032 reproduced the same failure twice
+  with one intervening direct `swift test list` success and no source change,
+  establishing Xcode toolchain instability rather than an Ark regression.
+- Security/static scan found no real AK/SK, committed config, Authorization,
+  signature, RequestId, raw response, or account-identifier leakage. Existing
+  test credentials remain explicitly fake/reference values.
+- Ark fetcher tests continue to use only in-memory
+  `ProviderHTTPTransportHandler` stubs; no real network test exists.
+- Complete baseline review confirms Widget edits remain only S10/S11 compiler
+  closures. Ark still returns `nil` from `ProviderChoice`, so M1 adds no Widget
+  picker, snapshot, intent, or visible Widget capability.
+- Menu-bar behavior is verified through the stable resolver/model seams
+  preferred by upstream rules: highest-risk selection, 5h/Daily fallbacks,
+  four-window normalization, unavailable/error states, and provider
+  registration all compile and their targeted tests pass.
+
+### Issues / Risks
+
+- The sharded full test suite did not execute because the external Xcode
+  Preview macro failed during test discovery. This remains a documented
+  environment risk; it must be retried after a toolchain/dependency environment
+  change but does not require an M1 source or dependency modification.
+- M1 acceptance does not authorize M2 popover work, functional Widget work,
+  push, PR creation, or merge.
+
+### Decision
+
+PASS acceptance recommendation for M1 commit `7221ab7b`. Entry 032's finding
+is closed, security and scope boundaries are satisfied, and the only failed
+gate is the reproduced environment-only `make test` blocker allowed by the M1
+Definition of Done.
+
+Do not push, open/update a PR, merge, or enter M2 without Bee's explicit
+approval. Push/PR approval and merge approval remain separate decisions.
+
+### Next Action
+
+Bee decides whether Codex may push `feature/m1-ark-provider-menu-bar` and open
+or update its draft PR. If approved, Codex records the pushed commit and PR
+URL; merge remains blocked pending a separate Bee decision.
+
 ## Entry Template
 
 ```text
