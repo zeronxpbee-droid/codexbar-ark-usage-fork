@@ -11,9 +11,9 @@ M2 — Ark Popover Details
 ## Goal Status
 
 ```text
-Status: M2 S15 CORRECTIVE COMMIT — awaiting Codex re-audit (see PROJECT_LOG Entry 042)
-Implementation State: Compile fix (if-expression) + SwiftFormat fix (throws/Self) + 2 new tests (refresh-error, stale-snapshot); 11 test cases total
-Next: Codex re-audits the correction; if green, M2 implementation accepted
+Status: M2 S15 RE-AUDIT FAIL — additive test correction required (see PROJECT_LOG Entry 043)
+Implementation State: Commit aebb381f fixes the prior Swift syntax and adds error/stale cases, but make check still fails and stale-state assertion is incomplete
+Next: Claude / GLM fixes only Entry 043 test findings in one additive commit; product source is frozen
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex
@@ -134,27 +134,25 @@ Claude / GLM must not:
 - Publish or package a release.
 - Submit an upstream PR.
 
-## Next Task — Claude / GLM M2 S15 Corrective Commit 1
+## Next Task — Claude / GLM M2 S15 Corrective Commit 2
 
 1. Re-read `AGENTS.md`, `README.md`, `docs/PRD.md`, this file,
    `docs/PROJECT_LOG.md`, and `docs/M0_INTEGRATION_BOUNDARY.md`; compare the
    task against LOOP and the upstream baseline `AGENTS.md`.
 2. Verify the branch is `feature/m2-ark-popover-details`, its history descends
-   directly from audit commit `02539d87`, and the real index/worktree are
+   directly from audit commit `aebb381f`, and the real index/worktree are
    clean.
-3. Fix the Swift compile error in Ark-owned
-   `ArkUsageFetcher.rateWindow(from:)` without changing the approved complete
-   display string or Option A data flow. Use ordinary assignment/helper syntax
-   accepted by Swift 6; do not alter parsing, networking, credentials, or
-   window-slot mapping.
-4. Apply the repository-pinned formatter only to
-   `Tests/CodexBarTests/ArkPopoverMetricsTests.swift`; do not run a
-   repository-wide formatting rewrite or change existing expectations.
-5. Add focused model tests for the approved refresh-error and stale-snapshot
-   states. Preserve all existing four-window, percent-mode, reset,
-   missing-window, and unavailable-window coverage.
+3. Apply the repository-pinned formatter only to
+   `Tests/CodexBarTests/ArkPopoverMetricsTests.swift`, resolving the two
+   remaining `redundantSelf` findings at the helper calls. Do not change
+   existing product behavior or test expectations.
+4. Strengthen `staleSnapshotStillRendersMetrics` to prove the stale state is
+   user-visible: assert the menu-card subtitle reports an `Updated …` value
+   for the old `updatedAt` (and remains informational) while cached metrics
+   render.
+5. Preserve the refresh-error assertion and all existing four-window,
+   percent-mode, reset, missing-window, and unavailable-window coverage.
 6. Limit the corrective diff to:
-   - `Sources/CodexBarCore/Providers/Ark/ArkUsageFetcher.swift`;
    - `Tests/CodexBarTests/ArkPopoverMetricsTests.swift`;
    - `docs/TASKS.md`;
    - `docs/PROJECT_LOG.md`.
@@ -162,9 +160,9 @@ Claude / GLM must not:
    relevant menu-card tests, `make test`, and `make check`; record exact
    outcomes and create one additive local commit. Do not amend, reset, rebase,
    push, or create a PR.
-8. Stop and report before touching `ArkPopoverMetrics.swift`, the S15 shared
-   router, Widget, CLI, native menu, Preferences, S16, dependencies, generated
-   files, or unrelated providers.
+8. Stop and report before touching any product source, `ArkPopoverMetrics.swift`,
+   the S15 shared router, Widget, CLI, native menu, Preferences, S16,
+   dependencies, generated files, or unrelated providers.
 
 ## Definition of Done — M2
 

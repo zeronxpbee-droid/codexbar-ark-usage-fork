@@ -2120,6 +2120,122 @@ files as authorized by Entry 041. No amend/reset/rebase/push.
 
 Codex re-audits the correction. If green, M2 implementation is accepted.
 
+## Entry 043 — M2 S15 Corrective Commit Re-Audit
+
+Date: 2026-07-03
+Actor: Codex
+Type: Review
+Status: FAIL
+
+### Active Goal
+
+M2 — Ark Popover Details
+
+### LOOP Result
+
+Re-audited additive corrective commit
+`aebb381fe7897fa463fd2b4945d4c053ebb14167` against Entry 041's three
+findings, the approved S15 boundary, and the M2 Definition of Done. Required
+evidence was exact additive ancestry, the authorized four-file correction,
+clean real index/worktree, successful formatting/build/tests, and model-level
+proof that refresh errors and stale snapshots remain both useful and visibly
+identified. Codex changed no product or test source.
+
+### Summary
+
+The corrective commit properly replaces the invalid multi-statement Swift
+if-expression with a single expression, removes the nine redundant `throws`
+declarations, and adds refresh-error and stale-snapshot cases. Acceptance still
+fails because the pinned formatter finds two remaining explicit-`Self`
+violations in the rewritten helpers. The stale test also proves only that old
+metrics render; it does not assert the existing user-visible `Updated …`
+subtitle that makes stale data understandable.
+
+Claude again left three zero-byte lock artifacts: `index.lock`, `HEAD.lock`,
+and `objects/maintenance.lock`. Codex confirmed the four changed working-tree
+and real-index blobs matched commit `aebb381f`, found no repository-writing
+Git process, removed only the orphan locks, and synchronized the real index
+with `git read-tree --reset HEAD`.
+
+### Files Reviewed
+
+- `Sources/CodexBarCore/Providers/Ark/ArkUsageFetcher.swift`
+- `Tests/CodexBarTests/ArkPopoverMetricsTests.swift`
+- `docs/TASKS.md`
+- `docs/PROJECT_LOG.md`
+
+### Evidence
+
+- Reviewed commit:
+  `aebb381fe7897fa463fd2b4945d4c053ebb14167`.
+- Direct parent:
+  `c5b8d359416750ee252012803ea658fc2579f9d7`.
+- `git diff --check c5b8d359..aebb381f`: PASS.
+- Corrective scope is exactly the four files authorized by Entry 041; no S15
+  router, Widget, CLI, native-menu, Preferences, S16, dependency, generated,
+  or unrelated-provider file changed.
+- All four working-tree and real-index blobs matched the reviewed commit
+  before lock cleanup.
+- `make check`: FAIL after all portable checks passed. Pinned SwiftFormat
+  reports `1/1228 files require formatting` with two `redundantSelf` findings
+  in `ArkPopoverMetricsTests.swift`:
+  - line 69: `makeIdentity()` must follow the configured static self style;
+  - line 81: `metadata` must follow the configured static self style.
+- The refresh-error test now asserts cached metrics remain visible and
+  `subtitleStyle == .error`: finding 3's error half is closed.
+- The stale test constructs a two-hour-old snapshot and asserts cached metrics,
+  but never inspects `model.subtitleText` or `subtitleStyle`. The production
+  model already exposes stale age through
+  `UsageFormatter.updatedString`; the test must prove that visible behavior,
+  not only non-empty rows.
+- An escalated native `swift build` could not start because the external
+  approval service reported its own usage-limit rejection. A safer sandboxed
+  retry with an isolated `/private/tmp` module cache was blocked while
+  compiling the SwiftPM manifest by macOS `sandbox-exec: sandbox_apply:
+  Operation not permitted`.
+- `swift test --filter Ark` and `make test` were attempted with the same
+  isolated cache and were blocked by the same SwiftPM sandbox failure before
+  source/test compilation. These are environment/tooling blockers for this
+  re-audit, not PASS evidence.
+- Static review confirms the mapper correction is now a single Swift
+  expression preserving the exact approved display content. No credentials,
+  sensitive diagnostics, real network test, or functional Widget change was
+  added.
+
+### Findings
+
+1. **[P1] Make `ArkPopoverMetricsTests.swift` pass pinned SwiftFormat.**
+   Apply the formatter only to that file and resolve both remaining
+   `redundantSelf` findings. Do not change existing assertions.
+
+2. **[P1] Prove the stale state is visibly identified.**
+   Extend `staleSnapshotStillRendersMetrics` to assert the subtitle begins
+   with `Updated` (and remains `.info`) for the old snapshot while cached
+   metrics continue to render.
+
+### Issues / Risks
+
+- Native build and test execution remain unverified in this re-audit because
+  of the external approval/sandbox tooling blockers. They must be rerun after
+  the additive test-only correction.
+- Additional compiler/test findings may still surface once SwiftPM execution
+  becomes available.
+
+### Decision
+
+FAIL. Do not push, open a PR, merge, or enter M3 for commit `aebb381f`.
+
+Claude / GLM may create one additive test-only correction plus task/log records
+within the exact three-file scope in `docs/TASKS.md`. Product source is frozen;
+no amend, reset, rebase, temporary-index workaround, or scope expansion is
+authorized.
+
+### Next Action
+
+Claude / GLM resolves findings 1–2, records the correction, and creates one
+additive local commit. Codex re-runs formatting, build, Ark tests, full tests,
+and checks when the environment permits.
+
 ## Entry Template
 
 ```text
