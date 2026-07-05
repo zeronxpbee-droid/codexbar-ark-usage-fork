@@ -62,7 +62,7 @@
 | S15 (APPROVED — M2, Bee 2026-07-03) | `Sources/CodexBar/MenuCardView.swift` `UsageMenuCardView.Model.metrics(input:)` | add one Ark router branch: `if input.provider == .ark { return ArkPopoverMetrics.metrics(input:snapshot:) }`; all Ark rendering logic stays in new Ark-owned `ArkPopoverMetrics.swift` | Low–Med — additive provider branch in shared menu-card router; Ark logic isolated | Remove the branch; Ark reverts to standard path (M1 behavior) |
 | S17 (APPROVED — M3, Bee 2026-07-05) | `Sources/CodexBar/UsageStore+WidgetSnapshot.swift` `widgetUsageRows` | add one Ark routing branch to an Ark-owned four-window row mapper | Low–Med — additive branch in shared snapshot producer | Remove branch/helper; Ark falls back to primary/secondary rows |
 | S18 (APPROVED — M3, Bee 2026-07-05; naming corrected by Codex audit Entry 054) | `Sources/CodexBarCore/WidgetSnapshot.swift` `WidgetUsageRowSnapshot` | add backward-compatible optional `resetsAt` and `detailText` fields | Medium — shared persisted snapshot schema | Remove optional fields and Ark mapping |
-| S19 (PROPOSED — M4, awaiting Bee decision) | `Sources/CodexBarWidget/CodexBarWidgetBundle.swift` History Widget registration | change only the History Widget intent/timeline registration so History can use a filtered `ProviderChoice` option source while Usage keeps the existing registration | Medium — changing the History intent type may reset existing History Widget configurations | Restore `ProviderSelectionIntent` / `CodexBarTimelineProvider` registration. |
+| S19 (APPROVED — M4, Bee 2026-07-05) | `Sources/CodexBarWidget/CodexBarWidgetBundle.swift` History Widget registration | change only the History Widget intent/timeline registration so History can use a filtered `ProviderChoice` option source while Usage keeps the existing registration | Medium — Bee accepts that changing the History intent type may reset existing History Widget configurations; Metric retains its existing type | Restore `ProviderSelectionIntent` / `CodexBarTimelineProvider` registration. |
 
 All shared edits are additive registrations/wiring. None rename, move, or
 reformat upstream code. Each milestone's PR must list the S# points it touches.
@@ -256,6 +256,13 @@ S7 also requires an actual fit fallback (`ViewThatFits` or an equivalent
 bounded layout). Truncating text with `lineLimit(1)` is not the approved
 fallback because it does not remove lower-priority detail/reset content when
 space is insufficient.
+
+Bee approved Option A and S19 on 2026-07-05, with the explicit principle of
+aligning with official/upstream development patterns wherever possible. The
+corrective design therefore keeps the single persisted `ProviderChoice`
+catalog, uses Apple's supported AppIntents filtered-options mechanism, limits
+the new shared registration touch to History, and preserves Metric's existing
+intent and parameter type. Separate History/Metric provider enums are rejected.
 
 ## Upstream synchronization, conflict review & rollback procedure
 

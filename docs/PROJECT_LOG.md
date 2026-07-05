@@ -3997,6 +3997,84 @@ S19 and allows Ark in History/Metric, contrary to the approved product policy.
 Bee chooses Option A, B, or C. Codex then records the exact S19/corrective
 scope. Claude must not modify M4 product/test code before that decision.
 
+## Entry 061 — Bee Approves M4 S19 Option A Corrective Direction
+
+Date: 2026-07-05
+Actor: Bee (decision) + Codex (boundary registration)
+Type: Decision / Documentation
+Status: APPROVED / CORRECTIVE IMPLEMENTATION AUTHORIZED
+
+### Active Goal
+
+M4 — Ark Widget Provider Picker + Small/Medium UI
+
+### LOOP Result
+
+This was a Project Governance Loop. Entry 060 supplied the failed assumptions,
+SDK evidence, compatibility risks, and three bounded choices. Bee selected the
+recommended Option A and stated the governing principle: stay as close as
+possible to official development methods. Codex recorded the decision and
+authorized only the smallest corrective implementation loop; no product or
+test code was changed here.
+
+### Summary
+
+- S19 is approved for the minimum History Widget intent/timeline registration
+  change in `CodexBarWidgetBundle.swift`.
+- The implementation must retain one persisted `ProviderChoice` AppEnum and
+  use Apple's supported AppIntents filtered-options mechanism for History and
+  Metric.
+- `HistoryProviderChoice` and `MetricProviderChoice` must be removed.
+- Bee accepts that a necessary History intent-type change may reset an existing
+  History Widget configuration.
+- Metric keeps its existing intent and `ProviderChoice` parameter type, so M4
+  must not introduce an unnecessary Metric configuration-type reset.
+- Entry 060's remaining findings are included in the same corrective loop:
+  actual small/medium fit fallback, pinned format/lint cleanup, real filtered
+  options tests, `docs/widgets.md`, and corrected 13-test evidence.
+
+### Files Changed
+
+- `docs/TASKS.md`
+- `docs/M0_INTEGRATION_BOUNDARY.md`
+- `docs/PROJECT_LOG.md`
+
+### Evidence
+
+- Bee stated: `可以保留批准 Option A，我的原则是尽量参考和对齐官方的开发方法。`
+- The installed AppIntents SDK evidence recorded in Entry 060 confirms an
+  `AppEnum` intent parameter accepts an `optionsProvider`.
+- Preserving `ProviderChoice` follows the project's upstream-compatibility
+  boundary: minimize shared type divergence and avoid duplicating provider
+  catalogs.
+- Governance base: `7b67d52f`; worktree was clean before this documentation
+  update.
+
+### Issues / Risks
+
+- Changing the History intent registration may reset existing History Widget
+  configuration. Bee explicitly accepts this Option A tradeoff.
+- SwiftUI fit behavior remains layout-sensitive and still requires focused
+  model tests plus later runtime Widget visual proof.
+- Full `make test` may continue to encounter the unchanged external
+  KeyboardShortcuts Preview macro blocker; build, focused tests, and
+  `make check` remain mandatory.
+
+### Decision
+
+Approve S19 Option A and authorize Claude / GLM to create one additive M4
+corrective commit within the exact scope in TASKS.
+
+This does not authorize push, PR, merge, M5, release, history rewrite,
+unrelated Widget refactor, snapshot/network change, or additional shared
+touchpoints.
+
+### Next Action
+
+Claude implements the bounded corrective loop from this Entry 061 governance
+commit (whose parent is `7b67d52f`), records evidence, creates one additive
+local commit, and stops for Codex re-audit.
+
 ## Entry Template
 
 ```text

@@ -11,13 +11,12 @@ M4 — Ark Widget Provider Picker + Small/Medium UI
 ## Goal Status
 
 ```text
-Status: M4 AUDIT FAIL — blocked on Bee's S19/configuration-compatibility decision
-Audit State: implementation commit 95927a5e builds and its focused tests pass,
-but picker isolation exceeds the approved touchpoint, resets existing Widget
-configuration types unnecessarily, layout lacks the approved fit fallback,
-and pinned format/lint checks fail (see PROJECT_LOG Entry 060)
-Next: Bee chooses Option A/B/C under the Next Task section; Claude must not
-modify M4 product/test code before that decision
+Status: M4 CORRECTIVE LOOP AUTHORIZED — S19 Option A approved by Bee
+Audit State: implementation commit 95927a5e remains FAIL per Entry 060; Bee
+approved the upstream-aligned single-ProviderChoice correction, minimum History
+registration touch, actual fit fallback, and static-check/document corrections
+Next: Claude creates one additive corrective commit from the Entry 061
+governance commit and stops for Codex re-audit
 Implementation Owner: Claude / GLM Developer
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
@@ -119,6 +118,21 @@ must consume the app-owned snapshot and must not call Ark directly.
 - Rollback: remove Ark-specific projection/selection/presentation and restore
   percentage-only rows.
 
+### S19 — History Widget registration isolation (APPROVED)
+
+- File: `Sources/CodexBarWidget/CodexBarWidgetBundle.swift`
+- Approved edit: change only the History Widget intent/timeline registration
+  required to give History a filtered provider-options source while Usage
+  retains its existing registration.
+- The History intent parameter must remain the existing `ProviderChoice` type.
+- Risk accepted by Bee: changing the History intent type may reset an existing
+  History Widget configuration.
+- Metric must keep its existing intent and `ProviderChoice` parameter type;
+  its Ark exclusion uses filtered options and must not introduce a Metric
+  configuration-type reset.
+- Rollback: restore the original History `ProviderSelectionIntent` /
+  `CodexBarTimelineProvider` registration.
+
 ## Allowed Implementation Scope
 
 Codex may:
@@ -130,10 +144,15 @@ Codex may:
 
 Claude / GLM may:
 
-- Make no M4 product or test changes while the S19/configuration decision is
-  pending.
-- After Bee's decision, modify only the newly authorized corrective scope,
-  create one additive local commit, and stop for Codex re-audit.
+- Modify only:
+  - `Sources/CodexBarWidget/CodexBarWidgetProvider.swift` (S6 correction);
+  - `Sources/CodexBarWidget/CodexBarWidgetViews.swift` (S7 correction);
+  - `Sources/CodexBarWidget/CodexBarWidgetBundle.swift` (S19 only);
+  - `Tests/CodexBarTests/CodexBarWidgetProviderTests.swift`;
+  - `docs/widgets.md`;
+  - `docs/TASKS.md`;
+  - `docs/PROJECT_LOG.md`.
+- Create one additive local corrective commit and stop for Codex re-audit.
 
 ## Forbidden Scope
 
@@ -148,32 +167,29 @@ Claude / GLM may:
 - No push, PR, merge, release, destructive operation, or history rewrite
   without Bee approval.
 
-## Next Task — Bee S19 / Configuration Compatibility Decision
+## Next Task — Claude M4 Corrective Loop
 
-Choose one direction before Claude continues:
-
-1. **Option A — approve S19 and preserve the existing picker types
-   (recommended).**
-   - S19 permits the minimum `CodexBarWidgetBundle.swift` change needed to give
-     History its own intent registration.
-   - Keep the parameter type as the existing `ProviderChoice` and use
-     intent-specific filtered options for History and Metric.
-   - History configuration may reset because its intent type changes; Metric
-     keeps its existing intent and parameter type, avoiding an unnecessary
-     reset.
-   - Remove duplicated `HistoryProviderChoice` / `MetricProviderChoice`
-     catalogs.
-2. **Option B — approve the submitted separate-enum design plus S19.**
-   - Accept possible resets for both History and Metric configurations and the
-     ongoing maintenance cost of three provider catalogs.
-3. **Option C — do not approve S19.**
-   - Keep the existing shared intent/enum and allow Ark in History and Metric,
-     contrary to the approved Usage/Switcher-only product policy.
-
-After Bee decides, Codex records the exact corrective scope. The corrective
-loop must also add a real small/medium layout fit fallback, pass pinned
-format/lint checks, update `docs/widgets.md`, correct the test count to 13, and
-test the actual filtered picker results.
+1. Re-read LOOP, upstream baseline rules, Entry 060/061, and the S6/S7/S19
+   boundaries. Confirm HEAD is the Entry 061 governance commit (whose parent is
+   `7b67d52f`) and the worktree/index are clean.
+2. Remove `HistoryProviderChoice` and `MetricProviderChoice`; retain the one
+   upstream-style persisted `ProviderChoice` catalog.
+3. Use AppIntents' supported `DynamicOptionsProvider` path to filter `.ark`
+   from History and Metric. Test the actual provider results. Keep the existing
+   Metric intent and parameter type unchanged.
+4. Under S19, retain only the minimum History-specific intent/timeline
+   registration needed for a distinct filtered option source.
+5. Implement a real bounded small/medium fit fallback (`ViewThatFits` or an
+   equivalent) that drops lower-priority detail/reset content when space is
+   insufficient. Preserve all S7 selection/order and opaque-data rules.
+6. Fix all pinned SwiftFormat/SwiftLint findings, update `docs/widgets.md`, and
+   correct the M4 test count/evidence to 13.
+7. Run `git diff --check`, `swift build`,
+   `swift test --filter CodexBarWidgetProviderTests`,
+   `swift test --filter Ark`, `make test`, and `make check`; record any genuine
+   environment-only blocker exactly.
+8. Create one additive local commit. No amend/reset/rebase/temporary index,
+   push, PR, merge, M5, or release.
 
 ## Definition of Done — M4
 
