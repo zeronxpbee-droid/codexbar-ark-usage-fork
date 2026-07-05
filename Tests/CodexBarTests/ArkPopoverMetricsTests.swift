@@ -25,7 +25,10 @@ struct ArkPopoverMetricsTests {
 
     private static var metadata: ProviderMetadata {
         // Registered by ArkProviderDescriptor (M1, S3).
-        try! #require(ProviderDefaults.metadata[.ark])
+        guard let metadata = ProviderDefaults.metadata[.ark] else {
+            preconditionFailure("Ark provider metadata not registered by ArkProviderDescriptor")
+        }
+        return metadata
     }
 
     /// Build a `RateWindow` with the Ark complete display string in

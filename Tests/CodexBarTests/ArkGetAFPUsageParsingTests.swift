@@ -128,6 +128,6 @@ struct ArkGetAFPUsageParsingTests {
             updatedAt: Date())
             .toUsageSnapshot()
 
-        #expect(snapshot.primary?.resetDescription == "25/100")
+        #expect(snapshot.primary?.resetDescription == "25 / 100 AFP · 75 remaining")
     }
 }

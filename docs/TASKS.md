@@ -11,9 +11,9 @@ M2 — Ark Popover Details
 ## Goal Status
 
 ```text
-Status: M2 S15 TEST-ONLY RE-AUDIT FAIL — additive test correction required (see PROJECT_LOG Entry 047)
-Implementation State: Popover tests compile and pass, but make check finds one force_try violation and the full Ark suite finds one stale M1 resetDescription expectation
-Next: Claude / GLM fixes only Entry 047 test findings in one additive commit; product source remains frozen
+Status: M2 S15 TEST-ONLY CORRECTION 4 READY FOR RE-AUDIT — additive commit created (see PROJECT_LOG Entry 049)
+Implementation State: Ark popover suite 11/11 PASS; force_try removed and stale M1 resetDescription expectation updated to S15 format; product source remains frozen
+Next: Codex re-audits the additive corrective commit against Entry 047 findings 1–2
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex
@@ -134,40 +134,24 @@ Claude / GLM must not:
 - Publish or package a release.
 - Submit an upstream PR.
 
-## Next Task — Claude / GLM M2 S15 Corrective Commit 5
+## Next Task — Codex M2 S15 Fifth Re-Audit
 
 1. Re-read `AGENTS.md`, `README.md`, `docs/PRD.md`, this file,
    `docs/PROJECT_LOG.md`, and `docs/M0_INTEGRATION_BOUNDARY.md`; compare the
    task against LOOP and the upstream baseline `AGENTS.md`.
 2. Verify the branch is `feature/m2-ark-popover-details`, its history descends
-   directly from corrective commit `79f37d2b` and the subsequent Codex audit
-   documentation commit, and the real index/worktree are
-   clean.
-3. In `Tests/CodexBarTests/ArkPopoverMetricsTests.swift`, remove the
-   `try! #require(...)` force-try from the `metadata` helper using a small,
-   explicit non-force failure path. Do not weaken any assertion or change
-   product behavior.
-4. In `Tests/CodexBarTests/ArkGetAFPUsageParsingTests.swift`, update only the
-   stale M1 `resetDescription` expectation from `"25/100"` to the approved M2
-   Option A complete display string
-   `"25 / 100 AFP · 75 remaining"`.
-5. Preserve the new stale-state assertions
-   (`subtitleText` begins with `Updated` and `subtitleStyle == .info`), the
-   refresh-error assertion, and all existing four-window, percent-mode, reset,
-   missing-window, and unavailable-window expectations.
-6. Apply the repository-pinned formatter only to the two test files, then
-   confirm that the formatter makes no further changes and both test suites
-   compile.
-7. Limit the corrective diff to:
+   directly from corrective commit created below and the subsequent Codex
+   audit documentation commit, and the real index/worktree are clean.
+3. Run `git diff --check`, `swift build`, `swift test --filter Ark`, the
+   relevant menu-card tests, `make test`, and `make check`; record exact
+   outcomes. Verify that the `force_try` violation is gone, the stale M1
+   `resetDescription` expectation passes, and no new finding surfaced.
+4. Confirm the corrective diff is exactly:
    - `Tests/CodexBarTests/ArkPopoverMetricsTests.swift`;
    - `Tests/CodexBarTests/ArkGetAFPUsageParsingTests.swift`;
    - `docs/TASKS.md`;
    - `docs/PROJECT_LOG.md`.
-8. Run `git diff --check`, `swift build`, `swift test --filter Ark`, the
-   relevant menu-card tests, `make test`, and `make check`; record exact
-   outcomes and create one additive local commit. Do not amend, reset, rebase,
-   push, or create a PR.
-9. Stop and report before touching any product source, `ArkPopoverMetrics.swift`,
+5. Stop and report before touching any product source, `ArkPopoverMetrics.swift`,
    the S15 shared router, Widget, CLI, native menu, Preferences, S16,
    dependencies, generated files, or unrelated providers.
 

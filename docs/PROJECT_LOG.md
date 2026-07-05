@@ -2689,6 +2689,102 @@ All existing major-decision and repository-operation gates remain in force.
 
 Apply this standing rule to subsequent Codex audits.
 
+## Entry 049 — M2 S15 Test-Only Correction 4
+
+Date: 2026-07-05
+Actor: Claude Developer
+Type: Bugfix
+Status: CREATED
+
+### Active Goal
+
+M2 — Ark Popover Details
+
+### LOOP Result
+
+LOOP applied as a workflow checklist: Plan (identify Entry 047's two P1
+findings), Execute (remove force_try; update stale M1 expectation), Verify
+(diff --check, scope check against four-file boundary), Recover (additive
+commit only, product source frozen). Both findings addressed in a single
+additive pass.
+
+### Summary
+
+Fixed both Entry 047 P1 findings in two test files:
+
+1. **SwiftLint `force_try` violation** (`ArkPopoverMetricsTests.swift:28`):
+   replaced `try! #require(ProviderDefaults.metadata[.ark])` with an explicit
+   `guard let` + `preconditionFailure` non-force failure path. The `metadata`
+   static computed property now reads:
+
+   ```swift
+   guard let metadata = ProviderDefaults.metadata[.ark] else {
+       preconditionFailure("Ark provider metadata not registered by ArkProviderDescriptor")
+   }
+   return metadata
+   ```
+
+   This avoids `try!` (force_try) and `!` (force_unwrapping) while preserving
+   the same fail-fast behavior when Ark metadata is missing.
+
+2. **Stale M1 `resetDescription` expectation**
+   (`ArkGetAFPUsageParsingTests.swift:131`): changed the expected value from
+   `"25/100"` to the approved M2 Option A complete display string
+   `"25 / 100 AFP · 75 remaining"`. The mapper behavior is unchanged; only
+   the test expectation is updated to match the S15 mapper format that
+   produces `"\(used) / \(quota) AFP · \(remaining) remaining"`.
+
+All stale-state assertions (`subtitleStyle == .info`,
+`subtitleText.hasPrefix("Updated")`), refresh-error assertion, and all
+existing four-window, percent-mode, reset, missing-window, and
+unavailable-window expectations are preserved unchanged.
+
+### Files Changed
+
+- `Tests/CodexBarTests/ArkPopoverMetricsTests.swift` — `try! #require(...)`
+  replaced with `guard let` + `preconditionFailure` (4 lines added, 1
+  removed).
+- `Tests/CodexBarTests/ArkGetAFPUsageParsingTests.swift` — 1 line changed
+  (`"25/100"` → `"25 / 100 AFP · 75 remaining"`).
+- `docs/TASKS.md` — status and Next Task updated.
+- `docs/PROJECT_LOG.md` — this entry.
+
+### Evidence
+
+- `git diff --check`: PASS (no whitespace errors).
+- Diff scope: exactly the authorized four files (two test files + TASKS.md +
+  PROJECT_LOG.md). No product source, S15 router, Widget, CLI, native-menu,
+  Preferences, S16, dependency, generated, or unrelated-provider file changed.
+- No local Swift toolchain; `swift build`, `swift test --filter Ark`,
+  `make test`, and `make check` deferred to Codex fifth re-audit.
+- The `guard let` + `preconditionFailure` pattern avoids both `force_try`
+  and `force_unwrapping` SwiftLint rules while preserving fail-fast behavior.
+- The updated expectation `"25 / 100 AFP · 75 remaining"` matches the
+  approved M2 Option A mapper format documented in Entry 040 and the S15
+  proposal in `docs/M0_INTEGRATION_BOUNDARY.md`.
+
+### Issues / Risks
+
+- Without a local Swift toolchain, Claude cannot verify SwiftLint output,
+  compilation, or test execution directly. The correction is based on Codex's
+  Entry 047 evidence and the stated findings.
+- The full sharded suite retains the known external Xcode Preview macro
+  blocker (`KeyboardShortcuts` `PreviewsMacros.SwiftView`) documented in
+  earlier M2 audits; this is independent of the Ark test correction.
+
+### Decision
+
+Claude created one additive local commit on `feature/m2-ark-popover-details`
+descending from audit documentation commit `22d20397`. No amend, reset,
+rebase, push, PR, or product-source change. Product source remains frozen.
+
+### Next Action
+
+Codex re-audits the additive corrective commit against Entry 047 findings 1–2:
+run `swift build`, `swift test --filter Ark`, `make check`, and `make test`;
+verify the `force_try` violation is gone, the stale M1 expectation passes,
+and no new finding surfaced.
+
 ## Entry Template
 
 ```text
