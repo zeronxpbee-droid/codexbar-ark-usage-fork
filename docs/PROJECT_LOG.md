@@ -4305,6 +4305,49 @@ Codex commits this governance-only audit record. Claude then creates one
 additive corrective commit from that audit commit, runs the required gates,
 and stops for Codex re-audit.
 
+## Entry 064 — Bee Approves Token-Efficient Handoff and Two-Stage Audit
+
+Date: 2026-07-05
+Actor: Bee (decision) + Codex (governance)
+Type: Decision / Documentation
+Status: APPROVED
+
+### Active Goal
+
+M4 — Ark Widget Provider Picker + Small/Medium UI
+
+### LOOP Result
+
+Project Governance Loop. Bee requested lower token use without lowering the
+acceptance bar; Codex converted the policy into durable workflow rules only.
+
+### Decision
+
+- Developer handoff is limited to SHA, parent, changed files, command/results,
+  and known limitations; implementation detail is read from Git.
+- Codex uses two gates: mechanical checks first, judgment audit only after all
+  mechanical checks pass.
+- A code-owned mechanical failure stops that audit loop immediately.
+- Full `make test` is reserved for milestone-final/dependency/global changes;
+  the unchanged KeyboardShortcuts blocker is referenced, not reproduced.
+- Audit Entries normally use 20–40 lines with compact matrices/tables.
+- After M4 merge, archive M1/M2 and begin M5 in a fresh thread.
+- Governance-only files: `AGENTS.md`, `docs/TASKS.md`,
+  `docs/PROJECT_LOG.md`.
+
+### Verification
+
+| Check | Result |
+|---|---|
+| Product/test source changed | NO |
+| Active Goal changed | NO |
+| `git diff --check` | PASS |
+
+### Next Action
+
+Codex commits this governance update. Claude receives only the compact TASKS
+handoff and performs the mechanical corrective loop.
+
 ## Entry Template
 
 ```text

@@ -184,12 +184,19 @@ Claude / GLM may:
 5. Do not change `CodexBarWidgetViews.swift`,
    `CodexBarWidgetBundle.swift`, `docs/widgets.md`, M3 schema/snapshot code, or
    any unrelated provider.
-6. Run `git diff --check`, `swift build`,
-   `swift test --filter CodexBarWidgetProviderTests`,
-   `swift test --filter Ark`, `make test`, and `make check`; record any genuine
-   environment-only blocker exactly.
+6. Run the mechanical handoff gate only:
+   - `git diff --check`;
+   - project-pinned SwiftFormat `--lint` and SwiftLint `--strict --no-cache`
+     on the two changed Swift files;
+   - `swift build`;
+   - `swift test --filter CodexBarWidgetProviderTests`;
+   - `swift test --filter Ark`.
+   Stop at the first code-owned failure. Do not rerun the unchanged external
+   KeyboardShortcuts `make test` blocker in this corrective loop.
 7. Create one additive local commit. No amend/reset/rebase/temporary index,
    push, PR, merge, M5, or release.
+8. Send Codex only the commit SHA, parent SHA, changed files, command/result
+   matrix, and known limitations. Do not paste the implementation narrative.
 
 ## Definition of Done — M4
 
@@ -213,5 +220,7 @@ M4 is Done only when:
 
 ## Planned Milestones After M4
 
+- After M4 merge: archive closed M1/M2 PROJECT_LOG segments, then start M5 in
+  a fresh thread.
 - M5 — Stabilization and local release candidate.
 - M6 — Optional upstream contribution review.

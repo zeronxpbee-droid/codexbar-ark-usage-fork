@@ -131,7 +131,11 @@ Codex must:
 - Inspect scope before pushing Claude / GLM commits.
 - Push approved task branches and create or update draft PRs.
 - Record branch names, commit SHAs, PR links, and upstream baselines.
-- Re-read `AGENTS.md`, `docs/PRD.md`, `docs/TASKS.md`, and `docs/PROJECT_LOG.md` before reviewing.
+- Re-read `AGENTS.md`, `docs/PRD.md`, and `docs/TASKS.md` before reviewing.
+- Read the current milestone segment and referenced audit/decision entries in
+  `docs/PROJECT_LOG.md`. Read older milestone history only when the current
+  task depends on it or the documents conflict; do not reload archives by
+  default.
 - Invoke or explicitly compare the review task against `LOOP` before auditing.
 - Review only the active goal scope.
 - Check security, credential handling, Widget behavior, provider behavior, and test evidence.
@@ -156,6 +160,48 @@ Codex must not:
 - Merge without Bee approval.
 - Convert review into unapproved development.
 - Broaden the project into a general provider dashboard.
+
+### 3.5 Token-Efficient Handoff and Two-Stage Audit
+
+Developer handoffs must be concise. Claude / GLM sends only:
+
+- Commit SHA.
+- Parent SHA.
+- Changed files.
+- Commands run and PASS / FAIL results.
+- Known limitations.
+
+The repository is the source of implementation detail. Do not paste a long
+implementation narrative into chat.
+
+Codex audits in two stages:
+
+1. **Mechanical gate**
+   - Verify ancestry, branch, worktree/index, and changed-file scope.
+   - Run `git diff --check`.
+   - Run project-pinned SwiftFormat and SwiftLint on changed Swift files.
+   - Run `swift build`.
+   - Run focused tests selected from the changed surface.
+   - If any code-owned mechanical check fails, stop immediately, record a
+     compact FAIL, and do not spend tokens on full architecture/UI review.
+2. **Judgment gate**
+   - Enter only after the mechanical gate is green.
+   - Review security, secret handling, scope, upstream compatibility,
+     persistence compatibility, provider behavior, and UI/layout design.
+   - Run milestone-final checks and collect runtime/visual proof when required.
+
+Full `make test` is reserved for a milestone-final candidate, a dependency /
+build-system/global change, or an explicit request. A previously reproduced,
+unchanged external blocker such as KeyboardShortcuts Preview macros is
+referenced by Entry number rather than regenerated on every corrective loop.
+
+Audit entries should normally be about 20–40 lines. Prefer a compact test
+matrix and findings table over repeated prose. `docs/TASKS.md` owns the full
+current corrective instructions; `docs/PROJECT_LOG.md` records only durable
+historical evidence and decisions.
+
+After M4 merges, archive the closed M1/M2 log segments and begin M5 in a fresh
+thread before development starts.
 
 ## 4. Architecture Boundary
 
