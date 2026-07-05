@@ -138,6 +138,12 @@ Codex must:
 - Check the complete diff against the recorded upstream baseline.
 - Produce an evidence-backed PASS / FAIL acceptance recommendation.
 - Write the review record to `docs/PROJECT_LOG.md` before any merge recommendation.
+- After completing an audit, directly commit the audit record and synchronized
+  `docs/TASKS.md` state without requesting a separate Bee approval for that
+  documentation-only commit.
+- Stop for Bee before any major scope or architecture decision, new shared
+  integration touchpoint, milestone transition, push, PR creation/update,
+  merge, release, destructive operation, or history rewrite.
 
 Codex must not:
 

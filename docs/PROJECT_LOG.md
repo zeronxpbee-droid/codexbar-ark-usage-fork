@@ -2517,6 +2517,178 @@ Codex re-audits the additive corrective commit against Entry 045 findings 1–2:
 run `swift build`, `swift test --filter Ark`, `make check`, and `make test`;
 verify the stale/error assertions execute and pass; confirm no scope expansion.
 
+## Entry 047 — M2 S15 Test-Only Correction 3 Re-Audit
+
+Date: 2026-07-05
+Actor: Codex
+Type: Review
+Status: FAIL
+
+### Active Goal
+
+M2 — Ark Popover Details
+
+### LOOP Result
+
+Re-audited additive corrective commit
+`79f37d2bc7c1eb37a3e7dde6bd76497939d09be6` against Entry 045's two
+findings, the exact three-file correction boundary, the approved S15 design,
+the complete M2 diff, and the M2 Definition of Done. Required evidence was
+clean additive ancestry and Git state, pinned formatting/lint, full build,
+passing Ark and popover tests, full repository gates, preserved stale/error
+behavior, and no product-scope expansion. Codex changed no product or test
+source.
+
+### Summary
+
+Entry 045's helper-context defects are fixed. The new Ark popover suite now
+compiles and all 11 tests pass, including the visible stale subtitle and
+refresh-error cases. Acceptance nevertheless remains FAIL for two independent
+test findings that became reachable after compilation:
+
+1. `make check` passes SwiftFormat but SwiftLint rejects the test metadata
+   helper's `try! #require(...)` as a `force_try` violation.
+2. The complete Ark test run reaches an older M1 parsing test whose expected
+   `resetDescription` is still `"25/100"`. The approved M2 Option A mapper now
+   correctly returns `"25 / 100 AFP · 75 remaining"`, so the stale test
+   expectation fails.
+
+Claude again left three zero-byte lock artifacts: `index.lock`, `HEAD.lock`,
+and `objects/maintenance.lock`. Codex confirmed the three changed
+working-tree, real-index, and HEAD blobs all matched commit `79f37d2b`, found
+no repository-writing Git process, and removed only the orphan locks. No
+index synchronization was necessary.
+
+### Files Reviewed
+
+- `Tests/CodexBarTests/ArkPopoverMetricsTests.swift`
+- `docs/TASKS.md`
+- `docs/PROJECT_LOG.md`
+- Complete M2 diff from merge baseline `239e4272`.
+- Complete fork diff from upstream baseline `6ab1cbb7`.
+
+### Evidence
+
+- Branch: `feature/m2-ark-popover-details`.
+- Reviewed commit:
+  `79f37d2bc7c1eb37a3e7dde6bd76497939d09be6`.
+- Direct parent:
+  `5f5ea0c3f41c4b4de739f60a79842e33553b3c6c`.
+- `git diff --check 5f5ea0c3..79f37d2b`: PASS.
+- Corrective scope is exactly the authorized test file plus
+  `docs/TASKS.md` and `docs/PROJECT_LOG.md`; no product, S15 router, Widget,
+  CLI, native-menu, Preferences, S16, dependency, generated, or
+  unrelated-provider file changed.
+- Native `swift build`: PASS (`Build complete!`, 16.16 seconds), including
+  App, Core, CLI, and Widget products.
+- `swift test --filter ArkPopoverMetricsTests`: PASS, 11 tests in one suite.
+  The four-window, remaining-percent, reset/no-reset, partial/missing,
+  unavailable, refresh-error, and stale `Updated …` / `.info` assertions all
+  executed successfully.
+- Native `swift test --filter Ark`: FAIL with 50/51 tests passing across seven
+  suites. The sole failure is
+  `ArkGetAFPUsageParsingTests.swift:131`: committed expectation `"25/100"`
+  versus the approved M2 mapper output
+  `"25 / 100 AFP · 75 remaining"`.
+- `make check`: FAIL after all portable checks and SwiftFormat passed:
+  - SwiftFormat: `0/1228 files require formatting`;
+  - SwiftLint: one serious `force_try` violation at
+    `ArkPopoverMetricsTests.swift:28` for `try! #require(...)`.
+- `make test`: environment-blocked during `swift test list` by the unchanged
+  external `KeyboardShortcuts` `PreviewsMacros.SwiftUIView` plugin-loading
+  failure recorded in prior audits. This blocker is independent of the direct
+  Ark test and lint failures.
+- Static scope/security review found no product change, real AK/SK,
+  Authorization, signature, RequestId, raw response, account identifier,
+  committed config, real network test, functional Widget behavior, S16, or
+  unrelated-provider change.
+
+### Findings
+
+1. **[P1] Remove the test helper's force try.**
+   Replace `try! #require(ProviderDefaults.metadata[.ark])` with a small,
+   explicit non-force failure path that satisfies SwiftLint. Keep this change
+   inside `ArkPopoverMetricsTests.swift`.
+
+2. **[P1] Update the stale M1 mapper expectation.**
+   In `ArkGetAFPUsageParsingTests.swift`, change only the expected
+   `resetDescription` from `"25/100"` to the approved M2 Option A complete
+   display string `"25 / 100 AFP · 75 remaining"`. Do not change mapper
+   behavior.
+
+### Issues / Risks
+
+- The full sharded suite retains the known external Xcode Preview macro
+  blocker and must be retried on the next additive correction.
+- The two remaining findings are test-only and require no new shared
+  touchpoint, product behavior, or major direction decision.
+
+### Decision
+
+FAIL. Do not push, open a PR, merge, or enter M3 for commit `79f37d2b`.
+
+Claude / GLM may create one additive test-only correction plus task/log
+records within the exact four-file scope in `docs/TASKS.md`. Product source
+remains frozen; no amend, reset, rebase, temporary-index workaround, or scope
+expansion is authorized.
+
+### Next Action
+
+Claude / GLM fixes findings 1–2, runs the required formatter/build/test/check
+commands, records exact outcomes, and creates one additive local commit.
+Codex then re-audits.
+
+## Entry 048 — Audit Documentation Commit Authorization
+
+Date: 2026-07-05
+Actor: Bee (decision) + Codex (governance record)
+Type: Decision / Documentation
+Status: APPROVED
+
+### Active Goal
+
+M2 — Ark Popover Details
+
+### LOOP Result
+
+Recorded Bee's standing repository-operation instruction at the invariant
+rule level. The change affects only Codex's audit-documentation workflow; it
+does not widen product, developer, push, PR, merge, release, milestone, or
+history-rewrite authority.
+
+### Summary
+
+Bee authorized Codex to directly commit completed PASS/FAIL audit records and
+the synchronized `docs/TASKS.md` state without requesting a separate approval
+for each documentation-only commit.
+
+Bee participation remains mandatory for major direction decisions, including
+scope/architecture changes, new shared integration touchpoints, milestone
+transitions, pushes, PR creation or updates, merges, releases, destructive
+operations, and history rewrites.
+
+### Files Changed
+
+- `AGENTS.md`
+- `docs/PROJECT_LOG.md`
+- `docs/TASKS.md`
+
+### Evidence
+
+- Bee instructed: after findings, Codex may follow the process and directly
+  commit audit documentation; ask Bee only when a major direction decision
+  requires participation.
+- Existing project rules already reserve merge and milestone gates for Bee.
+
+### Decision
+
+Audit-documentation commits no longer require per-commit Bee approval.
+All existing major-decision and repository-operation gates remain in force.
+
+### Next Action
+
+Apply this standing rule to subsequent Codex audits.
+
 ## Entry Template
 
 ```text
