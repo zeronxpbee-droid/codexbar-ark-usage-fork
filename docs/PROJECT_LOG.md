@@ -2785,6 +2785,125 @@ run `swift build`, `swift test --filter Ark`, `make check`, and `make test`;
 verify the `force_try` violation is gone, the stale M1 expectation passes,
 and no new finding surfaced.
 
+## Entry 050 — M2 S15 Final Re-Audit
+
+Date: 2026-07-05
+Actor: Codex
+Type: Review
+Status: PASS / AWAITING BEE
+
+### Active Goal
+
+M2 — Ark Popover Details
+
+### LOOP Result
+
+Re-audited additive test-only correction
+`488332000fb8c8809573ff079aa2a5cd7a3e062b` against Entry 047's two
+findings, the exact four-file correction boundary, approved S15 Option A,
+the complete M2 diff from merge baseline `239e4272`, the complete fork diff
+from upstream baseline `6ab1cbb7`, and the M2 Definition of Done. Required
+evidence was additive ancestry, clean Git state, full build, all Ark and
+popover tests, repository checks, security/scope isolation, and honest
+classification of the known full-suite environment blocker.
+
+### Summary
+
+Both Entry 047 findings are closed. The test helper no longer uses force try,
+the older parser expectation matches the approved M2 complete display string,
+and no new source or test finding surfaced. The complete workspace builds,
+all 51 Ark tests pass, all 11 Ark popover tests pass, and `make check` passes.
+
+`make test` remains blocked before test discovery by the unchanged external
+`KeyboardShortcuts` `PreviewsMacros.SwiftUIView` plugin-loading failure. This
+is the same independently reproduced Xcode toolchain/dependency environment
+blocker documented since M1; it is not caused by the M2 diff. The M2
+Definition of Done explicitly permits an honestly reproduced environment-only
+blocker.
+
+Claude again left three zero-byte lock artifacts: `index.lock`, `HEAD.lock`,
+and `objects/maintenance.lock`. Codex confirmed the four changed
+working-tree, real-index, and HEAD blobs all matched commit `48833200`, found
+no repository-writing Git process, and removed only the orphan locks. No
+index synchronization was necessary.
+
+### Files Reviewed
+
+- Corrective commit:
+  - `Tests/CodexBarTests/ArkPopoverMetricsTests.swift`
+  - `Tests/CodexBarTests/ArkGetAFPUsageParsingTests.swift`
+  - `docs/TASKS.md`
+  - `docs/PROJECT_LOG.md`
+- Complete M2 implementation:
+  - `Sources/CodexBar/MenuCardView.swift` (approved S15 router)
+  - `Sources/CodexBar/Providers/Ark/ArkPopoverMetrics.swift`
+  - `Sources/CodexBarCore/Providers/Ark/ArkUsageFetcher.swift`
+  - M2 tests and governance records.
+
+### Evidence
+
+- Branch: `feature/m2-ark-popover-details`.
+- Reviewed commit:
+  `488332000fb8c8809573ff079aa2a5cd7a3e062b`.
+- Direct parent:
+  `22d20397e97749201d497ce49b175747f2f8e2c0`.
+- `git diff --check 22d20397..48833200`: PASS.
+- Corrective scope is exactly the four authorized files. No product, shared
+  router, Widget, CLI, native-menu, Preferences, S16, dependency, generated,
+  or unrelated-provider file changed.
+- Native `swift build`: PASS (`Build complete!`, 20.16 seconds), including
+  App, Core, CLI, and Widget products.
+- Native `swift test --filter Ark`: PASS, 51 tests in seven suites.
+- `swift test --filter ArkPopoverMetricsTests`: PASS, 11 tests in one suite.
+  This includes four complete rows, used/remaining percent modes,
+  reset/no-reset, missing/partial and unavailable windows, refresh error, and
+  stale `Updated …` / `.info` behavior.
+- Native escalated `make check`: PASS:
+  - parser hash and all portable repository checks passed;
+  - SwiftFormat: `0/1228 files require formatting`;
+  - SwiftLint: `0 violations, 0 serious in 1227 files`.
+- The first sandboxed `make check` attempt reached the same zero formatting
+  and lint findings but exited only because SwiftLint could not write its user
+  cache plist. Re-running the identical command with normal local permissions
+  passed, confirming an environment permission issue rather than a repository
+  defect.
+- `make test`: environment-blocked during `swift test list` by the unchanged
+  external `KeyboardShortcuts` Preview macro plugin failure before sharded
+  suites started.
+- Static review found no real AK/SK, Authorization, signature, RequestId, raw
+  response, account identifier, committed config, or real network test.
+- `supportsOpus` remains false. M2 adds no functional Widget snapshot, picker,
+  intent, visible Widget UI, CLI, native-menu, Preferences, S16, dependency,
+  or unrelated-provider behavior.
+- Complete M2 scope remains the approved one-branch S15 shared router plus
+  Ark-owned mapper/presentation code, focused tests, and governance records.
+
+### Issues / Risks
+
+- The full sharded suite did not execute because of the external Preview macro
+  environment failure. This remains a known toolchain risk and should be
+  retried after an Xcode/dependency environment change.
+- Option A intentionally carries Ark's complete quota detail through
+  `RateWindow.resetDescription` as opaque presentation text. The documented
+  semantic trade-off remains; typed S16 is not part of M2.
+- PASS does not authorize push, PR creation/update, merge, or M3.
+
+### Decision
+
+PASS acceptance recommendation for M2 at commit `48833200`. Entry 047's
+findings are closed, all directly relevant build/test/check gates pass, and
+the only failed command is the repeatedly reproduced environment-only
+`make test` blocker permitted by the Definition of Done.
+
+Do not push, open/update a PR, merge, or enter M3 without Bee's explicit
+decision. Push/PR approval, merge approval, and M3 transition remain separate
+gates.
+
+### Next Action
+
+Bee decides whether Codex may push `feature/m2-ark-popover-details` and open
+its draft PR. Merge and M3 remain blocked pending separate Bee decisions.
+
 ## Entry Template
 
 ```text

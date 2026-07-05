@@ -11,9 +11,9 @@ M2 — Ark Popover Details
 ## Goal Status
 
 ```text
-Status: M2 S15 TEST-ONLY CORRECTION 4 READY FOR RE-AUDIT — additive commit created (see PROJECT_LOG Entry 049)
-Implementation State: Ark popover suite 11/11 PASS; force_try removed and stale M1 resetDescription expectation updated to S15 format; product source remains frozen
-Next: Codex re-audits the additive corrective commit against Entry 047 findings 1–2
+Status: M2 AUDIT PASS — awaiting Bee repository/milestone decision (see PROJECT_LOG Entry 050)
+Implementation State: Full build, 51 Ark tests, 11 popover tests, and make check pass; make test remains environment-blocked by the unchanged external Preview macro issue
+Next: Bee decides whether Codex may push/open the M2 draft PR, and separately whether M2 may merge or M3 may open
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex
@@ -134,26 +134,15 @@ Claude / GLM must not:
 - Publish or package a release.
 - Submit an upstream PR.
 
-## Next Task — Codex M2 S15 Fifth Re-Audit
+## Next Task — Bee M2 Gate Decision
 
-1. Re-read `AGENTS.md`, `README.md`, `docs/PRD.md`, this file,
-   `docs/PROJECT_LOG.md`, and `docs/M0_INTEGRATION_BOUNDARY.md`; compare the
-   task against LOOP and the upstream baseline `AGENTS.md`.
-2. Verify the branch is `feature/m2-ark-popover-details`, its history descends
-   directly from corrective commit created below and the subsequent Codex
-   audit documentation commit, and the real index/worktree are clean.
-3. Run `git diff --check`, `swift build`, `swift test --filter Ark`, the
-   relevant menu-card tests, `make test`, and `make check`; record exact
-   outcomes. Verify that the `force_try` violation is gone, the stale M1
-   `resetDescription` expectation passes, and no new finding surfaced.
-4. Confirm the corrective diff is exactly:
-   - `Tests/CodexBarTests/ArkPopoverMetricsTests.swift`;
-   - `Tests/CodexBarTests/ArkGetAFPUsageParsingTests.swift`;
-   - `docs/TASKS.md`;
-   - `docs/PROJECT_LOG.md`.
-5. Stop and report before touching any product source, `ArkPopoverMetrics.swift`,
-   the S15 shared router, Widget, CLI, native menu, Preferences, S16,
-   dependencies, generated files, or unrelated providers.
+1. Review the PASS evidence in `docs/PROJECT_LOG.md` Entry 050.
+2. Decide whether Codex may push `feature/m2-ark-popover-details` and open its
+   draft PR. This does not authorize merge.
+3. Decide separately, after PR review, whether M2 may merge and whether M3 may
+   open.
+4. Until Bee decides, do not push, open/update a PR, merge, enter M3, or change
+   product source.
 
 ## Definition of Done — M2
 
