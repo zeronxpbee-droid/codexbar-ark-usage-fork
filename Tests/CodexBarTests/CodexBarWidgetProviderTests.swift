@@ -608,6 +608,209 @@ struct CodexBarWidgetProviderTests {
         #expect(BurnDownRefreshSchedule.nextRefresh(snapshot: snapshot, provider: .codex, now: now) == fallback)
     }
 
+    // MARK: - M4 S6: Ark ProviderChoice
+
+    @Test
+    func `provider choice supports ark`() {
+        #expect(ProviderChoice(provider: .ark) == .ark)
+        #expect(ProviderChoice.ark.provider == .ark)
+    }
+
+    @Test
+    func `history provider choice excludes ark`() {
+        #expect(HistoryProviderChoice(provider: .ark) == nil)
+        #expect(HistoryProviderChoice(provider: .codex) == .codex)
+    }
+
+    @Test
+    func `metric provider choice excludes ark`() {
+        #expect(MetricProviderChoice(provider: .ark) == nil)
+        #expect(MetricProviderChoice(provider: .codex) == .codex)
+    }
+
+    @Test
+    func `supported providers keep ark when it is the only enabled provider`() {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let entry = WidgetSnapshot.ProviderEntry(
+            provider: .ark,
+            updatedAt: now,
+            primary: nil,
+            secondary: nil,
+            tertiary: nil,
+            usageRows: [],
+            creditsRemaining: nil,
+            codeReviewRemainingPercent: nil,
+            tokenUsage: nil,
+            dailyUsage: [])
+        let snapshot = WidgetSnapshot(entries: [entry], enabledProviders: [.ark], generatedAt: now)
+
+        #expect(CodexBarSwitcherTimelineProvider.supportedProviders(from: snapshot) == [.ark])
+    }
+
+    // MARK: - M4 S7: Ark small/medium row projection and selection
+
+    @Test
+    func `ark small widget limit is one`() {
+        let entry = Self.arkFourWindowEntry()
+        #expect(WidgetUsageRow.smallWidgetRowLimit(for: entry) == 1)
+    }
+
+    @Test
+    func `ark medium widget limit is nil`() {
+        let entry = Self.arkFourWindowEntry()
+        #expect(WidgetUsageRow.mediumWidgetRowLimit(for: entry) == nil)
+    }
+
+    @Test
+    func `ark small widget selects highest risk row`() {
+        let entry = Self.arkFourWindowEntry()
+        let rows = WidgetUsageRow.rows(for: entry, limit: WidgetUsageRow.smallWidgetRowLimit(for: entry))
+
+        #expect(rows.count == 1)
+        // Highest risk = lowest percentLeft = 60 (Weekly, usedPercent 40)
+        #expect(rows[0].id == "ark-afp-weekly")
+        #expect(rows[0].percentLeft == 60)
+    }
+
+    @Test
+    func `ark small widget preserves stable order on ties`() {
+        let resetDate = Date(timeIntervalSince1970: 1_742_771_200)
+        let entry = WidgetSnapshot.ProviderEntry(
+            provider: .ark,
+            updatedAt: Date(),
+            primary: nil,
+            secondary: nil,
+            tertiary: nil,
+            usageRows: [
+                WidgetSnapshot.WidgetUsageRowSnapshot(id: "ark-afp-5h", title: "5h", percentLeft: 50, resetsAt: resetDate, detailText: nil),
+                WidgetSnapshot.WidgetUsageRowSnapshot(id: "ark-afp-daily", title: "Daily", percentLeft: 50, resetsAt: resetDate, detailText: nil),
+                WidgetSnapshot.WidgetUsageRowSnapshot(id: "ark-afp-weekly", title: "Weekly", percentLeft: 50, resetsAt: resetDate, detailText: nil),
+            ],
+            creditsRemaining: nil,
+            codeReviewRemainingPercent: nil,
+            tokenUsage: nil,
+            dailyUsage: [])
+
+        let rows = WidgetUsageRow.rows(for: entry, limit: 1)
+
+        #expect(rows.count == 1)
+        // Stable tie: first row in source order wins
+        #expect(rows[0].id == "ark-afp-5h")
+    }
+
+    @Test
+    func `ark small widget falls back to first row when no known usage`() {
+        let entry = WidgetSnapshot.ProviderEntry(
+            provider: .ark,
+            updatedAt: Date(),
+            primary: nil,
+            secondary: nil,
+            tertiary: nil,
+            usageRows: [
+                WidgetSnapshot.WidgetUsageRowSnapshot(id: "ark-afp-5h", title: "5h", percentLeft: nil),
+                WidgetSnapshot.WidgetUsageRowSnapshot(id: "ark-afp-daily", title: "Daily", percentLeft: nil),
+            ],
+            creditsRemaining: nil,
+            codeReviewRemainingPercent: nil,
+            tokenUsage: nil,
+            dailyUsage: [])
+
+        let rows = WidgetUsageRow.rows(for: entry, limit: 1)
+
+        #expect(rows.count == 1)
+        // No known usage: first stable Ark row as unavailable
+        #expect(rows[0].id == "ark-afp-5h")
+        #expect(rows[0].percentLeft == nil)
+    }
+
+    @Test
+    func `ark medium widget retains all four rows in stable order`() {
+        let entry = Self.arkFourWindowEntry()
+        let rows = WidgetUsageRow.rows(for: entry)
+
+        #expect(rows.count == 4)
+        #expect(rows.map(\.id) == ["ark-afp-5h", "ark-afp-daily", "ark-afp-weekly", "ark-afp-monthly"])
+        #expect(rows.map(\.title) == ["5h", "Daily", "Weekly", "Monthly"])
+    }
+
+    @Test
+    func `widget usage row preserves s18 fields for ark`() {
+        let entry = Self.arkFourWindowEntry()
+        let rows = WidgetUsageRow.rows(for: entry)
+
+        // All rows carry resetsAt and detailText from M3 snapshot
+        for row in rows {
+            #expect(row.resetsAt == Self.arkResetDate)
+            #expect(row.detailText == Self.arkDetailText)
+        }
+    }
+
+    @Test
+    func `non-ark widget row limit unchanged by m4`() {
+        let entry = WidgetSnapshot.ProviderEntry(
+            provider: .cursor,
+            updatedAt: Date(),
+            primary: nil,
+            secondary: nil,
+            tertiary: nil,
+            usageRows: [
+                WidgetSnapshot.WidgetUsageRowSnapshot(id: "one", title: "One", percentLeft: 90),
+                WidgetSnapshot.WidgetUsageRowSnapshot(id: "two", title: "Two", percentLeft: 80),
+                WidgetSnapshot.WidgetUsageRowSnapshot(id: "three", title: "Three", percentLeft: 70),
+            ],
+            creditsRemaining: nil,
+            codeReviewRemainingPercent: nil,
+            tokenUsage: nil,
+            dailyUsage: [])
+
+        let limit = WidgetUsageRow.smallWidgetRowLimit(for: entry)
+
+        // Non-Ark: no special small limit
+        #expect(limit == nil)
+        #expect(WidgetUsageRow.rows(for: entry, limit: limit).count == 3)
+    }
+
+    @Test
+    func `ark widget omits code review and token usage in small view`() {
+        let entry = Self.arkFourWindowEntry()
+        // Ark has usageRows, so compactTokenUsage returns nil
+        #expect(WidgetUsageRow.compactTokenUsage(for: entry) == nil)
+        // Ark has no codeReviewRemainingPercent
+        #expect(entry.codeReviewRemainingPercent == nil)
+    }
+
+    // MARK: - M4 S7 Helpers
+
+    private static let arkResetDate = Date(timeIntervalSince1970: 1_742_771_200 + 3600)
+    private static let arkDetailText = "100 / 500 AFP · 400 remaining"
+
+    private static func arkFourWindowEntry() -> WidgetSnapshot.ProviderEntry {
+        WidgetSnapshot.ProviderEntry(
+            provider: .ark,
+            updatedAt: Date(),
+            primary: nil,
+            secondary: nil,
+            tertiary: nil,
+            usageRows: [
+                WidgetSnapshot.WidgetUsageRowSnapshot(
+                    id: "ark-afp-5h", title: "5h", percentLeft: 80,
+                    resetsAt: self.arkResetDate, detailText: self.arkDetailText),
+                WidgetSnapshot.WidgetUsageRowSnapshot(
+                    id: "ark-afp-daily", title: "Daily", percentLeft: 70,
+                    resetsAt: self.arkResetDate, detailText: self.arkDetailText),
+                WidgetSnapshot.WidgetUsageRowSnapshot(
+                    id: "ark-afp-weekly", title: "Weekly", percentLeft: 60,
+                    resetsAt: self.arkResetDate, detailText: self.arkDetailText),
+                WidgetSnapshot.WidgetUsageRowSnapshot(
+                    id: "ark-afp-monthly", title: "Monthly", percentLeft: 90,
+                    resetsAt: self.arkResetDate, detailText: self.arkDetailText),
+            ],
+            creditsRemaining: nil,
+            codeReviewRemainingPercent: nil,
+            tokenUsage: nil,
+            dailyUsage: [])
+    }
+
     private static func burnSnapshot(
         provider: UsageProvider,
         primaryUsed: Double?,

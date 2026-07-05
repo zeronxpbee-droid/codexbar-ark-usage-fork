@@ -3743,6 +3743,137 @@ Codex commits the combined M3 merge/M4 preflight and S6/S7 approval governance
 record. Claude / GLM then implements only the exact scope in `docs/TASKS.md`
 and stops for Codex audit.
 
+## Entry 059 — Claude Implements M4 S6+S7
+
+Date: 2026-07-05
+Actor: Claude (Developer)
+Type: Development
+Status: CREATED — awaiting Codex audit
+
+### Active Goal
+
+M4 — Ark Widget Provider Picker + Small/Medium UI
+
+### LOOP Result
+
+LOOP was applied before execution. Task type: Development Loop. Planner: Bee +
+ChatGPT (Entry 058 approved S6/S7). Generator: Claude. Evaluator: Codex (pending
+audit). Recorder: Claude. Done Contract: implement S6 (Ark in `ProviderChoice`,
+History/Metric exclusion) and S7 (Ark small/medium row projection, selection,
+and presentation) in one additive commit, then stop for Codex audit.
+
+### Summary
+
+S6 — Ark Widget provider choice:
+
+- Added `.ark` case to `ProviderChoice` with display representation `"Ark"`,
+  `provider` mapping `.ark -> .ark`, and `init?(provider: .ark)` returning
+  `.ark` (was `nil`).
+- Created `HistoryProviderChoice` and `MetricProviderChoice` as separate
+  `AppEnum` types that exclude `.ark`, following the upstream
+  `BurnProviderChoice` pattern. Raw values match `ProviderChoice` so existing
+  persisted configurations remain decodable.
+- Created `HistoryProviderSelectionIntent` and `HistoryTimelineProvider` so
+  the History Widget picker excludes Ark. History Widget in
+  `CodexBarWidgetBundle.swift` was updated to use the new intent/provider.
+- Modified `CompactMetricSelectionIntent` to use `MetricProviderChoice` so
+  the Metric Widget picker excludes Ark.
+- `SwitchWidgetProviderIntent` retains `ProviderChoice` (Ark allowed in
+  Switcher).
+- `CodexBarSwitcherTimelineProvider.supportedProviders` already filters
+  through `ProviderChoice(provider:)`, which now returns `.ark` — so the
+  static Switcher automatically includes Ark when enabled.
+
+S7 — Ark small/medium row presentation:
+
+- Extended `WidgetUsageRow` with `resetsAt: Date?` and `detailText: String?`
+  fields, projected from M3 `WidgetUsageRowSnapshot`. Init has nil defaults
+  for backward compatibility.
+- `smallWidgetRowLimit` returns 1 for Ark (highest-risk single row).
+- `mediumWidgetRowLimit` returns nil for Ark (all rows, stable order).
+- Added `arkSmallSelection` static method: selects the known row with the
+  lowest `percentLeft` (highest risk), preserving stable source order on
+  ties. Falls back to the first stable Ark row when no row has known usage.
+- Created `ArkUsageBarRow` view: renders title, percent, bar, opaque
+  `detailText`, and relative `resetsAt` date. Compact mode (medium)
+  lays out detail and reset horizontally to avoid crowding. `detailText`
+  is never parsed; reset display derives only from `resetsAt`.
+- Routed `SmallUsageView`, `MediumUsageView`, `SwitcherSmallUsageView`, and
+  `SwitcherMediumUsageView` to use `ArkUsageBarRow` for Ark, keeping
+  `UsageBarRow` for all other providers.
+- Large family views (`LargeUsageView`, `SwitcherLargeUsageView`) remain
+  unchanged — no Ark-specific layout logic.
+
+Tests added (12 new @Test functions in `CodexBarWidgetProviderTests.swift`):
+
+- `.ark` round-trip in `ProviderChoice`.
+- `HistoryProviderChoice` and `MetricProviderChoice` exclude `.ark`.
+- `supportedProviders` keeps Ark when it is the only enabled provider.
+- Ark small widget limit is 1; medium limit is nil.
+- Ark small widget selects highest-risk row (lowest `percentLeft`).
+- Ark small widget preserves stable order on ties.
+- Ark small widget falls back to first row when no known usage.
+- Ark medium widget retains all four rows in stable order.
+- `WidgetUsageRow` preserves S18 `resetsAt`/`detailText` for Ark.
+- Non-Ark widget row limit unchanged by M4.
+- Ark widget omits code review and token usage in small view.
+
+### Files Changed
+
+- `Sources/CodexBarWidget/CodexBarWidgetProvider.swift` (S6)
+- `Sources/CodexBarWidget/CodexBarWidgetViews.swift` (S7)
+- `Sources/CodexBarWidget/CodexBarWidgetBundle.swift` (S6 necessary
+  companion: History Widget intent changed from `ProviderSelectionIntent`
+  to `HistoryProviderSelectionIntent`)
+- `Tests/CodexBarTests/CodexBarWidgetProviderTests.swift` (12 new tests)
+- `docs/PROJECT_LOG.md`
+- `docs/TASKS.md`
+
+### Evidence
+
+- `git diff --check`: PASS (no whitespace errors).
+- `git diff --stat`: 4 product/test files, 566 insertions / 22 deletions.
+- No local Swift toolchain; `swift build`, focused Widget/Ark tests, `make
+  test`, and `make check` deferred to Codex audit.
+
+### Issues / Risks
+
+1. **`CodexBarWidgetBundle.swift` modified outside S6 file list.** TASKS.md
+   listed only `CodexBarWidgetProvider.swift` for S6, but History Widget
+   shared `ProviderSelectionIntent` with Usage Widget. Separating History
+   to `HistoryProviderSelectionIntent` required updating the Widget Bundle
+   reference (one-line intent + provider change). This is a necessary
+   companion to S6, not a scope expansion.
+
+2. **`AppEnum` does not support `DynamicOptionsProvider`.** TASKS.md
+   referenced "intent-specific `DynamicOptionsProvider` filtering", but
+   `DynamicOptionsProvider` in Apple's AppIntents framework requires
+   `AppEntity`, not `AppEnum`. The implementation follows the upstream
+   `BurnProviderChoice` pattern (separate `AppEnum` per intent family)
+   which is already proven to compile and work in this codebase.
+
+3. **Existing History/Metric Widget configurations may reset.** Changing
+   History Widget's intent type and Metric Widget's `@Parameter` type may
+   cause existing user configurations to reset to defaults. New enum raw
+   values match `ProviderChoice` to maximize compatibility, but AppIntents
+   may store type metadata that invalidates old configs. This is an
+   accepted tradeoff for excluding Ark from these surfaces.
+
+4. **`make test` external Preview macro blocker** may still prevent full
+   test discovery; direct Widget/Ark tests and `make check` remain
+   mandatory.
+
+### Decision
+
+Claude implemented S6/S7 in one additive local commit on
+`feature/m4-ark-widget-picker-ui`. Stop for Codex audit.
+
+### Next Action
+
+Codex audits the complete M4 diff against the upstream baseline and records
+PASS/FAIL. If PASS, Bee approves merge or moving to M5. If FAIL, Claude
+creates an additive corrective commit.
+
 ## Entry Template
 
 ```text

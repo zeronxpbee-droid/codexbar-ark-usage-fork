@@ -52,8 +52,8 @@ struct CodexBarHistoryWidget: Widget {
     var body: some WidgetConfiguration {
         AppIntentConfiguration(
             kind: self.kind,
-            intent: ProviderSelectionIntent.self,
-            provider: CodexBarTimelineProvider())
+            intent: HistoryProviderSelectionIntent.self,
+            provider: HistoryTimelineProvider())
         { entry in
             CodexBarHistoryWidgetView(entry: entry)
         }

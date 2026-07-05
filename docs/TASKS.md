@@ -11,9 +11,12 @@ M4 — Ark Widget Provider Picker + Small/Medium UI
 ## Goal Status
 
 ```text
-Status: M4 S6+S7 APPROVED — implementation authorized (see PROJECT_LOG Entry 058)
-Implementation State: no M4 product/test code written; exact picker and small/medium policy now fixed
-Next: Claude / GLM implements the bounded S6/S7 slice in one additive local commit
+Status: M4 S6+S7 IMPLEMENTED — awaiting Codex audit (see PROJECT_LOG Entry 059)
+Implementation State: S6 (Ark ProviderChoice + History/Metric exclusion) and S7
+(Ark small/medium row projection, selection, presentation) implemented in one
+additive commit; 12 focused tests added; `git diff --check` PASS; local
+Swift build/test/check deferred to Codex
+Next: Codex audits the complete M4 diff and records PASS/FAIL
 Implementation Owner: Claude / GLM Developer
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
