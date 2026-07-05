@@ -61,7 +61,7 @@
 | S14 | `Sources/CodexBarCore/Generated/CodexParserHash.generated.swift` | run `Scripts/regenerate-codex-parser-hash.sh` after S12 and commit only the generated hash update | Low — mechanical integrity companion to the vendored scanner change; no runtime logic. | Regenerate again after reverting S12. |
 | S15 (APPROVED — M2, Bee 2026-07-03) | `Sources/CodexBar/MenuCardView.swift` `UsageMenuCardView.Model.metrics(input:)` | add one Ark router branch: `if input.provider == .ark { return ArkPopoverMetrics.metrics(input:snapshot:) }`; all Ark rendering logic stays in new Ark-owned `ArkPopoverMetrics.swift` | Low–Med — additive provider branch in shared menu-card router; Ark logic isolated | Remove the branch; Ark reverts to standard path (M1 behavior) |
 | S17 (APPROVED — M3, Bee 2026-07-05) | `Sources/CodexBar/UsageStore+WidgetSnapshot.swift` `widgetUsageRows` | add one Ark routing branch to an Ark-owned four-window row mapper | Low–Med — additive branch in shared snapshot producer | Remove branch/helper; Ark falls back to primary/secondary rows |
-| S18 (APPROVED — M3, Bee 2026-07-05) | `Sources/CodexBarCore/WidgetSnapshot.swift` `WidgetUsageRowSnapshot` | add backward-compatible optional `resetAt` and `detailText` fields | Medium — shared persisted snapshot schema | Remove optional fields and Ark mapping |
+| S18 (APPROVED — M3, Bee 2026-07-05; naming corrected by Codex audit Entry 054) | `Sources/CodexBarCore/WidgetSnapshot.swift` `WidgetUsageRowSnapshot` | add backward-compatible optional `resetsAt` and `detailText` fields | Medium — shared persisted snapshot schema | Remove optional fields and Ark mapping |
 
 All shared edits are additive registrations/wiring. None rename, move, or
 reformat upstream code. Each milestone's PR must list the S# points it touches.
@@ -192,11 +192,14 @@ must hand M4 reset timestamps and the complete M2 used/quota/remaining display
 detail, S18 is also required. Bee approved the M4-ready S17+S18 contract on
 2026-07-05.
 
-S18 fields are exactly `resetAt: Date?` and `detailText: String?`, both
-backward-compatible optional values. Ark maps the M2 opaque complete quota
-string directly to `detailText` without parsing and maps the real window reset
-date to `resetAt`. S17 produces stable 5h/Daily/Weekly/Monthly rows without
-changing `supportsOpus` or enabling Widget selection/UI.
+S18 fields are `resetsAt: Date?` and `detailText: String?`, both
+backward-compatible optional values. The original approval record used
+singular `resetAt`; Codex corrected the unreleased field name during Entry 054
+to match the existing `RateWindow.resetsAt` and upstream naming convention
+before M3 merge. Ark maps the M2 opaque complete quota string directly to
+`detailText` without parsing and maps the real window reset date to
+`resetsAt`. S17 produces stable 5h/Daily/Weekly/Monthly rows without changing
+`supportsOpus` or enabling Widget selection/UI.
 
 ## Upstream synchronization, conflict review & rollback procedure
 

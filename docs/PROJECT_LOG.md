@@ -3149,6 +3149,161 @@ focused Ark/snapshot tests, `make test`, and `make check`; verify stable
 ordering, missing/unknown window handling, S18 backward compatibility, and
 no M4 scope expansion.
 
+## Entry 054 — M3 S17+S18 First Audit
+
+Date: 2026-07-05
+Actor: Codex
+Type: Review
+Status: FAIL
+
+### Active Goal
+
+M3 — Ark Widget Snapshot Integration
+
+### LOOP Result
+
+Audited additive developer commit
+`1524d1c647bff2a912feef0141b0948aaca4b853` against the approved S17/S18
+boundary, the M3 Definition of Done, the complete M3 diff from M2 merge
+`27ec5fa0`, the complete fork diff from upstream baseline `6ab1cbb7`, and
+upstream build/test/check rules. Required evidence was additive ancestry,
+clean Git state, full compilation, schema compatibility, all Ark and focused
+snapshot tests, the actual `UsageStore` persistence seam, repository checks,
+and no M4 or security scope expansion. Codex changed no product or test
+source.
+
+### Summary
+
+The submitted production design is narrow and directionally correct. The
+workspace builds, all 59 Ark tests pass, and all 11 new M3 helper/schema tests
+pass. Acceptance nevertheless fails for two mandatory verification gaps:
+
+1. `make check` rejects both new test files: the mapper suite needs pinned
+   formatting, and the S18 old-JSON test violates SwiftLint's
+   `non_optional_string_data_conversion` rule.
+2. The tests call `ArkWidgetSnapshotRows.rows(from:)` directly but never call
+   `UsageStore.persistWidgetSnapshot`. Therefore the approved S17 shared
+   routing branch and the app-owned persisted snapshot path are untested,
+   despite the M3 Definition of Done explicitly requiring a focused
+   `UsageStore` persistence test.
+
+The implementation record also understates the test count: the committed
+mapper suite contains eight tests, not seven, so the two new suites contain
+eleven tests total, not ten.
+
+During compatibility review, Codex also corrected the unreleased S18 field
+name from singular `resetAt` to the project/upstream convention `resetsAt`.
+Claude correctly implemented the originally approved singular spelling; this
+is a governance-contract correction, not an implementation-scope violation.
+
+### Files Reviewed
+
+- `Sources/CodexBarCore/WidgetSnapshot.swift` — S18 optional schema fields.
+- `Sources/CodexBar/UsageStore+WidgetSnapshot.swift` — S17 shared Ark route.
+- `Sources/CodexBar/Providers/Ark/ArkWidgetSnapshotRows.swift` — Ark mapper.
+- `Tests/CodexBarTests/WidgetSnapshotS18Tests.swift` — three schema tests.
+- `Tests/CodexBarTests/ArkWidgetSnapshotRowsTests.swift` — eight mapper tests.
+- `docs/TASKS.md`
+- `docs/PROJECT_LOG.md`
+
+### Evidence
+
+- Branch: `feature/m3-ark-widget-snapshot`.
+- Reviewed commit:
+  `1524d1c647bff2a912feef0141b0948aaca4b853`.
+- Direct parent and governance approval baseline:
+  `9f86ce4d3374432f5b0cd496d52600ececf86816`.
+- Real index and worktree were clean after Codex verified and removed three
+  zero-byte orphan Git locks (`index.lock`, `HEAD.lock`, and
+  `objects/maintenance.lock`) with no Git writer running.
+- `git diff --check 9f86ce4d..1524d1c6`: PASS.
+- Diff scope is exactly the seven authorized files. The only shared source
+  edits are S17's three-line provider route and S18's optional schema fields.
+- Native `swift build`: PASS (`Build complete!`, 17.47 seconds), including App,
+  Core, CLI, and Widget products.
+- `swift test --filter ArkWidgetSnapshotRowsTests`: PASS, eight tests in one
+  suite.
+- `swift test --filter WidgetSnapshotS18Tests`: PASS, three tests in one suite.
+- `swift test --filter Ark`: PASS, 59 tests in eight suites.
+- `make check`: FAIL after all portable checks passed. Pinned SwiftFormat
+  reports `1/1231 files require formatting` in
+  `ArkWidgetSnapshotRowsTests.swift` (nine `redundantSelf` findings and four
+  `consecutiveSpaces` findings). A direct no-cache SwiftLint run over both new
+  tests reports one serious violation at
+  `WidgetSnapshotS18Tests.swift:20`: use the non-optional `Data` initializer
+  instead of `String.data(using:)` for a non-optional string.
+- `make test`: environment-blocked before test discovery by the unchanged
+  external `KeyboardShortcuts` `PreviewsMacros.SwiftUIView` plugin-loading
+  failure recorded since M1. This is independent of the direct M3 gate
+  failures and must be retried.
+- Static review confirms stable 5h/Daily/Weekly/Monthly helper order,
+  remaining percentages, reset/detail propagation, missing-window omission,
+  and Monthly unknown-row handling. The route itself has no persistence-path
+  test.
+- Old JSON decode, new-field round-trip, and nil-key omission all execute and
+  pass.
+- No M4 picker, intent, preview, or visible Widget UI was added.
+  `ProviderChoice(provider: .ark)` still returns `nil`, `supportsOpus` remains
+  false, and the Widget performs no Ark network call.
+- Static scope/security review found no real AK/SK, Authorization, signature,
+  RequestId, raw response, account identifier, committed config, or real
+  network test.
+- `deliverables/`, observed as an untracked and explicitly preserved directory
+  before M3 implementation, is no longer present. Its disappearance is not
+  represented by this Git commit; Codex did not restore or infer its contents.
+
+### Findings
+
+1. **[P1] Make both new M3 test files pass pinned format/lint.**
+   Apply the repository-pinned formatter only to the touched M3 tests. Replace
+   the old-JSON fixture's non-optional `String.data(using:)!` conversion with
+   the lint-approved non-optional `Data` initializer. Preserve fixture content
+   and test expectations.
+
+2. **[P1] Test the actual S17 `UsageStore` persistence path.**
+   Add one Ark case to `UsageStoreWidgetSnapshotTests.swift` following the
+   existing store/capture pattern. It must set an Ark snapshot, call
+   `persistWidgetSnapshot`, await the task, and assert the persisted Ark entry
+   contains stable four-window rows with `percentLeft`, reset timestamp, and
+   detail text. A second direct helper test does not close this finding.
+
+3. **[P2] Rename the unreleased S18 field to `resetsAt`.**
+   Rename singular `resetAt` in the schema, mapper, tests, and current
+   governance references. This matches `RateWindow.resetsAt` and the existing
+   upstream convention and avoids carrying an unnecessary fork-only naming
+   divergence into M4. Do not add a compatibility alias because the field has
+   not been merged or released.
+
+4. **[P2] Correct the M3 test-count record.**
+   Record eight mapper tests plus three schema tests (eleven total), not seven
+   plus three (ten total).
+
+### Issues / Risks
+
+- The full sharded suite remains unavailable because of the external Xcode
+  Preview macro environment blocker.
+- `deliverables/` disappearance is an out-of-band workspace hygiene issue. It
+  is not attributed to commit `1524d1c6`; if the directory contained needed
+  user artifacts, recovery must come from its original external source or
+  backup rather than reconstruction by Codex.
+- S18 remains a fork-specific schema extension; only the S17 routing pattern
+  directly follows current upstream architecture.
+
+### Decision
+
+FAIL. Do not push, open a PR, merge, or enter M4 for commit `1524d1c6`.
+
+No new shared touchpoint or major direction decision is required. Claude / GLM
+may create one additive corrective commit within the exact seven-file scope in
+`docs/TASKS.md`. Product behavior outside the S18 field rename is frozen; no
+amend, reset, rebase, temporary-index workaround, push, or PR is authorized.
+
+### Next Action
+
+Claude / GLM applies findings 1–4, runs the complete command set recorded in
+`docs/TASKS.md`, updates the implementation record, and creates one additive
+local commit. Codex then re-audits.
+
 ## Entry Template
 
 ```text

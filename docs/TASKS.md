@@ -11,10 +11,10 @@ M3 — Ark Widget Snapshot Integration
 ## Goal Status
 
 ```text
-Status: M3 S17+S18 IMPLEMENTED — additive commit created (see PROJECT_LOG Entry 053)
-Implementation State: S17 Ark four-window row mapper + S18 optional resetAt/detailText schema fields + focused encode/decode and snapshot tests; product source frozen for audit
-Next: Codex audits the complete M3 diff and records PASS/FAIL
-Implementation Owner: Claude / GLM Developer (after approval)
+Status: M3 S17+S18 FIRST AUDIT FAIL — corrective additive commit required (see PROJECT_LOG Entry 054)
+Implementation State: product implementation remains at 1524d1c6; correction is limited to naming, tests, formatting/lint, and governance records
+Next: Claude / GLM creates one additive corrective commit within the exact scope below; Codex re-audits
+Implementation Owner: Claude / GLM Developer
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
 ```
@@ -78,7 +78,8 @@ intent registration, and visible small/medium Widget UI remain M4.
 ### S18 — Generic row reset/detail fields (APPROVED)
 
 - File: `Sources/CodexBarCore/WidgetSnapshot.swift`
-- Approved edit: add `resetAt: Date?` and `detailText: String?` to
+- Approved edit, with the Entry 054 naming correction: add
+  `resetsAt: Date?` and `detailText: String?` to
   `WidgetUsageRowSnapshot`, both defaulting to `nil` in the initializer and
   decoding as optional for backward compatibility.
 - Purpose: avoid losing Monthly reset and used/quota/remaining information
@@ -87,7 +88,7 @@ intent registration, and visible small/medium Widget UI remain M4.
 - Risk: Medium, shared persisted snapshot schema.
 
 Ark's mapper must write four stable rows in the order 5h, Daily, Weekly,
-Monthly. Each known row carries `percentLeft`, `resetAt`, and the existing M2
+Monthly. Each known row carries `percentLeft`, `resetsAt`, and the existing M2
 opaque `resetDescription` value as `detailText`; no string parsing is allowed.
 Unknown/missing windows must remain unavailable/omitted rather than invented
 as zero.
@@ -106,7 +107,10 @@ Claude / GLM may:
   `Sources/CodexBar/Providers/Ark/ArkWidgetSnapshotRows.swift`.
 - Add the exact S17 Ark branch in `UsageStore+WidgetSnapshot.widgetUsageRows`.
 - Add the exact S18 optional fields and backward-compatible coding behavior.
-- Add focused encode/decode and `UsageStore` snapshot tests.
+- Add focused encode/decode and Ark mapper tests.
+- Extend `Tests/CodexBarTests/UsageStoreWidgetSnapshotTests.swift` with one
+  Ark persistence-path test that calls `persistWidgetSnapshot`, awaits the
+  persist task, and proves S17 emits all four rows with S18 values.
 - Update `docs/TASKS.md` and `docs/PROJECT_LOG.md`.
 
 ## Forbidden Scope
@@ -122,25 +126,36 @@ Claude / GLM may:
 - No push, PR, merge, release, destructive operation, or history rewrite
   without Bee approval.
 
-## Next Task — Codex M3 S17+S18 Audit
+## Next Task — Claude M3 S17+S18 Corrective Commit
 
-1. Re-read project governance, TASKS, PROJECT_LOG, boundary map, LOOP, and the
-   upstream baseline rules.
-2. Verify branch `feature/m3-ark-widget-snapshot` descends from governance
-   approval commit `9f86ce4d` and the additive implementation commit below.
-3. Run `git diff --check`, `swift build`, focused Ark/snapshot tests,
-   `make test`, and `make check`; record exact outcomes.
-4. Verify the corrective diff is exactly:
-   - `Sources/CodexBarCore/WidgetSnapshot.swift` (S18 schema);
-   - `Sources/CodexBar/UsageStore+WidgetSnapshot.swift` (S17 routing branch);
-   - `Sources/CodexBar/Providers/Ark/ArkWidgetSnapshotRows.swift` (S17 mapper);
-   - `Tests/CodexBarTests/WidgetSnapshotS18Tests.swift` (S18 tests);
-   - `Tests/CodexBarTests/ArkWidgetSnapshotRowsTests.swift` (S17 tests);
+1. Rename the new S18 field and all M3 references from singular `resetAt` to
+   `resetsAt`, matching the existing `RateWindow.resetsAt` and upstream naming
+   convention. Do not add a compatibility alias: the unreleased field has not
+   crossed a merge/release boundary.
+2. In `WidgetSnapshotS18Tests.swift`, replace the lint-rejected non-optional
+   `String.data(using:)!` conversion with the repository-approved non-optional
+   `Data` initializer; preserve the exact old-JSON fixture and assertions.
+3. Add one focused Ark case to
+   `Tests/CodexBarTests/UsageStoreWidgetSnapshotTests.swift` that exercises
+   `_setSnapshotForTesting` → `persistWidgetSnapshot` → captured persisted
+   entry, and asserts stable 5h/Daily/Weekly/Monthly rows plus
+   `percentLeft`/`resetsAt`/`detailText`. This closes the untested S17 router
+   and persistence seam; do not test only the helper again.
+4. Correct the implementation record from 7 mapper tests / 10 total new tests
+   to 8 mapper tests / 11 total new tests.
+5. The corrective diff may touch only:
+   - `Sources/CodexBarCore/WidgetSnapshot.swift`;
+   - `Sources/CodexBar/Providers/Ark/ArkWidgetSnapshotRows.swift`;
+   - `Tests/CodexBarTests/WidgetSnapshotS18Tests.swift`;
+   - `Tests/CodexBarTests/ArkWidgetSnapshotRowsTests.swift`;
+   - `Tests/CodexBarTests/UsageStoreWidgetSnapshotTests.swift`;
    - `docs/TASKS.md`;
    - `docs/PROJECT_LOG.md`.
-5. Confirm stable 5h/Daily/Weekly/Monthly ordering, missing/unknown window
-   handling, S18 backward compatibility (old JSON decodes, round-trip, nil
-   fields omit keys), and no M4 picker/UI/scope expansion.
+6. Run the pinned formatter only on touched Swift files, then
+   `git diff --check`, `swift build`, both focused M3 suites, the focused
+   `UsageStoreWidgetSnapshotTests`, `swift test --filter Ark`, `make test`,
+   and `make check`. Record exact outcomes and create one additive local
+   commit. No amend/reset/rebase/temporary index/push/PR/merge.
 
 ## Definition of Done — M3
 
@@ -149,10 +164,11 @@ M3 is Done only when:
 - LOOP and baseline rules were followed.
 - Ark snapshot contains all four available windows in stable order.
 - Unknown/missing windows are not invented as zero.
-- The approved reset/detail contract is preserved.
+- The corrected `resetsAt`/`detailText` contract is preserved.
 - Snapshot persistence remains app-owned; Widget performs no Ark network call.
 - Ark remains unselectable and visually unsupported until M4.
-- Focused snapshot encode/decode and `UsageStore` persistence tests pass.
+- Focused snapshot encode/decode, Ark mapper, and actual `UsageStore`
+  persistence-path tests pass.
 - `swift build`, Ark/snapshot tests, `make test`, and `make check` pass, or an
   environment-only blocker is reproduced and recorded.
 - Codex audits the complete M3 diff and records PASS/FAIL.
