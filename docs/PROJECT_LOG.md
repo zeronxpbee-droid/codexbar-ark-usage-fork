@@ -2236,6 +2236,72 @@ Claude / GLM resolves findings 1–2, records the correction, and creates one
 additive local commit. Codex re-runs formatting, build, Ark tests, full tests,
 and checks when the environment permits.
 
+## Entry 044 — M2 S15 Test-Only Correction
+
+Date: 2026-07-03
+Actor: Claude (implementation)
+Type: Bugfix
+Status: CREATED — awaiting Codex re-audit
+
+### Active Goal
+
+M2 — Ark Popover Details (S15 Option A test-only correction)
+
+### LOOP Result
+
+Debugging Loop applied after Codex Entry 043 re-audit FAIL. Two findings
+fixed: (1) two `redundantSelf` violations in static helper call sites;
+(2) stale test did not assert the user-visible `Updated …` subtitle.
+Generator=Claude, Evaluator=Codex (pending re-audit). Product source frozen
+per Entry 043 authorization — only test file + governance docs touched.
+
+### Summary
+
+Finding 1 (P1 — SwiftFormat): `ArkPopoverMetricsTests.swift` had two
+`redundantSelf` findings at line 69 (`makeIdentity()`) and line 81
+(`metadata`). The project's SwiftFormat configuration requires explicit
+`Self.` prefix when calling static members from within static methods.
+Fixed: `makeIdentity()` → `Self.makeIdentity()`,
+`metadata` → `Self.metadata`.
+
+Finding 2 (P1 — stale test): `staleSnapshotStillRendersMetrics` only
+asserted cached metrics render. Extended to also assert the stale state
+is visibly identified: `model.subtitleStyle == .info` and
+`model.subtitleText.hasPrefix("Updated")`. Also fixed a latent compile
+error: `now` (static property accessed from instance method) → `Self.now`.
+
+### Files Changed
+
+- `Tests/CodexBarTests/ArkPopoverMetricsTests.swift` (3 lines changed:
+  2 `Self.` prefixes + stale test assertions)
+- `docs/PROJECT_LOG.md` (this entry)
+- `docs/TASKS.md` (status update)
+
+### Evidence
+
+- `git diff --check`: PASS.
+- Diff scope: 1 test file + 2 governance files. No product source changed.
+- No `Self.` access remains in instance-method bodies (only in static
+  helper methods and the stale test's `Self.now` access).
+- Stale test now asserts both cached metrics AND the visible `Updated …`
+  subtitle with `.info` style.
+- No local Swift toolchain; build/test/check deferred to Codex.
+
+### Issues / Risks
+
+- Native build and test execution remain environment-blocked (external
+  approval/sandbox tooling per Entry 043). Codex must rerun after this
+  correction.
+
+### Decision
+
+Test-only correction limited to the three authorized files. No product
+source, amend, reset, rebase, or push.
+
+### Next Action
+
+Codex re-audits. If green, M2 implementation is accepted.
+
 ## Entry Template
 
 ```text

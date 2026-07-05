@@ -11,9 +11,9 @@ M2 — Ark Popover Details
 ## Goal Status
 
 ```text
-Status: M2 S15 RE-AUDIT FAIL — additive test correction required (see PROJECT_LOG Entry 043)
-Implementation State: Commit aebb381f fixes the prior Swift syntax and adds error/stale cases, but make check still fails and stale-state assertion is incomplete
-Next: Claude / GLM fixes only Entry 043 test findings in one additive commit; product source is frozen
+Status: M2 S15 TEST-ONLY CORRECTION — awaiting Codex re-audit (see PROJECT_LOG Entry 044)
+Implementation State: Two redundantSelf fixed (Self.makeIdentity/Self.metadata); stale test now asserts Updated subtitle + .info style; product source frozen
+Next: Codex re-audits; if green, M2 implementation accepted
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex

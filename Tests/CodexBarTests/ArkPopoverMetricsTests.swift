@@ -66,7 +66,7 @@ struct ArkPopoverMetricsTests {
             tertiary: tertiary,
             extraRateWindows: extraRateWindows,
             updatedAt: updatedAt,
-            identity: makeIdentity())
+            identity: Self.makeIdentity())
     }
 
     private static func makeModel(
@@ -78,7 +78,7 @@ struct ArkPopoverMetricsTests {
     {
         UsageMenuCardView.Model.make(.init(
             provider: .ark,
-            metadata: metadata,
+            metadata: Self.metadata,
             snapshot: snapshot,
             credits: nil,
             creditsError: nil,
@@ -287,15 +287,19 @@ struct ArkPopoverMetricsTests {
     @Test
     func staleSnapshotStillRendersMetrics() {
         // Snapshot is 2 hours old but still has valid data. The popover must
-        // render the cached rows rather than going blank.
-        let staleUpdated = now.addingTimeInterval(-7200)
+        // render the cached rows and surface the stale age via the subtitle.
+        let staleUpdated = Self.now.addingTimeInterval(-7200)
         let snapshot = makeSnapshot(
             primary: arkWindow(usedPercent: 20),
             updatedAt: staleUpdated)
 
         let model = makeModel(snapshot: snapshot, usageBarsShowUsed: true)
 
+        // Cached metrics still render.
         #expect(model.metrics.count == 1)
         #expect(model.metrics[0].detailText == "100 / 500 AFP · 400 remaining")
+        // Stale age is visibly identified via the "Updated …" subtitle.
+        #expect(model.subtitleStyle == .info)
+        #expect(model.subtitleText.hasPrefix("Updated"))
     }
 }
