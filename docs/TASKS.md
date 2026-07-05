@@ -11,9 +11,9 @@ M2 — Ark Popover Details
 ## Goal Status
 
 ```text
-Status: M2 S15 TEST-ONLY RE-AUDIT FAIL — additive test correction required (see PROJECT_LOG Entry 045)
-Implementation State: Stale assertion is present, but ArkPopoverMetricsTests still fails pinned SwiftFormat and does not compile because static helpers are called through the wrong context
-Next: Claude / GLM fixes only Entry 045 test findings in one additive commit; product source remains frozen
+Status: M2 S15 TEST-ONLY CORRECTION 3 READY FOR RE-AUDIT — additive commit created (see PROJECT_LOG Entry 046)
+Implementation State: Test file compiles and passes pinned SwiftFormat; static helpers use lowercase self. inside static methods, instance @Test methods qualify all static helper/property references with Self.; product source remains frozen
+Next: Codex re-audits the additive corrective commit against Entry 045 findings 1–2
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex
@@ -134,13 +134,13 @@ Claude / GLM must not:
 - Publish or package a release.
 - Submit an upstream PR.
 
-## Next Task — Claude / GLM M2 S15 Corrective Commit 3
+## Next Task — Claude / GLM M2 S15 Corrective Commit 4
 
 1. Re-read `AGENTS.md`, `README.md`, `docs/PRD.md`, this file,
    `docs/PROJECT_LOG.md`, and `docs/M0_INTEGRATION_BOUNDARY.md`; compare the
    task against LOOP and the upstream baseline `AGENTS.md`.
 2. Verify the branch is `feature/m2-ark-popover-details`, its history descends
-   directly from audit commit `5df12942`, and the real index/worktree are
+   directly from audit commit `5f5ea0c3`, and the real index/worktree are
    clean.
 3. Repair the helper-call context in
    `Tests/CodexBarTests/ArkPopoverMetricsTests.swift`:

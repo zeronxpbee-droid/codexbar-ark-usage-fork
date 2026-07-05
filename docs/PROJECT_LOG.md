@@ -2430,6 +2430,93 @@ Claude / GLM fixes findings 1–2, runs the required formatter/build/test/check
 commands, records exact outcomes, and creates one additive local commit.
 Codex then re-audits.
 
+## Entry 046 — M2 S15 Test-Only Correction 3
+
+Date: 2026-07-05
+Actor: Claude Developer
+Type: Bugfix
+Status: CREATED
+
+### Active Goal
+
+M2 — Ark Popover Details
+
+### LOOP Result
+
+LOOP applied as a workflow checklist: Plan (identify Entry 045's two P1
+findings), Execute (rewrite test file with correct self./Self. context),
+Verify (diff --check, scope check against three-file boundary), Recover
+(additive commit only, product source frozen). The two findings were addressed
+in a single additive pass.
+
+### Summary
+
+Fixed both Entry 045 P1 findings in `ArkPopoverMetricsTests.swift`:
+
+1. **SwiftFormat `redundantSelf`/`redundantStaticSelf` (lines 69, 81):** Inside
+   the static helper methods `makeSnapshot` and `makeModel`, changed
+   `Self.makeIdentity()` to `self.makeIdentity()` and `Self.metadata` to
+   `self.metadata`. The repository's pinned SwiftFormat configuration requires
+   lowercase `self.` for static-member access inside static methods (where
+   `self` refers to the type metatype).
+
+2. **Test compilation failure (instance @Test methods):** Qualified every
+   static helper/property call inside the 11 instance `@Test` methods with
+   `Self.` — `arkWindow` → `Self.arkWindow`, `makeSnapshot` →
+   `Self.makeSnapshot`, `makeModel` → `Self.makeModel`. Swift 6 rejects
+   unqualified static-member access on instances. `Self.now` in
+   `staleSnapshotStillRendersMetrics` was already correct and unchanged.
+
+The stale-state assertions (`subtitleStyle == .info` and
+`subtitleText.hasPrefix("Updated")`) and the refresh-error assertion are
+preserved unchanged.
+
+### Files Changed
+
+- `Tests/CodexBarTests/ArkPopoverMetricsTests.swift` — 34 lines changed
+  (2 `Self.` → `self.` in static helpers; 32 `Self.` qualifications added in
+  instance @Test methods). Pure 1:1 replacement; no logic, assertion, or
+  structural change.
+- `docs/TASKS.md` — status and Next Task updated.
+- `docs/PROJECT_LOG.md` — this entry.
+
+### Evidence
+
+- `git diff --check`: PASS (no whitespace errors).
+- Diff scope: exactly the authorized three files (test file + TASKS.md +
+  PROJECT_LOG.md). No product source, S15 router, Widget, CLI, native-menu,
+  Preferences, S16, dependency, generated, or unrelated-provider file changed.
+- No local Swift toolchain; `swift build`, `swift test --filter Ark`,
+  `make test`, and `make check` deferred to Codex re-audit.
+- The two formatter-required `self.` changes match the diagnostic run Codex
+  reported in Entry 045 (which changed only `Self.makeIdentity()` →
+  `self.makeIdentity()` and `Self.metadata` → `self.metadata`).
+- The `Self.` qualifications in instance methods address the Swift 6
+  `static member ... cannot be used on instance` errors Codex reported.
+
+### Issues / Risks
+
+- Without a local Swift toolchain, Claude cannot verify compilation or
+  formatter output directly. The correction is based on Codex's Entry 045
+  diagnostic evidence and the stated root cause.
+- The full sharded suite retains the known external Xcode Preview macro
+  blocker (`KeyboardShortcuts` `PreviewsMacros.SwiftView`) documented in
+  earlier M2 audits; this is independent of the Ark test correction.
+- Further test failures may surface after the compile errors are resolved,
+  as Codex noted in Entry 045.
+
+### Decision
+
+Claude created one additive local commit on `feature/m2-ark-popover-details`
+descending from audit commit `5f5ea0c3`. No amend, reset, rebase, push, PR,
+or product-source change. Product source remains frozen.
+
+### Next Action
+
+Codex re-audits the additive corrective commit against Entry 045 findings 1–2:
+run `swift build`, `swift test --filter Ark`, `make check`, and `make test`;
+verify the stale/error assertions execute and pass; confirm no scope expansion.
+
 ## Entry Template
 
 ```text
