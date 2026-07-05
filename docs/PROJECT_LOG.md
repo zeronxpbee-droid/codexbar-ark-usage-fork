@@ -3417,6 +3417,142 @@ Codex re-audits the additive corrective commit against Entry 054 findings
 `make check`; verify all four findings are resolved and no new finding
 surfaced.
 
+## Entry 056 — M3 S17+S18 Corrective Commit Re-Audit
+
+Date: 2026-07-05
+Actor: Codex
+Type: Review
+Status: PASS / AWAITING BEE
+
+### Active Goal
+
+M3 — Ark Widget Snapshot Integration
+
+### LOOP Result
+
+Re-audited additive corrective commit
+`17e94aedf30727479da3c428433420c485526618` against Entry 054's four
+findings, the exact seven-file correction boundary, approved S17/S18, the M3
+Definition of Done, the complete M3 diff from M2 merge `27ec5fa0`, and the
+fork diff from upstream baseline `6ab1cbb7`. Required evidence was clean
+additive ancestry and repository state, successful compilation, schema/helper
+and actual persistence-path tests, all Ark tests, repository checks, naming
+compatibility, security/scope isolation, and honest classification of the
+known full-suite environment blocker.
+
+### Summary
+
+All four Entry 054 findings are closed:
+
+- Both new M3 test files pass the pinned formatter and SwiftLint.
+- The new `UsageStoreWidgetSnapshotTests` Ark case exercises
+  `_setSnapshotForTesting` through `persistWidgetSnapshot` and the captured
+  persisted provider entry, proving the S17 router is live.
+- The unreleased S18 field is consistently named `resetsAt`.
+- The implementation record correctly states eight mapper tests plus three
+  schema tests (eleven new M3 tests).
+
+The full workspace builds, all focused M3/persistence tests pass, all 59 Ark
+tests pass, and `make check` passes. `make test` remains blocked before test
+discovery by the unchanged external `KeyboardShortcuts` Preview macro plugin
+failure. This is the same independently reproduced Xcode/dependency
+environment blocker recorded since M1 and is permitted when honestly
+documented by the M3 Definition of Done.
+
+### Files Reviewed
+
+- `Sources/CodexBarCore/WidgetSnapshot.swift`
+- `Sources/CodexBar/Providers/Ark/ArkWidgetSnapshotRows.swift`
+- `Tests/CodexBarTests/WidgetSnapshotS18Tests.swift`
+- `Tests/CodexBarTests/ArkWidgetSnapshotRowsTests.swift`
+- `Tests/CodexBarTests/UsageStoreWidgetSnapshotTests.swift`
+- `docs/TASKS.md`
+- `docs/PROJECT_LOG.md`
+
+The complete M3 diff additionally includes the previously approved S17 branch
+in `Sources/CodexBar/UsageStore+WidgetSnapshot.swift` and the governance
+boundary record.
+
+### Evidence
+
+- Branch: `feature/m3-ark-widget-snapshot`.
+- Reviewed commit:
+  `17e94aedf30727479da3c428433420c485526618`.
+- Direct parent and Entry 054 audit-documentation commit:
+  `867d920abd629a4ccc99cc1133de0811047d83cb`.
+- Corrective diff scope is exactly the seven files authorized by
+  `docs/TASKS.md`; no amend, rebase, reset, history rewrite, M4, dependency,
+  generated, networking, credential, menu, popover, or unrelated-provider
+  change exists.
+- All seven HEAD/index/worktree blobs matched before audit. Codex found eight
+  zero-byte orphan lock artifacts, verified only the normal detached Git
+  fsmonitor daemon was running, and removed only those locks. No index
+  synchronization or working-tree change was needed.
+- `git diff --check 867d920a..17e94aed`: PASS.
+- Native `swift build`: PASS (`Build complete!`, 24.07 seconds), including
+  App, Core, CLI, and Widget products.
+- Combined focused run filtering
+  `ArkWidgetSnapshotRowsTests|WidgetSnapshotS18Tests|UsageStoreWidgetSnapshotTests`:
+  PASS, 17 tests in three suites. This includes:
+  - eight Ark mapper tests;
+  - three S18 schema compatibility tests;
+  - six existing/new `UsageStore` snapshot tests, including the Ark
+    four-window persistence path.
+- `swift test --filter Ark`: PASS, 59 tests in eight suites.
+- `make check`: PASS:
+  - parser hash and all portable repository checks passed;
+  - SwiftFormat: `0/1231 files require formatting`;
+  - SwiftLint: `0 violations, 0 serious in 1230 files`.
+- `make test`: environment-blocked during `swift test list` by the unchanged
+  external
+  `.build/checkouts/KeyboardShortcuts/Sources/KeyboardShortcuts/Recorder.swift`
+  `PreviewsMacros.SwiftUIView` plugin-loading failure. No sharded test group
+  started. The independent native build and directly relevant tests above
+  remain PASS evidence.
+- Static review confirms persisted row order
+  5h/Daily/Weekly/Monthly, remaining percentages, `resetsAt`, and opaque
+  `detailText`. Missing windows are omitted and Monthly unknown state is not
+  invented as zero.
+- `WidgetUsageRowSnapshot` old JSON decode, new-field round-trip, and nil-key
+  omission tests execute and pass.
+- Snapshot production remains app-owned. The Widget performs no Ark network
+  call, `supportsOpus` remains false, and
+  `ProviderChoice(provider: .ark)` still returns nil, so no M4 picker, intent,
+  preview, or visible Widget UI is enabled.
+- Static scope/security review found no real AK/SK, Authorization, signature,
+  RequestId, raw response, account identifier, committed config, or real
+  network test.
+- Worktree and real index were clean before this audit record was written.
+
+### Issues / Risks
+
+- The full sharded suite did not execute because of the external Preview macro
+  environment failure. It should be retried after an Xcode/dependency
+  environment change, but no M3 source/dependency workaround is authorized.
+- S18 remains a deliberate fork-specific optional schema extension. Its
+  backward compatibility is covered, but future upstream synchronization must
+  review this shared file.
+- The previously recorded out-of-band disappearance of untracked
+  `deliverables/` remains unresolved and is not attributed to either M3
+  developer commit.
+
+### Decision
+
+PASS acceptance recommendation for M3 at developer commit `17e94aed`.
+Entry 054's four findings are closed, all directly relevant build/test/check
+gates pass, and the only failed command is the repeatedly reproduced
+environment-only `make test` blocker permitted by the Definition of Done.
+
+Do not push, open/update a PR, merge, or enter M4 without Bee's explicit
+decision. Push/PR, merge, and M4 transition remain gated repository/milestone
+operations.
+
+### Next Action
+
+Bee decides whether Codex may push the M3 branch and open its PR, then whether
+it may merge and open M4. No further M3 product change is authorized absent a
+new finding or Bee decision.
+
 ## Entry Template
 
 ```text

@@ -11,9 +11,9 @@ M3 — Ark Widget Snapshot Integration
 ## Goal Status
 
 ```text
-Status: M3 S17+S18 CORRECTION 1 READY FOR RE-AUDIT — additive commit created (see PROJECT_LOG Entry 055)
-Implementation State: resetAt→resetsAt rename, SwiftFormat/SwiftLint fixes, UsageStore persistence path test added; 11 total new M3 tests (8 mapper + 3 schema); product source frozen for audit
-Next: Codex re-audits the additive corrective commit against Entry 054 findings 1–4
+Status: M3 S17+S18 RE-AUDIT PASS — awaiting Bee repository/milestone decision (see PROJECT_LOG Entry 056)
+Implementation State: S17+S18 accepted at developer commit 17e94aed; audit documentation follows in the current Codex commit
+Next: Bee decides whether Codex may push/open the M3 PR and whether/when it may merge; M4 remains closed
 Implementation Owner: Claude / GLM Developer
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
@@ -126,24 +126,16 @@ Claude / GLM may:
 - No push, PR, merge, release, destructive operation, or history rewrite
   without Bee approval.
 
-## Next Task — Codex M3 S17+S18 Re-Audit
+## Next Task — Bee M3 Repository / Milestone Gate
 
-1. Verify branch `feature/m3-ark-widget-snapshot` descends from audit commit
-   `867d920a` and the additive corrective commit below.
-2. Run `git diff --check`, `swift build`, both focused M3 suites, the focused
-   `UsageStoreWidgetSnapshotTests`, `swift test --filter Ark`, `make test`,
-   and `make check`; record exact outcomes.
-3. Verify the corrective diff is exactly:
-   - `Sources/CodexBarCore/WidgetSnapshot.swift` (resetAt→resetsAt);
-   - `Sources/CodexBar/Providers/Ark/ArkWidgetSnapshotRows.swift` (resetAt→resetsAt);
-   - `Tests/CodexBarTests/WidgetSnapshotS18Tests.swift` (resetAt→resetsAt + Data init);
-   - `Tests/CodexBarTests/ArkWidgetSnapshotRowsTests.swift` (resetAt→resetsAt + self. insert);
-   - `Tests/CodexBarTests/UsageStoreWidgetSnapshotTests.swift` (Ark persist path test);
-   - `docs/TASKS.md`;
-   - `docs/PROJECT_LOG.md`.
-4. Confirm all 4 findings from Entry 054 are addressed: SwiftFormat/SwiftLint
-   pass, UsageStore persistence path tested, resetsAt naming matches upstream,
-   test count recorded as 11 (8 mapper + 3 schema).
+1. Bee decides whether Codex may push
+   `feature/m3-ark-widget-snapshot` and open a draft/ready M3 PR.
+2. Merge remains a separate explicit Bee decision unless Bee grants both
+   operations together.
+3. M4 branch creation, TASKS transition, and development remain blocked until
+   Bee explicitly approves the M3 merge/milestone transition.
+4. No further M3 product/test change is authorized unless a new review finding
+   or Bee decision defines its exact scope.
 
 ## Definition of Done — M3
 
