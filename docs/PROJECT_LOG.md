@@ -4507,6 +4507,47 @@ M4 acceptance **FAILS**. This is not a new product-direction decision: Entry
 provider/updated state. Claude may make one additive correction only in the
 four files listed in TASKS. No push, PR, merge, M5, or release is authorized.
 
+## Entry 068 — Bee Adopts Four-Stage Claude-to-Codex Review Workflow
+
+Date: 2026-07-06
+Actor: Bee (decision) + Codex (governance)
+Type: Decision / Documentation
+Status: APPROVED
+
+### Active Goal
+
+M4 — Ark Widget Provider Picker + Small/Medium UI
+
+### LOOP Result
+
+Project Governance Loop. The bottleneck is repeated use of limited Codex
+capacity on immature candidates. Bee approved two Claude-side gates before
+Codex final acceptance; no product decision or M4 freeze decision was made.
+
+### Decision
+
+| Stage | Role | Gate |
+|---|---|---|
+| 1 | Claude Developer | Implement additive candidate |
+| 2 | Same-thread Developer Self-Check | `SELF-CHECK PASS` |
+| 3 | Independent read-only Claude Pre-Auditor | `PRE-AUDIT PASS` |
+| 4 | Codex Final Auditor | Final PASS / FAIL |
+
+- Code/test changes invalidate both Claude gate results.
+- Claude Pre-Auditor never fixes or commits.
+- Codex independently verifies the repository and does not treat Claude PASS
+  as acceptance evidence by itself.
+- Codex FAIL returns through Developer, Self-Check, and Pre-Audit before a new
+  SHA is submitted.
+- Unavailable commands are `NOT RUN`, never inferred PASS.
+- Compact prompts and report contracts are stored in
+  `docs/CLAUDE_REVIEW_WORKFLOW.md`.
+
+### Verification / Next Action
+
+Only governance files changed; Active Goal and M4 scope are unchanged.
+The next implementation candidate must use the new four-stage pipeline.
+
 ## Entry Template
 
 ```text

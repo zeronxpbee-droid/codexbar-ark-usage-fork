@@ -11,8 +11,10 @@
 - Current collaboration model:
   - Bee: product owner and final decision maker.
   - ChatGPT: architecture / decision co-pilot.
-  - Claude / GLM: developer agents and local commit authors.
-  - Codex: repository operator, auditor, and acceptance reviewer.
+  - Claude / GLM Developer: implementation and local commit author.
+  - Claude / GLM Developer Self-Check: same-thread candidate cleanup gate.
+  - Claude / GLM Pre-Auditor: independent-thread, read-only pre-audit gate.
+  - Codex: repository operator, final auditor, and acceptance reviewer.
 
 ## 1. Mandatory LOOP Skill Rule
 
@@ -121,7 +123,53 @@ Claude / GLM must not:
 - Open, update, close, or merge Pull Requests.
 - Merge its own PR.
 
-### 3.4 Codex — Repository Operator and Auditor
+### 3.4 Claude / GLM — Developer Self-Check
+
+After implementation, the same Developer thread must enter a distinct
+Self-Check phase before requesting independent review.
+
+Developer Self-Check must:
+
+- Re-read the active scope and inspect the real Git state and complete
+  active-task diff.
+- Run all available mechanical checks required by `docs/TASKS.md`.
+- Record unavailable commands as `NOT RUN`; never infer PASS from absence of
+  a toolchain.
+- Check scope, tests, secrets, compatibility, and documentation accuracy.
+- Fix discovered issues only inside the approved scope, using additive
+  commits; then rerun Self-Check from the new candidate.
+- Stop for Bee if a fix needs a new shared touchpoint, architecture change, or
+  product decision.
+- Hand off only a clean candidate SHA with `SELF-CHECK PASS`.
+
+Self-Check is not an independent audit and must not describe itself as final
+acceptance.
+
+### 3.5 Claude / GLM — Independent Pre-Auditor
+
+The Pre-Auditor must run in a new, independent Claude thread. It receives the
+candidate SHA and repository path, then derives implementation facts from Git
+and project documents rather than from the Developer's narrative.
+
+The Pre-Auditor must:
+
+- Operate read-only: no source/test/doc edits, staging, commits, branch
+  operations, lock cleanup, or temporary-index workarounds.
+- Invoke LOOP, inspect the upstream baseline rules, verify the actual
+  branch/ancestry/worktree, and review the complete active-goal diff.
+- Apply a mechanical-first, judgment-second audit. Stop on a code-owned
+  mechanical failure and do not repair it.
+- Report unavailable commands as `NOT RUN`.
+- Produce evidence-backed findings with severity and file/line references.
+- Emit only `PRE-AUDIT PASS` or `PRE-AUDIT FAIL` plus the compact handoff
+  contract.
+- Route FAIL findings back to the Developer. Any subsequent code or test
+  change invalidates the previous Self-Check and Pre-Audit results.
+
+The Pre-Auditor does not write `docs/PROJECT_LOG.md`; Codex records the final
+acceptance history.
+
+### 3.6 Codex — Repository Operator and Final Auditor
 
 Codex must:
 
@@ -136,6 +184,9 @@ Codex must:
   `docs/PROJECT_LOG.md`. Read older milestone history only when the current
   task depends on it or the documents conflict; do not reload archives by
   default.
+- Start final acceptance review only after the exact candidate has both
+  `SELF-CHECK PASS` and independent `PRE-AUDIT PASS`, unless Bee explicitly
+  requests an earlier diagnostic.
 - Invoke or explicitly compare the review task against `LOOP` before auditing.
 - Review only the active goal scope.
 - Check security, credential handling, Widget behavior, provider behavior, and test evidence.
@@ -161,13 +212,30 @@ Codex must not:
 - Convert review into unapproved development.
 - Broaden the project into a general provider dashboard.
 
-### 3.5 Token-Efficient Handoff and Two-Stage Audit
+### 3.7 Four-Stage Review Workflow and Token-Efficient Final Audit
+
+Every development candidate follows:
+
+1. Claude / GLM Developer — implement and create additive local commits.
+2. Developer Self-Check — same thread; repair and rerun until PASS.
+3. Claude / GLM Pre-Auditor — new independent thread; read-only PASS / FAIL.
+4. Codex Final Auditor — independent native verification and merge gate.
+
+Codex is not called after every Developer correction. A Pre-Audit FAIL returns
+to stage 1, and any candidate change requires a new Self-Check and Pre-Audit.
+A Codex FAIL also returns through stages 1–3 before Codex reviews a new SHA.
+
+Reusable Claude prompt templates and compact report schemas live in
+`docs/CLAUDE_REVIEW_WORKFLOW.md`. That file defines workflow templates only
+and must not maintain an Active Goal.
 
 Developer handoffs must be concise. Claude / GLM sends only:
 
 - Commit SHA.
 - Parent SHA.
 - Changed files.
+- `SELF-CHECK PASS` for that exact SHA.
+- `PRE-AUDIT PASS` for that exact SHA.
 - Commands run and PASS / FAIL results.
 - Known limitations.
 
@@ -319,6 +387,8 @@ Each milestone requires:
 
 - Updated `docs/TASKS.md` Active Goal.
 - Claude / GLM implementation notes.
+- `SELF-CHECK PASS` for the exact candidate SHA.
+- Independent `PRE-AUDIT PASS` for the exact candidate SHA.
 - Test/build evidence.
 - Codex audit record in `docs/PROJECT_LOG.md`.
 - Bee approval before merge or next milestone.
@@ -341,7 +411,9 @@ Rules:
 
 - Codex creates and manages repository remotes, branches, worktrees, pushes, and
   PRs.
-- Claude / GLM writes product changes and creates local commits only.
+- Claude / GLM Developer and Self-Check write product changes and create local
+  commits only.
+- Claude / GLM Pre-Auditor is read-only and creates no commits.
 - One active goal per branch.
 - One branch per PR.
 - No mixed provider changes.
@@ -359,6 +431,8 @@ Rules:
 Codex must verify:
 
 - LOOP Skill was used or explicitly referenced before execution.
+- The exact candidate SHA has valid `SELF-CHECK PASS` and independent
+  `PRE-AUDIT PASS`; neither result predates a later source/test change.
 - Work matches `docs/TASKS.md` Active Goal.
 - No unrelated providers were modified.
 - No secrets were committed.

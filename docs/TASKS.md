@@ -46,6 +46,22 @@ Before development or review, invoke or explicitly compare the task against
 LOOP and inspect the upstream baseline `AGENTS.md`. If project documents
 conflict, stop and report drift.
 
+## Review Pipeline
+
+Bee approved the four-stage review workflow in PROJECT_LOG Entry 068:
+
+1. Claude Developer implements the active task.
+2. The same thread performs Developer Self-Check and fixes until
+   `SELF-CHECK PASS`.
+3. A new independent Claude thread performs read-only Pre-Audit and returns
+   `PRE-AUDIT PASS` or findings.
+4. Codex performs Final Audit only after both prior gates pass for the exact
+   candidate SHA.
+
+Any source/test change invalidates the prior Self-Check and Pre-Audit.
+Reusable prompts and output contracts are in
+`docs/CLAUDE_REVIEW_WORKFLOW.md`.
+
 ## M4 Objective
 
 Make Ark selectable in the appropriate Widget configuration/switcher surface
@@ -177,11 +193,14 @@ Claude / GLM may:
    or required rows. Keep Small behavior unchanged.
 4. Add focused regression coverage without introducing a new shared
    touchpoint, snapshot schema, or Widget architecture.
-5. Run `git diff --check`, targeted SwiftFormat/SwiftLint, `swift build`,
-   `swift test --filter CodexBarWidgetProviderTests`, and
-   `swift test --filter Ark`; create one additive local commit and stop.
-6. Codex repeats Small/Medium visual QA and final `make check`. No push, PR,
-   merge, M5, or release before final M4 PASS and Bee approval.
+5. Create additive local commits and run Developer Self-Check using
+   `docs/CLAUDE_REVIEW_WORKFLOW.md`; do not advance until `SELF-CHECK PASS`.
+6. Bee opens a new Claude thread with the Pre-Auditor prompt. A FAIL returns
+   to step 5 and invalidates earlier gate results; a PASS produces the compact
+   candidate handoff.
+7. Codex then runs the Final Audit, including native mechanical checks,
+   deterministic Small/Medium visual proof, and final `make check`. No push,
+   PR, merge, M5, or release before final M4 PASS and Bee approval.
 
 ## Definition of Done — M4
 
