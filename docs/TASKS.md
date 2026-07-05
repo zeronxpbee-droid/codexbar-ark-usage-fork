@@ -11,9 +11,9 @@ M3 — Ark Widget Snapshot Integration
 ## Goal Status
 
 ```text
-Status: M3 INDEPENDENT PREFLIGHT — proposed S17/S18 awaiting Bee architecture decision
-Implementation State: No M3 product code; existing snapshot path audited from M2 merge baseline 27ec5fa0
-Next: Bee approves/rejects proposed S17 and chooses whether S18 schema detail is required in M3
+Status: M3 S17+S18 APPROVED — implementation authorized
+Implementation State: No M3 product code yet; exact M4-ready snapshot row contract approved by Bee
+Next: Claude / GLM implements S17+S18 and focused snapshot tests in one additive commit
 Implementation Owner: Claude / GLM Developer (after approval)
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
@@ -63,9 +63,9 @@ intent registration, and visible small/medium Widget UI remain M4.
 5. M1's `ProviderChoice(provider: .ark) -> nil` compile stub remains correct:
    Ark must stay unselectable until M4.
 
-## Proposed Shared Touchpoints — Awaiting Bee
+## Approved Shared Touchpoints
 
-### S17 — Ark snapshot-row routing
+### S17 — Ark snapshot-row routing (APPROVED)
 
 - File: `Sources/CodexBar/UsageStore+WidgetSnapshot.swift`
 - Proposed edit: one additive `.ark` branch in `widgetUsageRows`, delegating
@@ -75,21 +75,24 @@ intent registration, and visible small/medium Widget UI remain M4.
 - Rollback: remove the branch and Ark-owned helper.
 - Risk: Low–Med, line-local shared snapshot producer.
 
-### S18 — Optional generic row detail fields
+### S18 — Generic row reset/detail fields (APPROVED)
 
 - File: `Sources/CodexBarCore/WidgetSnapshot.swift`
-- Proposed edit: add backward-compatible optional row fields sufficient to
-  preserve reset time and display detail (exact field design requires Bee
-  decision/preflight validation).
+- Approved edit: add `resetAt: Date?` and `detailText: String?` to
+  `WidgetUsageRowSnapshot`, both defaulting to `nil` in the initializer and
+  decoding as optional for backward compatibility.
 - Purpose: avoid losing Monthly reset and used/quota/remaining information
   before M4 rendering.
 - Rollback: remove optional fields and their Ark mapping.
 - Risk: Medium, shared persisted snapshot schema.
 
-S17 and S18 are proposals only. No implementation is authorized until Bee
-decides whether M3 stores percentages only or the full M4-ready detail.
+Ark's mapper must write four stable rows in the order 5h, Daily, Weekly,
+Monthly. Each known row carries `percentLeft`, `resetAt`, and the existing M2
+opaque `resetDescription` value as `detailText`; no string parsing is allowed.
+Unknown/missing windows must remain unavailable/omitted rather than invented
+as zero.
 
-## Allowed Scope Before Approval
+## Allowed Implementation Scope
 
 Codex may:
 
@@ -97,7 +100,14 @@ Codex may:
 - Maintain the M3 branch and governance records.
 - Propose shared touchpoints and rollback paths.
 
-Claude / GLM may not write M3 product or test code before approval.
+Claude / GLM may:
+
+- Add Ark-owned
+  `Sources/CodexBar/Providers/Ark/ArkWidgetSnapshotRows.swift`.
+- Add the exact S17 Ark branch in `UsageStore+WidgetSnapshot.widgetUsageRows`.
+- Add the exact S18 optional fields and backward-compatible coding behavior.
+- Add focused encode/decode and `UsageStore` snapshot tests.
+- Update `docs/TASKS.md` and `docs/PROJECT_LOG.md`.
 
 ## Forbidden Scope
 
@@ -112,14 +122,25 @@ Claude / GLM may not write M3 product or test code before approval.
 - No push, PR, merge, release, destructive operation, or history rewrite
   without Bee approval.
 
-## Next Task — Bee M3 Architecture Gate
+## Next Task — Claude / GLM M3 S17+S18 Implementation
 
-1. Approve or reject S17.
-2. Choose one M3 snapshot contract:
-   - percentages-only four rows (S17 only); or
-   - M4-ready rows preserving reset/detail (S17 + backward-compatible S18).
-3. After approval, Codex records the exact field/row contract and Claude / GLM
-   creates one additive implementation commit with focused snapshot tests.
+1. Re-read project governance, TASKS, PROJECT_LOG, boundary map, LOOP, and the
+   upstream baseline rules.
+2. Verify branch `feature/m3-ark-widget-snapshot` descends from governance
+   approval commit and preserve unrelated/untracked user files.
+3. Implement only:
+   - S17 one-branch Ark snapshot routing;
+   - Ark-owned four-row mapper;
+   - S18 optional `resetAt` / `detailText` schema fields with backward
+     compatibility;
+   - focused snapshot tests and governance records.
+4. Test stable ordering, missing/unknown windows, all four percentages,
+   reset/detail preservation, old JSON decoding without new fields, and
+   encode/decode round-trip.
+5. Run `git diff --check`, `swift build`, focused Ark/snapshot tests,
+   `make test`, and `make check`.
+6. Create one additive local commit; do not push, open a PR, merge, or enter
+   M4. Stop before any picker/intent/visible Widget UI change.
 
 ## Definition of Done — M3
 

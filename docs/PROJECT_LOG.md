@@ -2973,6 +2973,68 @@ snapshot contract.
 Bee approves/rejects S17 and chooses percentages-only (S17) or M4-ready
 reset/detail rows (S17 + S18).
 
+## Entry 052 — Bee Approves M3 S17+S18 M4-Ready Snapshot Contract
+
+Date: 2026-07-05
+Actor: Bee (decision) + Codex (governance record)
+Type: Decision / Documentation
+Status: APPROVED / IMPLEMENTATION AUTHORIZED
+
+### Active Goal
+
+M3 — Ark Widget Snapshot Integration
+
+### LOOP Result
+
+Bee chose the M4-ready snapshot option after Codex explained the difference
+between percentages-only S17 and S17+S18. The smallest authorized development
+loop is one shared Ark row-routing branch, two backward-compatible optional
+row fields, one Ark-owned mapper, focused tests, and governance records.
+
+### Summary
+
+- S17 approved: `UsageStore+WidgetSnapshot.widgetUsageRows` may add one Ark
+  branch delegating to Ark-owned four-window row construction.
+- S18 approved: `WidgetUsageRowSnapshot` may add optional `resetAt: Date?` and
+  `detailText: String?`, both defaulting/decoding to nil for compatibility.
+- Ark rows must be stable 5h, Daily, Weekly, Monthly.
+- Known rows preserve remaining percentage, real reset date, and M2's opaque
+  complete used/quota/remaining string.
+- The string remains display-only and must never be parsed back into numbers.
+- `supportsOpus` remains false. Provider picker, intent, previews, and visible
+  Widget UI remain M4.
+- No product or test source changed in this approval loop.
+
+### Files Changed
+
+- `docs/TASKS.md`
+- `docs/M0_INTEGRATION_BOUNDARY.md`
+- `docs/PROJECT_LOG.md`
+
+### Evidence
+
+- Bee explicitly approved `S17+S18`.
+- Current generic rows cannot retain Monthly reset/detail.
+- Optional Codable fields preserve backward decoding of existing snapshots.
+- The untracked `deliverables/` directory was detected and explicitly
+  preserved/excluded from this governance commit.
+
+### Issues / Risks
+
+- S18 changes a shared persisted schema, so old-JSON decode and new round-trip
+  tests are mandatory.
+- M4 may consume these fields but is not authorized to begin in M3.
+
+### Decision
+
+Approve S17+S18 exactly as documented. Claude / GLM may implement the bounded
+M3 snapshot slice in one additive local commit. No push, PR, merge, or M4.
+
+### Next Action
+
+Codex commits this approval record locally. Claude / GLM then implements the
+authorized slice and hands it back for independent Codex audit.
+
 ## Entry Template
 
 ```text
