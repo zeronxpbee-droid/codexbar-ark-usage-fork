@@ -60,6 +60,8 @@
 | S13 | `Sources/CodexBar/UsageStore.swift` provider debug-log switch | add only `.ark` to the existing unimplemented-debug group; do not add a probe or credential-bearing output | Low — one compiler-closure arm; Ark gains no debug-log implementation. | Remove the arm together with S1. |
 | S14 | `Sources/CodexBarCore/Generated/CodexParserHash.generated.swift` | run `Scripts/regenerate-codex-parser-hash.sh` after S12 and commit only the generated hash update | Low — mechanical integrity companion to the vendored scanner change; no runtime logic. | Regenerate again after reverting S12. |
 | S15 (APPROVED — M2, Bee 2026-07-03) | `Sources/CodexBar/MenuCardView.swift` `UsageMenuCardView.Model.metrics(input:)` | add one Ark router branch: `if input.provider == .ark { return ArkPopoverMetrics.metrics(input:snapshot:) }`; all Ark rendering logic stays in new Ark-owned `ArkPopoverMetrics.swift` | Low–Med — additive provider branch in shared menu-card router; Ark logic isolated | Remove the branch; Ark reverts to standard path (M1 behavior) |
+| S17 (PROPOSED — M3) | `Sources/CodexBar/UsageStore+WidgetSnapshot.swift` `widgetUsageRows` | add one Ark routing branch to an Ark-owned four-window row mapper | Low–Med — additive branch in shared snapshot producer | Remove branch/helper; Ark falls back to primary/secondary rows |
+| S18 (PROPOSED — M3) | `Sources/CodexBarCore/WidgetSnapshot.swift` `WidgetUsageRowSnapshot` | add backward-compatible optional reset/detail fields if Bee chooses an M4-ready snapshot contract | Medium — shared persisted snapshot schema | Remove optional fields and Ark mapping |
 
 All shared edits are additive registrations/wiring. None rename, move, or
 reformat upstream code. Each milestone's PR must list the S# points it touches.
@@ -177,6 +179,18 @@ Double?, remaining: Double? }`) attached to `UsageSnapshot` or `RateWindow`.
 This would remove the `resetDescription` compatibility borrow but requires a
 new shared `RateWindow` or `UsageSnapshot` field — a new **S16** touchpoint.
 Defer to a future milestone if the compatibility trade-off proves insufficient.
+
+## M3 Independent Preflight — Proposed S17/S18
+
+The generic snapshot producer already creates an Ark `ProviderEntry`, but its
+default row mapper emits only primary/secondary because tertiary is gated by
+`supportsOpus`; Monthly lives in `extraRateWindows` and is not represented in
+`ProviderEntry`. Therefore four-window Ark snapshot integration requires S17.
+
+The current row schema preserves only `id`, `title`, and `percentLeft`. If M3
+must hand M4 reset timestamps and the complete M2 used/quota/remaining display
+detail, S18 is also required. Both touchpoints remain proposed until Bee
+chooses percentages-only versus M4-ready snapshot data.
 
 ## Upstream synchronization, conflict review & rollback procedure
 

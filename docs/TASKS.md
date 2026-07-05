@@ -5,18 +5,17 @@
 ## Active Goal
 
 ```text
-M2 — Ark Popover Details
+M3 — Ark Widget Snapshot Integration
 ```
 
 ## Goal Status
 
 ```text
-Status: M2 AUDIT PASS — awaiting Bee repository/milestone decision (see PROJECT_LOG Entry 050)
-Implementation State: Full build, 51 Ark tests, 11 popover tests, and make check pass; make test remains environment-blocked by the unchanged external Preview macro issue
-Next: Bee decides whether Codex may push/open the M2 draft PR, and separately whether M2 may merge or M3 may open
-Implementation Owner: Claude / GLM Developer
-Repository Operator: Codex
-Auditor: Codex
+Status: M3 INDEPENDENT PREFLIGHT — proposed S17/S18 awaiting Bee architecture decision
+Implementation State: No M3 product code; existing snapshot path audited from M2 merge baseline 27ec5fa0
+Next: Bee approves/rejects proposed S17 and chooses whether S18 schema detail is required in M3
+Implementation Owner: Claude / GLM Developer (after approval)
+Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
 ```
 
@@ -24,223 +23,122 @@ Architecture / Decision: Bee + ChatGPT
 
 ```text
 Fork: https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork
-Visibility: Public GitHub Fork
 origin: https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork.git
 upstream: https://github.com/steipete/CodexBar.git
 Upstream push: Disabled
 Default branch: main
 Upstream baseline: 6ab1cbb7daee73b8ad531fbdd420e9aa6eb6d26b
-M0 branch: feature/m0-bootstrap-ark-probe
-M0 merged PR: https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/1
-M0 merge commit: 2ec7378bb981b393532d9506c2b8303a0889f63e
-M1 branch: feature/m1-ark-provider-menu-bar
-M1 merged PR: https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/2
 M1 merge commit: 239e42721d4b4e4a623b10efc8b52f70d4420287
-M2 branch: feature/m2-ark-popover-details
+M2 merged PR: https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/3
+M2 merge commit: 27ec5fa07548b4fd5774b842134344d16fe83205
+M3 branch: feature/m3-ark-widget-snapshot
 ```
 
 ## Mandatory Pre-Execution Rule
 
-Before starting this task, the Claude / GLM Developer must invoke or explicitly
-compare the work against the already-installed `LOOP` Skill.
+Before development or review, invoke or explicitly compare the task against
+LOOP and inspect the upstream baseline `AGENTS.md`. If project documents
+conflict, stop and report drift.
 
-Before reviewing this task, Codex must invoke or explicitly compare the review against the already-installed `LOOP` Skill.
+## M3 Objective
 
-If LOOP, `AGENTS.md`, `docs/PRD.md`, `docs/TASKS.md`, or `docs/PROJECT_LOG.md` conflict, stop and report documentation drift.
+Make Ark's confirmed 5h, Daily, Weekly, and Monthly AFP windows available in
+CodexBar's existing Widget-readable snapshot. The Widget extension must read
+the persisted app snapshot and must not call Ark directly.
 
-## M2 Objective
+M3 owns snapshot production and snapshot tests only. Widget provider picker,
+intent registration, and visible small/medium Widget UI remain M4.
 
-Show Ark's 5h, Daily, Weekly, and Monthly AFP windows as clear rows in the
-existing CodexBar menu popover, using the M1 provider snapshot and established
-menu-card architecture.
+## Preflight Findings
 
-Each available row must communicate used, quota, remaining, and reset
-information when the API provides it. Missing fields, stale data, refresh
-errors, and unavailable windows must degrade safely without inventing values.
-Widget snapshot, picker, intent, and visible Widget support remain M3–M4.
+1. `UsageStore.makeWidgetEntry(for:)` already creates a generic Ark provider
+   entry whenever an Ark `UsageSnapshot` exists.
+2. The default `widgetUsageRows` path emits primary and secondary rows only;
+   tertiary is gated by `metadata.supportsOpus`, which remains false for Ark.
+3. Monthly exists only in `UsageSnapshot.extraRateWindows`; the current
+   `WidgetSnapshot.ProviderEntry` has no extra-window field.
+4. `WidgetUsageRowSnapshot` currently carries only `id`, `title`, and
+   `percentLeft`. It cannot preserve reset timestamps or M2's opaque complete
+   used/quota/remaining detail.
+5. M1's `ProviderChoice(provider: .ark) -> nil` compile stub remains correct:
+   Ark must stay unselectable until M4.
 
-## Allowed Scope
+## Proposed Shared Touchpoints — Awaiting Bee
+
+### S17 — Ark snapshot-row routing
+
+- File: `Sources/CodexBar/UsageStore+WidgetSnapshot.swift`
+- Proposed edit: one additive `.ark` branch in `widgetUsageRows`, delegating
+  four-window row construction to Ark-owned code.
+- Purpose: ensure 5h, Daily, Weekly, and Monthly rows are persisted even while
+  `supportsOpus` stays false.
+- Rollback: remove the branch and Ark-owned helper.
+- Risk: Low–Med, line-local shared snapshot producer.
+
+### S18 — Optional generic row detail fields
+
+- File: `Sources/CodexBarCore/WidgetSnapshot.swift`
+- Proposed edit: add backward-compatible optional row fields sufficient to
+  preserve reset time and display detail (exact field design requires Bee
+  decision/preflight validation).
+- Purpose: avoid losing Monthly reset and used/quota/remaining information
+  before M4 rendering.
+- Rollback: remove optional fields and their Ark mapping.
+- Risk: Medium, shared persisted snapshot schema.
+
+S17 and S18 are proposals only. No implementation is authorized until Bee
+decides whether M3 stores percentages only or the full M4-ready detail.
+
+## Allowed Scope Before Approval
 
 Codex may:
 
-- Maintain the M2 branch and task-state documentation.
-- Inspect Claude / GLM commits and the complete M2 diff.
-- Run build, test, formatting, lint, security, and provider-behavior checks.
-- Commit audit records and explicitly requested governance corrections.
-- Push an accepted M2 branch and create/update its draft PR only after Bee
-  separately approves that repository operation.
+- Inspect snapshot producer/schema/tests and document evidence.
+- Maintain the M3 branch and governance records.
+- Propose shared touchpoints and rollback paths.
 
-Claude / GLM may:
-
-- Add Ark-scoped popover presentation/model helpers and targeted menu-card
-  tests where the existing architecture permits.
-- Extend Ark-owned snapshot presentation metadata only as needed to preserve
-  the four confirmed AFP windows and expose used/quota/remaining/reset values.
-- Reuse the existing `UsageMenuCardView.Model`, `Metric`, `RateWindow`, and
-  `NamedRateWindow` paths rather than creating a parallel popover architecture.
-- Implement approved S15 only: add one Ark routing branch in
-  `UsageMenuCardView.Model.metrics(input:)` and keep all Ark-specific metric
-  construction in new Ark-owned
-  `Sources/CodexBar/Providers/Ark/ArkPopoverMetrics.swift`.
-- In Ark-owned `ArkUsageFetcher.rateWindow(from:)`, change only the
-  `resetDescription` presentation payload from M1's `"used/quota"` form to a
-  complete opaque `used / quota AFP · remaining remaining` display string.
-- Route that opaque string to `Metric.detailText` without parsing it; generate
-  `resetText` only when `resetsAt` is non-nil so quota detail can never fall
-  through `UsageFormatter.resetLine` as fake reset text.
-- Add M2 tests and update M2 task/history documentation.
+Claude / GLM may not write M3 product or test code before approval.
 
 ## Forbidden Scope
 
-Codex must not:
+- No Widget API call to Ark.
+- No `ProviderChoice.ark`, picker, intent, display representation, preview, or
+  visible Widget UI (M4).
+- No change to Ark signing, networking, credentials, menu bar, or popover.
+- No `supportsOpus=true` workaround.
+- No S16 typed popover payload.
+- No unrelated provider, dependency, generated-file, or global Widget
+  architecture change.
+- No push, PR, merge, release, destructive operation, or history rewrite
+  without Bee approval.
 
-- Implement or repair M2 product code.
-- Rewrite Claude / GLM commits without Bee's explicit approval.
-- Merge a PR without Bee's explicit approval.
+## Next Task — Bee M3 Architecture Gate
 
-Claude / GLM must not:
+1. Approve or reject S17.
+2. Choose one M3 snapshot contract:
+   - percentages-only four rows (S17 only); or
+   - M4-ready rows preserving reset/detail (S17 + backward-compatible S18).
+3. After approval, Codex records the exact field/row contract and Claude / GLM
+   creates one additive implementation commit with focused snapshot tests.
 
-- Create, delete, rename, or push branches or worktrees.
-- Add, remove, or modify Git remotes.
-- Open, update, close, or merge Pull Requests.
-- Replace upstream history with a detached copy or squashed import.
-- Mix an upstream synchronization with Ark feature implementation.
-- Touch Widget snapshot, picker, intent, or UI feature code (S5–S7).
-- Add `ProviderChoice.ark`, an Ark `DisplayRepresentation`, Widget picker
-  availability, snapshot behavior, layout wiring, or any visible Ark Widget
-  capability. Existing M1 S10/S11 compiler-closure arms must remain
-  non-functional.
-- Change Ark signing, networking, endpoint, credential persistence, or menu-bar
-  selection behavior unless a separately approved correctness defect requires
-  it.
-- Modify any shared menu-card integration point beyond the exact approved S15
-  one-branch router edit.
-- Add a typed Ark payload to shared `RateWindow` or `UsageSnapshot` (proposed
-  future S16); Option B is not approved for M2.
-- Modify unrelated providers.
-- Refactor CodexBar architecture.
-- Commit AK/SK, API keys, cookies, screenshots with secrets, or any generated
-  `config.json`.
-- Introduce a custom plaintext credential file outside the upstream CodexBar
-  config mechanism.
-- Use environment variables as the production App credential mechanism; they
-  remain permitted only for the isolated M0 probe.
-- Store the AK/SK pair by concatenating it into a normal single-token field.
-- Print Authorization, signatures, raw error bodies, RequestId, account IDs, or
-  other credential/account-sensitive values.
-- Add wildcard IAM grants or claim a least-privilege policy without evidence.
-- Add a backend service.
-- Add browser-cookie scraping.
-- Publish or package a release.
-- Submit an upstream PR.
+## Definition of Done — M3
 
-## Next Task — Bee M2 Gate Decision
+M3 is Done only when:
 
-1. Review the PASS evidence in `docs/PROJECT_LOG.md` Entry 050.
-2. Decide whether Codex may push `feature/m2-ark-popover-details` and open its
-   draft PR. This does not authorize merge.
-3. Decide separately, after PR review, whether M2 may merge and whether M3 may
-   open.
-4. Until Bee decides, do not push, open/update a PR, merge, enter M3, or change
-   product source.
+- LOOP and baseline rules were followed.
+- Ark snapshot contains all four available windows in stable order.
+- Unknown/missing windows are not invented as zero.
+- The approved reset/detail contract is preserved.
+- Snapshot persistence remains app-owned; Widget performs no Ark network call.
+- Ark remains unselectable and visually unsupported until M4.
+- Focused snapshot encode/decode and `UsageStore` persistence tests pass.
+- `swift build`, Ark/snapshot tests, `make test`, and `make check` pass, or an
+  environment-only blocker is reproduced and recorded.
+- Codex audits the complete M3 diff and records PASS/FAIL.
+- Bee approves merge or moving to M4.
 
-## Definition of Done — M2
+## Planned Milestones After M3
 
-M2 is Done only when:
-
-- LOOP was used or explicitly referenced before execution.
-- The popover presents available 5h, Daily, Weekly, and Monthly AFP rows in
-  that order using the existing menu-card architecture.
-- Every row communicates used, quota, remaining, and reset information when
-  those values are known; unknown values are omitted or marked unavailable
-  without being rendered as zero.
-- Partial-window snapshots, stale snapshots, refresh failures, and unavailable
-  usage produce safe, understandable UI states.
-- M1 signing, networking, credential, four-window normalization, and automatic
-  menu-bar selection behavior remain unchanged.
-- Ark popover/model behavior has focused tests, including four complete
-  windows, partial/missing values, and reset/error behavior.
-- `swift build`, `make test`, and `make check` pass, or any environment-only
-  blocker is documented honestly and reproduced by Codex.
-- Any shared S15+ touch is pre-approved, minimal, tested, listed in
-  `docs/M0_INTEGRATION_BOUNDARY.md`, and has an explicit rollback.
-- No functional Widget, unrelated-provider, upstream-sync, credential,
-  networking, or broad-refactor change is included.
-- `docs/PROJECT_LOG.md` has M2 implementation and Codex audit records.
-- Codex review is complete.
-- Bee approves merge or moving to M3.
-
-## Planned Milestones After M2
-
-### M3 — Widget Snapshot Integration
-
-Allowed only after Bee updates this file.
-
-Target:
-
-- Ensure Ark provider data is written into Widget-readable snapshot.
-
-### M4 — Widget Provider Picker + UI
-
-Allowed only after Bee updates this file.
-
-Target:
-
-- Ark selectable in Widget provider picker.
-- Small and medium desktop Widgets display Ark usage.
-
-### M5 — Stabilization and Local Release Candidate
-
-Allowed only after Bee updates this file.
-
-Target:
-
-- Tests.
-- Build.
-- README update.
-- Local installation instructions.
-
-## Current Confirmed API Findings
-
-Official Volcengine documentation confirms:
-
-1. The action is `GetAFPUsage`, API version `2024-01-01`.
-2. The request uses HMAC-SHA256 authentication with IAM AK/SK, not an Ark
-   inference API Key.
-3. The response fields are `AFPFiveHour`, `AFPDaily`, `AFPWeekly`, and
-   `AFPMonthly`.
-4. Each window contains `Quota`, `Used`, `SubscribeTime`, and `ResetTime`.
-5. `SubscribeTime` and `ResetTime` are epoch millisecond timestamps.
-6. Bee's subscription is an Agent Plan personal subscription, so
-   `GetAFPUsage` is the intended usage action.
-7. The signer strategy is a dedicated Volcengine signer using `swift-crypto`
-   and the official HMAC-SHA256 signing chain. Test execution and session-token
-   handling must pass review before acceptance.
-8. Production host is `ark.cn-beijing.volcengineapi.com`, confirmed by the
-   credentialed live probe (docs/PROJECT_LOG.md Entry 015): HTTP 200 with all
-   four AFP windows parsed, while `ark.cn-beijing.volces.com` returned HTTP 401.
-   This is the probe's default host; `--host` can still target either endpoint.
-
-## Current Open Questions
-
-These must be resolved by the M2 preflight before the corresponding edit:
-
-1. What is the least-privilege IAM action/policy required for `GetAFPUsage`?
-2. Can all four Ark rows and quota details be expressed through Ark-owned
-   snapshot metadata, or is one minimal shared menu-card S15 touch required?
-3. What exact presentation avoids treating quota detail as reset text while
-   still showing used, quota, remaining, and the real reset time?
-
-## Current Decision
-
-Default MVP display strategy:
-
-```text
-Menu bar: highest-risk window, otherwise 5-hour window.
-Popover: 5h / Daily / Weekly / Monthly rows in order, with known
-used / quota / remaining / reset detail.
-Small Widget: Ark AFP percentage + reset.
-Medium Widget: 5h / daily / weekly / monthly summary.
-```
-
-Widget lines are planning intent only and remain forbidden until M3/M4.
+- M4 — Widget Provider Picker + Small/Medium UI.
+- M5 — Stabilization and local release candidate.
+- M6 — Optional upstream contribution review.

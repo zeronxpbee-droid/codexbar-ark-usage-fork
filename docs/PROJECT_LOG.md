@@ -2904,6 +2904,75 @@ gates.
 Bee decides whether Codex may push `feature/m2-ark-popover-details` and open
 its draft PR. Merge and M3 remain blocked pending separate Bee decisions.
 
+## Entry 051 — M2 Merged and M3 Independent Preflight Opened
+
+Date: 2026-07-05
+Actor: Bee (approval) + Codex (repository operation / preflight)
+Type: Milestone Transition / Review
+Status: M2 MERGED / M3 PREFLIGHT BLOCKED ON ARCHITECTURE DECISION
+
+### Active Goal
+
+M3 — Ark Widget Snapshot Integration
+
+### LOOP Result
+
+Bee explicitly approved M2 push and merge and opening an independent M3
+review. Codex pushed the audited branch, created and verified PR #3, merged it,
+fast-forwarded local `main`, created the independent M3 branch from the exact
+merge commit, and inspected the existing snapshot producer/schema. No M3
+product or test code was written.
+
+### Summary
+
+- Pushed `feature/m2-ark-popover-details` at `23fa3372`.
+- Created ready PR #3:
+  `https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/3`.
+- Verified PR #3 was `MERGEABLE` with merge state `CLEAN`; no remote checks
+  were configured.
+- Merged PR #3 with merge commit
+  `27ec5fa07548b4fd5774b842134344d16fe83205`.
+- Fast-forwarded local `main` to that commit.
+- Created local `feature/m3-ark-widget-snapshot` from the exact M2 merge
+  commit; the M3 branch was not pushed.
+- Snapshot preflight found that generic Ark entries already persist, but the
+  default row path loses Weekly and Monthly and the row schema cannot preserve
+  reset/detail data.
+- Proposed S17 (Ark four-row snapshot routing) and optional S18 (generic
+  backward-compatible reset/detail row fields). No implementation is
+  authorized pending Bee's architecture decision.
+
+### Evidence
+
+- M2 local audit: build PASS; 51 Ark tests PASS; 11 popover tests PASS;
+  `make check` PASS; `make test` retained only the documented external Preview
+  macro blocker.
+- PR #3 head: `23fa3372`; base before merge: `239e4272`.
+- PR #3 state after operation: MERGED.
+- `UsageStore+WidgetSnapshot.widgetUsageRows` gates tertiary on
+  `supportsOpus` and has no Ark branch.
+- `WidgetSnapshot.ProviderEntry` has primary/secondary/tertiary but no extra
+  windows; `WidgetUsageRowSnapshot` has only id/title/percentLeft.
+- `ProviderChoice(provider: .ark)` still returns nil, preserving the M4 gate.
+
+### Issues / Risks
+
+- Percentages-only S17 is smaller but discards Monthly reset and the complete
+  used/quota/remaining presentation before M4.
+- S18 better prepares M4 but changes a shared persisted schema and therefore
+  requires an explicit contract and compatibility tests.
+
+### Decision
+
+M2 is merged. M3 is open only as an independent preflight/review branch.
+S17/S18 remain proposed; no M3 implementation may begin until Bee chooses the
+snapshot contract.
+
+### Next Action
+
+Bee approves/rejects S17 and chooses percentages-only (S17) or M4-ready
+reset/detail rows (S17 + S18).
+
 ## Entry Template
 
 ```text
