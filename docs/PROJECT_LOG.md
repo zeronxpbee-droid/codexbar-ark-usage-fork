@@ -3874,6 +3874,129 @@ Codex audits the complete M4 diff against the upstream baseline and records
 PASS/FAIL. If PASS, Bee approves merge or moving to M5. If FAIL, Claude
 creates an additive corrective commit.
 
+## Entry 060 — Codex M4 First Audit Fails on Picker Compatibility, Fit Policy, and Static Checks
+
+Date: 2026-07-05
+Actor: Codex (Repository Operator / Auditor)
+Type: Review
+Status: FAIL / BLOCKED ON BEE DECISION
+
+### Active Goal
+
+M4 — Ark Widget Provider Picker + Small/Medium UI
+
+### LOOP Result
+
+This was a Review/Governance Loop. Claude was the Generator; Codex was the
+Evaluator and Recorder. The smallest useful loop was to verify commit ancestry,
+scope, picker isolation, M3 payload projection, small/medium policy, unchanged
+large/non-Ark behavior, security, compilation, focused tests, and pinned
+repository checks. Codex did not modify product or test code.
+
+### Summary
+
+- Audited additive implementation commit `95927a5e` against parent
+  `03856f6f`, M4 S6/S7, the upstream baseline, and the complete feature diff.
+- Ark row selection/projection is directionally correct and focused Widget and
+  Ark tests pass.
+- Acceptance fails because:
+  - `CodexBarWidgetBundle.swift` is an unapproved shared integration point;
+  - the separate History/Metric enums are unnecessary and may reset both
+    existing configuration families;
+  - the approved small/medium fit fallback was not implemented;
+  - pinned SwiftFormat/SwiftLint checks fail;
+  - governance/test-count documentation is inaccurate.
+- S19 is proposed for the minimum History Widget registration change. Bee must
+  decide the compatibility tradeoff before a corrective implementation loop.
+
+### Files Changed
+
+Codex reviewed:
+
+- `Sources/CodexBarWidget/CodexBarWidgetBundle.swift`
+- `Sources/CodexBarWidget/CodexBarWidgetProvider.swift`
+- `Sources/CodexBarWidget/CodexBarWidgetViews.swift`
+- `Tests/CodexBarTests/CodexBarWidgetProviderTests.swift`
+- `docs/TASKS.md`
+- `docs/PROJECT_LOG.md`
+
+Codex changed governance only:
+
+- `docs/TASKS.md`
+- `docs/M0_INTEGRATION_BOUNDARY.md`
+- `docs/PROJECT_LOG.md`
+
+### Evidence
+
+- Ancestry: `95927a5e` directly descends from M4 governance commit
+  `03856f6f`; branch was `feature/m4-ark-widget-picker-ui`.
+- Worktree/index verification: all six implementation files matched both HEAD
+  and index. Four orphaned zero-byte Git lock files were removed only after
+  confirming no Git writer process.
+- `git diff --check 03856f6f..95927a5e`: PASS.
+- `swift build`: PASS (`Build complete! (25.53s)`).
+- `swift test --filter CodexBarWidgetProviderTests`: PASS, 44 tests.
+- `swift test --filter Ark`: PASS, 59 tests in 8 suites.
+- `make check`: FAIL in SwiftFormat with three wrapping findings at
+  `CodexBarWidgetProviderTests.swift:685-687`.
+- Direct no-cache SwiftLint over the four changed Swift files: FAIL with 15
+  violations (3 `line_length`, 12 `multiline_arguments`).
+- `make test`: environment-blocked before test discovery by the unchanged
+  external KeyboardShortcuts `PreviewsMacros.SwiftUIView` issue.
+- Actual new test count is 13 (`git diff` added `@Test` functions), not the 12
+  claimed in Entry 059 and TASKS.
+- Local AppIntents SDK evidence:
+  `AppIntents.swiftmodule/arm64e-apple-macos.swiftinterface` exposes an
+  `IntentParameter` initializer for `Value.ValueType: AppEnum` with an
+  `optionsProvider` (macOS 13+). The claim that dynamic options require
+  `AppEntity` is false.
+- Static review found no credentials, Ark network call, snapshot schema change,
+  menu/popover modification, unrelated-provider behavior change, or new
+  Ark-specific large-family layout branch.
+
+### Issues / Risks
+
+1. **[P1 / DECISION] Unapproved S19 and configuration compatibility.**
+   History and Usage share one intent registration. Isolating their picker
+   options requires a History registration change in
+   `CodexBarWidgetBundle.swift`; this may reset existing History Widget
+   configuration and needs Bee approval.
+2. **[P1] Excess picker-type divergence.** The implementation duplicates the
+   provider catalog into `HistoryProviderChoice` and `MetricProviderChoice`.
+   SDK evidence confirms filtered AppEnum options are supported. This design
+   may reset Metric configuration unnecessarily and creates three catalogs to
+   maintain.
+3. **[P1] Missing fit fallback.** `ArkUsageBarRow` always emits detail/reset
+   when present. `lineLimit(1)` only truncates text; it does not implement the
+   approved fallback that omits lower-priority content to protect
+   provider/updated state.
+4. **[P1] Repository checks fail.** Three SwiftFormat and twelve SwiftLint
+   findings must be corrected.
+5. **[P2] Evidence/document drift.** The implementation added 13 tests, not
+   12. `docs/widgets.md` still omits Ark from the supported picker description.
+   Corrective tests must verify the actual filtered options, not merely
+   duplicated enum initializers.
+6. Runtime Widget visual proof remains required after deterministic findings
+   are resolved; it is not the current blocker.
+
+### Decision
+
+M4 audit **FAIL**. No push, PR, merge, M5, or release is authorized.
+
+Recommended decision: **Option A** — approve S19, keep the existing
+`ProviderChoice` parameter type with intent-specific filtered options, accept
+only the unavoidable History intent-registration compatibility risk, and
+preserve the existing Metric intent/parameter type.
+
+Alternatives are documented in TASKS: Option B accepts the submitted
+separate-enum design and possible History + Metric resets; Option C rejects
+S19 and allows Ark in History/Metric, contrary to the approved product policy.
+
+### Next Action
+
+Bee chooses Option A, B, or C. Codex then records the exact S19/corrective
+scope. Claude must not modify M4 product/test code before that decision.
+
 ## Entry Template
 
 ```text

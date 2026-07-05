@@ -62,6 +62,7 @@
 | S15 (APPROVED — M2, Bee 2026-07-03) | `Sources/CodexBar/MenuCardView.swift` `UsageMenuCardView.Model.metrics(input:)` | add one Ark router branch: `if input.provider == .ark { return ArkPopoverMetrics.metrics(input:snapshot:) }`; all Ark rendering logic stays in new Ark-owned `ArkPopoverMetrics.swift` | Low–Med — additive provider branch in shared menu-card router; Ark logic isolated | Remove the branch; Ark reverts to standard path (M1 behavior) |
 | S17 (APPROVED — M3, Bee 2026-07-05) | `Sources/CodexBar/UsageStore+WidgetSnapshot.swift` `widgetUsageRows` | add one Ark routing branch to an Ark-owned four-window row mapper | Low–Med — additive branch in shared snapshot producer | Remove branch/helper; Ark falls back to primary/secondary rows |
 | S18 (APPROVED — M3, Bee 2026-07-05; naming corrected by Codex audit Entry 054) | `Sources/CodexBarCore/WidgetSnapshot.swift` `WidgetUsageRowSnapshot` | add backward-compatible optional `resetsAt` and `detailText` fields | Medium — shared persisted snapshot schema | Remove optional fields and Ark mapping |
+| S19 (PROPOSED — M4, awaiting Bee decision) | `Sources/CodexBarWidget/CodexBarWidgetBundle.swift` History Widget registration | change only the History Widget intent/timeline registration so History can use a filtered `ProviderChoice` option source while Usage keeps the existing registration | Medium — changing the History intent type may reset existing History Widget configurations | Restore `ProviderSelectionIntent` / `CodexBarTimelineProvider` registration. |
 
 All shared edits are additive registrations/wiring. None rename, move, or
 reformat upstream code. Each milestone's PR must list the S# points it touches.
@@ -233,6 +234,28 @@ Bee approved the recommended policy on 2026-07-05:
 
 S6 and S7 are approved only within that policy and the exact file/test boundary
 in `docs/TASKS.md`.
+
+### Entry 060 audit correction
+
+The submitted implementation showed that Usage and History share the same
+intent registration, so different option lists cannot be supplied without a
+History-specific registration touch in `CodexBarWidgetBundle.swift`. That file
+was not part of approved S6; S19 is therefore proposed and requires Bee's
+decision.
+
+The implementation's claim that `DynamicOptionsProvider` cannot filter an
+`AppEnum` is incorrect. The installed macOS AppIntents SDK exposes an
+`IntentParameter` initializer for `Value.ValueType: AppEnum` with an
+`optionsProvider`. Separate `HistoryProviderChoice` and
+`MetricProviderChoice` enums are not required. Keeping `ProviderChoice` as the
+parameter type minimizes divergence and avoids an unnecessary Metric Widget
+configuration reset. A History intent-type change may still reset History
+configuration and must be accepted explicitly with S19.
+
+S7 also requires an actual fit fallback (`ViewThatFits` or an equivalent
+bounded layout). Truncating text with `lineLimit(1)` is not the approved
+fallback because it does not remove lower-priority detail/reset content when
+space is insufficient.
 
 ## Upstream synchronization, conflict review & rollback procedure
 
