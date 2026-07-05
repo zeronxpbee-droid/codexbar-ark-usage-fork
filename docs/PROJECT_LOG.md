@@ -4184,6 +4184,127 @@ Codex re-audits the complete M4 diff (initial `95927a5e` + this corrective
 commit) against Entry 060 findings and records PASS/FAIL. Bee then decides
 merge or moving to M5.
 
+## Entry 063 — Codex M4 Corrective Re-Audit Fails on AppIntents API Usage
+
+Date: 2026-07-05
+Actor: Codex (Repository Operator / Auditor)
+Type: Review
+Status: FAIL
+
+### Active Goal
+
+M4 — Ark Widget Provider Picker + Small/Medium UI
+
+### LOOP Result
+
+This was a Review/Governance Loop. Claude was the Generator; Codex was the
+Evaluator and Recorder. The loop verified ancestry, exact S6/S7/S19 scope,
+AppIntents SDK conformance, picker isolation, fit-fallback structure, security,
+compilation, focused tests, and repository checks. The failure is bounded to
+the already approved implementation scope and requires no new Bee decision.
+Codex did not modify product or test code.
+
+### Summary
+
+- Re-audited additive corrective commit `d5deddbc` against parent
+  `dab2ec0d` and the complete M4 diff from M3 merge `9a24cf73`.
+- The correction successfully:
+  - removes `HistoryProviderChoice` and `MetricProviderChoice`;
+  - preserves one `ProviderChoice` catalog and the existing Metric parameter
+    type;
+  - keeps the approved S19 History registration;
+  - adds the requested `ViewThatFits` structure;
+  - updates `docs/widgets.md` and the test-count record.
+- Acceptance still fails because the two options providers use a static
+  `results()` method and the intent parameters pass provider metatypes
+  (`.self`). Apple's protocol and initializer require an instance method and a
+  provider instance. The Widget target therefore does not compile.
+- `make check` also finds 12 remaining `multiline_arguments` violations in the
+  Ark four-window test helper.
+
+### Files Changed
+
+Codex reviewed the complete M4 product/test surface:
+
+- `Sources/CodexBarWidget/CodexBarWidgetBundle.swift`
+- `Sources/CodexBarWidget/CodexBarWidgetProvider.swift`
+- `Sources/CodexBarWidget/CodexBarWidgetViews.swift`
+- `Tests/CodexBarTests/CodexBarWidgetProviderTests.swift`
+- `docs/widgets.md`
+- M4 governance records
+
+Codex changed governance only:
+
+- `docs/TASKS.md`
+- `docs/PROJECT_LOG.md`
+
+### Evidence
+
+- Branch: `feature/m4-ark-widget-picker-ui`.
+- Ancestry: `d5deddbc` directly descends from Entry 061 governance commit
+  `dab2ec0d`; author and committer are
+  `Claude Developer <claude@localhost>`.
+- Worktree/index were clean before the audit documentation update.
+- `git diff --check dab2ec0d..d5deddbc`: PASS.
+- `git diff --check 9a24cf73..d5deddbc`: PASS.
+- `swift build`: **FAIL** in
+  `CodexBarWidgetProvider.swift:125-209`:
+  - `UsageProviderOptionsProvider` and `ExcludingArkOptionsProvider` do not
+    conform to `DynamicOptionsProvider`;
+  - `UsageProviderOptionsProvider.Type` /
+    `ExcludingArkOptionsProvider.Type` cannot conform when `.self` is passed to
+    `optionsProvider`.
+- Local AppIntents SDK contract:
+  `DynamicOptionsProvider` requires
+  `func results() async throws -> Self.Result`, and the `IntentParameter`
+  initializer accepts `optionsProvider: OptionsProvider` — an instance, not a
+  metatype.
+- `swift test --filter CodexBarWidgetProviderTests`: **FAIL before discovery**
+  on the same Widget compilation errors.
+- `swift test --filter Ark`: **FAIL before discovery** on the same Widget
+  compilation errors.
+- `make check`: **FAIL**. SwiftFormat passes with 0 files requiring formatting;
+  SwiftLint reports 12 serious `multiline_arguments` violations at
+  `CodexBarWidgetProviderTests.swift:813-823`.
+- `make test`: environment-blocked before discovery by the unchanged external
+  KeyboardShortcuts `PreviewsMacros.SwiftUIView` issue.
+- Static scan of changed M4 files found no credential/Authorization/RequestId
+  material, URLSession use, or network URL.
+- No snapshot schema, Ark fetcher/signing/credentials, menu/popover, unrelated
+  provider, or large-family Ark-specific layout change was introduced.
+
+### Issues / Risks
+
+1. **[P1] Widget target does not compile.** The official AppIntents path is
+   valid, but its API was called incorrectly. Use an instance
+   `results()` method and pass `ExcludingArkOptionsProvider()` to History and
+   Metric.
+2. **[P1] Pinned lint gate fails.** Four Ark row initializers still combine
+   multiple arguments on lines, producing 12 serious violations.
+3. **[P2] Unnecessary Usage options provider.** `ProviderChoice` already
+   exposes all enum cases to the existing Usage intent. Removing
+   `UsageProviderOptionsProvider` and restoring the upstream initializer is the
+   smaller, more upstream-aligned correction.
+4. Entry 062's claim that the prior session confirmed `make check` PASS is not
+   accepted: Entry 060 recorded FAIL, and the current command independently
+   fails.
+5. The S7 `ViewThatFits` structure is accepted for this source-level loop, but
+   runtime Widget visual proof remains required before final M4 acceptance.
+
+### Decision
+
+M4 re-audit **FAIL**. No push, PR, merge, M5, or release is authorized.
+
+Claude may make the exact bounded corrections in TASKS without another Bee
+decision. `CodexBarWidgetViews.swift`, `CodexBarWidgetBundle.swift`, and
+`docs/widgets.md` are frozen for the next loop.
+
+### Next Action
+
+Codex commits this governance-only audit record. Claude then creates one
+additive corrective commit from that audit commit, runs the required gates,
+and stops for Codex re-audit.
+
 ## Entry Template
 
 ```text

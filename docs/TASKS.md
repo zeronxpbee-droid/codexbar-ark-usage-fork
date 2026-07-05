@@ -11,14 +11,13 @@ M4 — Ark Widget Provider Picker + Small/Medium UI
 ## Goal Status
 
 ```text
-Status: M4 CORRECTIVE COMMIT CREATED — awaiting Codex re-audit
-Audit State: initial implementation commit 95927a5e was FAIL per Entry 060;
-Bee approved S19 Option A in Entry 061; Claude created the additive corrective
-commit (Entry 062) addressing all six findings — single ProviderChoice +
-DynamicOptionsProvider, ViewThatFits fit fallback, S19 registration isolation,
-test count 13, docs/widgets.md updated
-Next: Codex re-audits the complete M4 diff and records PASS/FAIL; Bee decides
-merge or moving to M5
+Status: M4 RE-AUDIT FAIL — bounded corrective commit required
+Audit State: d5deddbc correctly removes duplicate provider enums and adds the
+approved ViewThatFits/S19 structure, but the DynamicOptionsProvider API usage
+does not compile and make check still reports 12 serious lint violations (see
+PROJECT_LOG Entry 063)
+Next: Claude creates one additive corrective commit from the Entry 063 audit
+documentation commit and stops for Codex re-audit; no new Bee decision needed
 Implementation Owner: Claude / GLM Developer
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
@@ -147,13 +146,11 @@ Codex may:
 Claude / GLM may:
 
 - Modify only:
-  - `Sources/CodexBarWidget/CodexBarWidgetProvider.swift` (S6 correction);
-  - `Sources/CodexBarWidget/CodexBarWidgetViews.swift` (S7 correction);
-  - `Sources/CodexBarWidget/CodexBarWidgetBundle.swift` (S19 only);
+  - `Sources/CodexBarWidget/CodexBarWidgetProvider.swift`;
   - `Tests/CodexBarTests/CodexBarWidgetProviderTests.swift`;
-  - `docs/widgets.md`;
   - `docs/TASKS.md`;
   - `docs/PROJECT_LOG.md`.
+- Preserve the accepted S7 ViewThatFits and S19 Bundle changes unchanged.
 - Create one additive local corrective commit and stop for Codex re-audit.
 
 ## Forbidden Scope
@@ -169,28 +166,29 @@ Claude / GLM may:
 - No push, PR, merge, release, destructive operation, or history rewrite
   without Bee approval.
 
-## Next Task — Claude M4 Corrective Loop
+## Next Task — Claude M4 Corrective Loop 2
 
-1. Re-read LOOP, upstream baseline rules, Entry 060/061, and the S6/S7/S19
-   boundaries. Confirm HEAD is the Entry 061 governance commit (whose parent is
-   `7b67d52f`) and the worktree/index are clean.
-2. Remove `HistoryProviderChoice` and `MetricProviderChoice`; retain the one
-   upstream-style persisted `ProviderChoice` catalog.
-3. Use AppIntents' supported `DynamicOptionsProvider` path to filter `.ark`
-   from History and Metric. Test the actual provider results. Keep the existing
-   Metric intent and parameter type unchanged.
-4. Under S19, retain only the minimum History-specific intent/timeline
-   registration needed for a distinct filtered option source.
-5. Implement a real bounded small/medium fit fallback (`ViewThatFits` or an
-   equivalent) that drops lower-priority detail/reset content when space is
-   insufficient. Preserve all S7 selection/order and opaque-data rules.
-6. Fix all pinned SwiftFormat/SwiftLint findings, update `docs/widgets.md`, and
-   correct the M4 test count/evidence to 13.
-7. Run `git diff --check`, `swift build`,
+1. Re-read LOOP, upstream baseline rules, and Entry 063. Confirm HEAD is the
+   Entry 063 audit documentation commit (whose parent is `d5deddbc`) and the
+   worktree/index are clean.
+2. Remove the unnecessary `UsageProviderOptionsProvider` and restore
+   `ProviderSelectionIntent` to its original parameter initializer; the single
+   `ProviderChoice` AppEnum already exposes all cases, including Ark.
+3. Make `ExcludingArkOptionsProvider.results()` an instance method, pass
+   `ExcludingArkOptionsProvider()` (not `.self`) to the History and Metric
+   `@Parameter` initializers, and update its focused test to call an instance.
+   Preserve the existing Metric intent and `ProviderChoice` parameter type.
+4. Fix all 12 `multiline_arguments` findings in
+   `arkFourWindowEntry()` by putting every initializer argument on its own
+   line.
+5. Do not change `CodexBarWidgetViews.swift`,
+   `CodexBarWidgetBundle.swift`, `docs/widgets.md`, M3 schema/snapshot code, or
+   any unrelated provider.
+6. Run `git diff --check`, `swift build`,
    `swift test --filter CodexBarWidgetProviderTests`,
    `swift test --filter Ark`, `make test`, and `make check`; record any genuine
    environment-only blocker exactly.
-8. Create one additive local commit. No amend/reset/rebase/temporary index,
+7. Create one additive local commit. No amend/reset/rebase/temporary index,
    push, PR, merge, M5, or release.
 
 ## Definition of Done — M4
