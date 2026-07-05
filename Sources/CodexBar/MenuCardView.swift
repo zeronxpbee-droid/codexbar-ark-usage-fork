@@ -1092,6 +1092,9 @@ extension UsageMenuCardView.Model {
 
     private static func metrics(input: Input) -> [Metric] {
         guard let snapshot = input.snapshot else { return [] }
+        if input.provider == .ark {
+            return Self.arkMetrics(input: input, snapshot: snapshot)
+        }
         if input.provider == .antigravity {
             return Self.antigravityMetrics(input: input, snapshot: snapshot)
         }

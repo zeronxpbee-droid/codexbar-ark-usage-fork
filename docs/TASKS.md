@@ -5,15 +5,15 @@
 ## Active Goal
 
 ```text
-M1 — Ark Provider Menu Bar MVP
+M2 — Ark Popover Details
 ```
 
 ## Goal Status
 
 ```text
-Status: M1 DRAFT PR #2 OPEN — Awaiting Bee Review/Merge Decision (see PROJECT_LOG Entry 035)
-Implementation State: Reviewed implementation 7221ab7b and audit record 7dba2509 are pushed; draft PR #2 targets fork main and is mergeable
-Next: Bee reviews draft PR #2; merge and entry into M2 remain separately gated
+Status: M2 AUDIT PASS — awaiting Bee repository/milestone decision (see PROJECT_LOG Entry 050)
+Implementation State: Full build, 51 Ark tests, 11 popover tests, and make check pass; make test remains environment-blocked by the unchanged external Preview macro issue
+Next: Bee decides whether Codex may push/open the M2 draft PR, and separately whether M2 may merge or M3 may open
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex
@@ -34,7 +34,9 @@ M0 branch: feature/m0-bootstrap-ark-probe
 M0 merged PR: https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/1
 M0 merge commit: 2ec7378bb981b393532d9506c2b8303a0889f63e
 M1 branch: feature/m1-ark-provider-menu-bar
-M1 draft PR: https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/2
+M1 merged PR: https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/2
+M1 merge commit: 239e42721d4b4e4a623b10efc8b52f70d4420287
+M2 branch: feature/m2-ark-popover-details
 ```
 
 ## Mandatory Pre-Execution Rule
@@ -46,65 +48,53 @@ Before reviewing this task, Codex must invoke or explicitly compare the review a
 
 If LOOP, `AGENTS.md`, `docs/PRD.md`, `docs/TASKS.md`, or `docs/PROJECT_LOG.md` conflict, stop and report documentation drift.
 
-## M1 Objective
+## M2 Objective
 
-Integrate Volcengine Ark Agent Plan AFP usage as a native CodexBar provider and
-show a compact, decision-useful status in the macOS menu bar.
+Show Ark's 5h, Daily, Weekly, and Monthly AFP windows as clear rows in the
+existing CodexBar menu popover, using the M1 provider snapshot and established
+menu-card architecture.
 
-M1 is limited to provider core, secure credential resolution, minimal provider
-registration, menu-bar status, basic error states, and tests. Four-window
-custom popover details remain M2; Widget snapshot, picker, and UI remain M3–M4.
+Each available row must communicate used, quota, remaining, and reset
+information when the API provides it. Missing fields, stale data, refresh
+errors, and unavailable windows must degrade safely without inventing values.
+Widget snapshot, picker, intent, and visible Widget support remain M3–M4.
 
 ## Allowed Scope
 
 Codex may:
 
-- Maintain the M1 branch and task-state documentation.
-- Inspect Claude / GLM commits and the complete M1 diff.
+- Maintain the M2 branch and task-state documentation.
+- Inspect Claude / GLM commits and the complete M2 diff.
 - Run build, test, formatting, lint, security, and provider-behavior checks.
 - Commit audit records and explicitly requested governance corrections.
-- Push an accepted M1 branch and create/update its draft PR.
+- Push an accepted M2 branch and create/update its draft PR only after Bee
+  separately approves that repository operation.
 
 Claude / GLM may:
 
-- Add Ark-owned provider, fetcher/parser, signer, settings/credential resolver,
-  implementation, and targeted test files.
-- Adapt the reviewed M0 probe logic into the existing CodexBar provider
-  architecture without importing the standalone probe package into the app.
-- Touch only the minimum M1 shared integration points from
-  `docs/M0_INTEGRATION_BOUNDARY.md`:
-  - S1 — `UsageProvider` Ark case.
-  - S2 — `IconStyle` Ark case, only if required by the descriptor pattern.
-  - S3 — provider descriptor registration.
-  - S4 — provider implementation registration.
-  - S8 — `ProviderConfigEnvironment` Ark credential projection.
-  - S9 — `MenuBarMetricWindowResolver` Ark automatic highest-risk selection.
-  - S10 — `CodexBarWidgetProvider` exhaustive-switch compile stub:
-    `case .ark: return nil`.
-  - S11 — `CodexBarWidgetViews` exhaustive-switch compile stubs for the Ark
-    short label and static color.
-  - S12 — `CostUsageScanner.loadDailyReportCancellable` exhaustive-switch
-    compile stub: add `.ark` to the existing unsupported-provider group that
-    returns `emptyReport`.
-  - S13 — `UsageStore` provider debug-log exhaustive-switch compile stub: add
-    `.ark` to the existing unimplemented-debug group without adding a probe or
-    exposing credentials.
-  - S14 — `CodexParserHash.generated.swift` mechanical integrity update
-    produced by `Scripts/regenerate-codex-parser-hash.sh` after S12; no manual
-    generated-file edits or runtime behavior changes.
-- Store the IAM Access Key ID in `ProviderConfig.apiKey` and Secret Access Key
-  in `ProviderConfig.secretKey`, persisted by the upstream
-  `CodexBarConfigStore` with mode `0600`, following the existing Bedrock
-  pattern. Do not introduce an Ark-specific credential store.
-- Normalize AFP windows into existing `UsageSnapshot` / rate-window models.
-- Add basic menu-bar status and safe provider error states.
-- Add M1 tests and update M1 task/history documentation.
+- Add Ark-scoped popover presentation/model helpers and targeted menu-card
+  tests where the existing architecture permits.
+- Extend Ark-owned snapshot presentation metadata only as needed to preserve
+  the four confirmed AFP windows and expose used/quota/remaining/reset values.
+- Reuse the existing `UsageMenuCardView.Model`, `Metric`, `RateWindow`, and
+  `NamedRateWindow` paths rather than creating a parallel popover architecture.
+- Implement approved S15 only: add one Ark routing branch in
+  `UsageMenuCardView.Model.metrics(input:)` and keep all Ark-specific metric
+  construction in new Ark-owned
+  `Sources/CodexBar/Providers/Ark/ArkPopoverMetrics.swift`.
+- In Ark-owned `ArkUsageFetcher.rateWindow(from:)`, change only the
+  `resetDescription` presentation payload from M1's `"used/quota"` form to a
+  complete opaque `used / quota AFP · remaining remaining` display string.
+- Route that opaque string to `Metric.detailText` without parsing it; generate
+  `resetText` only when `resetsAt` is non-nil so quota detail can never fall
+  through `UsageFormatter.resetLine` as fake reset text.
+- Add M2 tests and update M2 task/history documentation.
 
 ## Forbidden Scope
 
 Codex must not:
 
-- Implement or repair M1 product code.
+- Implement or repair M2 product code.
 - Rewrite Claude / GLM commits without Bee's explicit approval.
 - Merge a PR without Bee's explicit approval.
 
@@ -115,12 +105,18 @@ Claude / GLM must not:
 - Open, update, close, or merge Pull Requests.
 - Replace upstream history with a detached copy or squashed import.
 - Mix an upstream synchronization with Ark feature implementation.
-- Touch Widget snapshot, picker, intent, or UI feature code (S5–S7). The only
-  M1 exception is the exact compile-only S10/S11 exhaustive-switch arms.
+- Touch Widget snapshot, picker, intent, or UI feature code (S5–S7).
 - Add `ProviderChoice.ark`, an Ark `DisplayRepresentation`, Widget picker
   availability, snapshot behavior, layout wiring, or any visible Ark Widget
-  capability under the S10/S11 exception.
-- Add custom four-window popover UI; that belongs to M2.
+  capability. Existing M1 S10/S11 compiler-closure arms must remain
+  non-functional.
+- Change Ark signing, networking, endpoint, credential persistence, or menu-bar
+  selection behavior unless a separately approved correctness defect requires
+  it.
+- Modify any shared menu-card integration point beyond the exact approved S15
+  one-branch router edit.
+- Add a typed Ark payload to shared `RateWindow` or `UsageSnapshot` (proposed
+  future S16); Option B is not approved for M2.
 - Modify unrelated providers.
 - Refactor CodexBar architecture.
 - Commit AK/SK, API keys, cookies, screenshots with secrets, or any generated
@@ -138,58 +134,43 @@ Claude / GLM must not:
 - Publish or package a release.
 - Submit an upstream PR.
 
-## Next Repository Action
+## Next Task — Bee M2 Gate Decision
 
-1. Bee reviews draft PR #2 and the PASS evidence in
-   `docs/PROJECT_LOG.md` Entry 034.
-2. No further Claude / GLM product or formatting change is authorized while
-   this gate is pending.
-3. If review requests changes, Bee must first authorize the corrective scope
-   here before Claude / GLM edits the branch.
-4. Merge and entry into M2 each require a separate explicit Bee decision.
+1. Review the PASS evidence in `docs/PROJECT_LOG.md` Entry 050.
+2. Decide whether Codex may push `feature/m2-ark-popover-details` and open its
+   draft PR. This does not authorize merge.
+3. Decide separately, after PR review, whether M2 may merge and whether M3 may
+   open.
+4. Until Bee decides, do not push, open/update a PR, merge, enter M3, or change
+   product source.
 
-## Definition of Done — M1
+## Definition of Done — M2
 
-M1 is Done only when:
+M2 is Done only when:
 
 - LOOP was used or explicitly referenced before execution.
-- Ark is registered through only the necessary S1–S4 and S8–S14 shared
-  integration points.
-- Provider-specific networking, signing, parsing, credential resolution, and
-  tests are isolated in Ark-owned files where the architecture permits.
-- The provider calls the confirmed `volcengineapi.com` control-plane host.
-- Production credentials use the approved upstream CodexBar
-  `ProviderConfig`/`CodexBarConfigStore` mechanism with mode `0600`; no
-  environment-only, custom plaintext-file, concatenated-token, or committed
-  credential path is introduced.
-- The menu bar can display compact Ark AFP usage using real or safely mocked
-  data.
-- Ark preserves stable 5h/Daily/Weekly/Monthly window semantics. Automatic
-  menu-bar display uses the S9 provider-specific highest-risk resolver; 5h is
-  the first fallback and Daily is used if 5h is absent.
-- Unauthorized, timeout/network, empty/unsupported, and unknown failures have
-  safe states and do not expose raw responses or identifiers.
-- Signer, parser, normalization, credential redaction, error behavior, and
-  provider registration have targeted tests.
+- The popover presents available 5h, Daily, Weekly, and Monthly AFP rows in
+  that order using the existing menu-card architecture.
+- Every row communicates used, quota, remaining, and reset information when
+  those values are known; unknown values are omitted or marked unavailable
+  without being rendered as zero.
+- Partial-window snapshots, stale snapshots, refresh failures, and unavailable
+  usage produce safe, understandable UI states.
+- M1 signing, networking, credential, four-window normalization, and automatic
+  menu-bar selection behavior remain unchanged.
+- Ark popover/model behavior has focused tests, including four complete
+  windows, partial/missing values, and reset/error behavior.
 - `swift build`, `make test`, and `make check` pass, or any environment-only
   blocker is documented honestly and reproduced by Codex.
-- No M2 popover, functional Widget, unrelated-provider, upstream-sync, or
-  broad-refactor changes are included; Widget changes are limited exactly to
-  the S10/S11 compiler-closure arms.
-- Actual S1–S4/S8–S14 touches and rollback steps are recorded in the M1 PR/log.
-- `docs/PROJECT_LOG.md` has an M1 implementation and Codex audit record.
+- Any shared S15+ touch is pre-approved, minimal, tested, listed in
+  `docs/M0_INTEGRATION_BOUNDARY.md`, and has an explicit rollback.
+- No functional Widget, unrelated-provider, upstream-sync, credential,
+  networking, or broad-refactor change is included.
+- `docs/PROJECT_LOG.md` has M2 implementation and Codex audit records.
 - Codex review is complete.
-- Bee approves merge or moving to M2.
+- Bee approves merge or moving to M3.
 
-## Planned Milestones After M1
-
-### M2 — Ark Popover Details
-
-Allowed only after Bee updates this file.
-
-Target:
-
-- Show 5h / daily / weekly / monthly AFP usage rows.
+## Planned Milestones After M2
 
 ### M3 — Widget Snapshot Integration
 
@@ -242,11 +223,13 @@ Official Volcengine documentation confirms:
 
 ## Current Open Questions
 
-These must be resolved during M0 or before the indicated integration milestone:
+These must be resolved by the M2 preflight before the corresponding edit:
 
 1. What is the least-privilege IAM action/policy required for `GetAFPUsage`?
-2. Which CodexBar usage model best fits quota windows with multiple reset periods?
-3. Should the Widget default to 5-hour usage or highest-risk usage?
+2. Can all four Ark rows and quota details be expressed through Ark-owned
+   snapshot metadata, or is one minimal shared menu-card S15 touch required?
+3. What exact presentation avoids treating quota detail as reset text while
+   still showing used, quota, remaining, and the real reset time?
 
 ## Current Decision
 
@@ -254,8 +237,10 @@ Default MVP display strategy:
 
 ```text
 Menu bar: highest-risk window, otherwise 5-hour window.
+Popover: 5h / Daily / Weekly / Monthly rows in order, with known
+used / quota / remaining / reset detail.
 Small Widget: Ark AFP percentage + reset.
 Medium Widget: 5h / daily / weekly / monthly summary.
 ```
 
-This decision may be revised after M0 evidence.
+Widget lines are planning intent only and remain forbidden until M3/M4.
