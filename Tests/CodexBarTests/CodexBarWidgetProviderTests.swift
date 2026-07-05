@@ -617,15 +617,17 @@ struct CodexBarWidgetProviderTests {
     }
 
     @Test
-    func `history provider choice excludes ark`() {
-        #expect(HistoryProviderChoice(provider: .ark) == nil)
-        #expect(HistoryProviderChoice(provider: .codex) == .codex)
+    func `usage provider options include ark`() async throws {
+        let options = try await UsageProviderOptionsProvider.results()
+        #expect(options.contains(.ark))
+        #expect(options.count == ProviderChoice.allCases.count)
     }
 
     @Test
-    func `metric provider choice excludes ark`() {
-        #expect(MetricProviderChoice(provider: .ark) == nil)
-        #expect(MetricProviderChoice(provider: .codex) == .codex)
+    func `excluding ark options provider omits ark`() async throws {
+        let options = try await ExcludingArkOptionsProvider.results()
+        #expect(!options.contains(.ark))
+        #expect(options.count == ProviderChoice.allCases.count - 1)
     }
 
     @Test
@@ -682,9 +684,24 @@ struct CodexBarWidgetProviderTests {
             secondary: nil,
             tertiary: nil,
             usageRows: [
-                WidgetSnapshot.WidgetUsageRowSnapshot(id: "ark-afp-5h", title: "5h", percentLeft: 50, resetsAt: resetDate, detailText: nil),
-                WidgetSnapshot.WidgetUsageRowSnapshot(id: "ark-afp-daily", title: "Daily", percentLeft: 50, resetsAt: resetDate, detailText: nil),
-                WidgetSnapshot.WidgetUsageRowSnapshot(id: "ark-afp-weekly", title: "Weekly", percentLeft: 50, resetsAt: resetDate, detailText: nil),
+                WidgetSnapshot.WidgetUsageRowSnapshot(
+                    id: "ark-afp-5h",
+                    title: "5h",
+                    percentLeft: 50,
+                    resetsAt: resetDate,
+                    detailText: nil),
+                WidgetSnapshot.WidgetUsageRowSnapshot(
+                    id: "ark-afp-daily",
+                    title: "Daily",
+                    percentLeft: 50,
+                    resetsAt: resetDate,
+                    detailText: nil),
+                WidgetSnapshot.WidgetUsageRowSnapshot(
+                    id: "ark-afp-weekly",
+                    title: "Weekly",
+                    percentLeft: 50,
+                    resetsAt: resetDate,
+                    detailText: nil),
             ],
             creditsRemaining: nil,
             codeReviewRemainingPercent: nil,

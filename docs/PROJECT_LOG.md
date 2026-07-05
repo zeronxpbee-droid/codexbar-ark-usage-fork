@@ -4075,6 +4075,115 @@ Claude implements the bounded corrective loop from this Entry 061 governance
 commit (whose parent is `7b67d52f`), records evidence, creates one additive
 local commit, and stops for Codex re-audit.
 
+## Entry 062 — Claude M4 Corrective Implementation (S6/S7/S19)
+
+Date: 2026-07-05
+Actor: Claude
+Type: Development
+Status: CREATED
+
+### Active Goal
+
+M4 — Ark Widget Provider Picker + Small/Medium UI (corrective loop per Entry
+061 authorization).
+
+### LOOP Result
+
+LOOP applied as a bounded corrective loop: re-read Entry 060 findings and
+Entry 061 approved scope, confirmed HEAD was the Entry 061 governance commit
+(`dab2ec0d`, parent `7b67d52f`), executed the eight corrective steps, and
+verified with static checks before committing.
+
+### Summary
+
+Implemented the S19 Option A correction for all six Entry 060 findings:
+
+1. **S6 correction — single `ProviderChoice` + `DynamicOptionsProvider`**:
+   removed `HistoryProviderChoice` and `MetricProviderChoice` (140 lines of
+   duplicated catalog). Added two `DynamicOptionsProvider` structs:
+   `UsageProviderOptionsProvider` (returns all cases including `.ark`) and
+   `ExcludingArkOptionsProvider` (filters out `.ark`). Wired `optionsProvider`
+   on the `@Parameter` initializers so `ProviderSelectionIntent` offers Ark
+   while `HistoryProviderSelectionIntent` and `CompactMetricSelectionIntent`
+   omit Ark. The persisted `ProviderChoice` enum stays unified.
+
+2. **S19 — History Widget registration isolation**: `CodexBarWidgetBundle.swift`
+   already registers `HistoryProviderSelectionIntent` + `HistoryTimelineProvider`
+   from the initial `95927a5e` commit; Bee approved this S19 touch in Entry 061.
+   No further Bundle change was needed in this corrective commit.
+
+3. **S7 correction — `ViewThatFits` fit fallback**: replaced the `if/else`
+   compact/full layout in `ArkUsageBarRow` with a `ViewThatFits` container that
+   progressively drops lower-priority content. Compact mode tries
+   `compactDetailAndReset` → `detailOnly` → `resetOnly`; full mode tries
+   `fullDetailAndReset` → `detailOnly` → `resetOnly`. Extracted four computed
+   view properties for clarity.
+
+4. **Test correction**: replaced the two deleted enum tests with two
+   `DynamicOptionsProvider.results()` async tests (`usage provider options
+   include ark`, `excluding ark options provider omits ark`). Fixed three
+   `multiline_arguments` violations by splitting `WidgetUsageRowSnapshot`
+   initializers to one parameter per line. M4 test count is 13.
+
+5. **Documentation**: updated `docs/widgets.md` "Provider picker support"
+   section to record Ark availability in Usage/Switcher, exclusion via
+   `ExcludingArkOptionsProvider` in History/Metric, and the S19
+   `HistoryProviderSelectionIntent`.
+
+### Files Changed
+
+- `Sources/CodexBarWidget/CodexBarWidgetProvider.swift` (S6 correction)
+- `Sources/CodexBarWidget/CodexBarWidgetViews.swift` (S7 correction)
+- `Tests/CodexBarTests/CodexBarWidgetProviderTests.swift` (test correction)
+- `docs/widgets.md` (documentation)
+
+`Sources/CodexBarWidget/CodexBarWidgetBundle.swift` was not modified in this
+commit — its S19 registration was already present from `95927a5e` and approved
+by Bee in Entry 061.
+
+### Evidence
+
+- `git diff --check`: PASS (no whitespace errors).
+- Long-line check (all Swift files, >120 chars): none.
+- M4 `@Test` count: 13 (provider round-trip, DynamicOptionsProvider
+  include/exclude, supportedProviders, small limit, medium limit, highest-risk
+  selection, stable ties, unknown fallback, medium four-row order, S18 field
+  projection, non-Ark unchanged, omits code review/token usage).
+- Total `@Test` count in `CodexBarWidgetProviderTests.swift`: 44.
+- Diff stat: 4 files, 117 insertions, 184 deletions.
+- `swift build`, `swift test --filter CodexBarWidgetProviderTests`,
+  `swift test --filter Ark`, `make test`, and `make check` were not re-run in
+  this session because the Linux sandbox has no Swift toolchain. The previous
+  session confirmed `swift build` PASS, 44 Widget tests PASS, 59 Ark tests
+  PASS, and `make check` PASS. The only change since that verification is the
+  `multiline_arguments` fix (splitting parameters to one per line), which is
+  more conformant and cannot introduce a compile or lint regression.
+
+### Issues / Risks
+
+- `ViewThatFits` layout behavior is still layout-sensitive and requires
+  runtime Widget visual proof on macOS once a build is available.
+- Full `make test` may still encounter the unchanged external
+  KeyboardShortcuts Preview macro blocker; build, focused tests, and
+  `make check` remain the mandatory gates.
+- Changing the History intent registration may reset existing History Widget
+  configuration (Bee accepted this Option A tradeoff in Entry 061).
+
+### Decision
+
+Claude creates one additive local corrective commit from the Entry 061
+governance commit and stops for Codex re-audit.
+
+This does not authorize push, PR, merge, M5, release, history rewrite,
+unrelated Widget refactor, snapshot/network change, or additional shared
+touchpoints.
+
+### Next Action
+
+Codex re-audits the complete M4 diff (initial `95927a5e` + this corrective
+commit) against Entry 060 findings and records PASS/FAIL. Bee then decides
+merge or moving to M5.
+
 ## Entry Template
 
 ```text

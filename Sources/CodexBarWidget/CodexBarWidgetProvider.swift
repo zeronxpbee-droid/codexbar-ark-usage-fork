@@ -116,148 +116,26 @@ enum ProviderChoice: String, AppEnum {
     }
 }
 
-/// M4 S6: Provider choices for History Widget, excluding Ark.
+/// M4 S6: Dynamic options provider for Usage Widget and Switcher.
 ///
-/// Ark has no daily history data, so it must not appear in the History Widget
-/// picker. This enum mirrors `ProviderChoice` minus `.ark`, following the same
-/// pattern as the upstream `BurnProviderChoice` (which restricts BurnDown to a
-/// subset of providers). Raw values match `ProviderChoice` so that existing
-/// persisted configurations remain decodable.
-enum HistoryProviderChoice: String, AppEnum {
-    case codex
-    case claude
-    case gemini
-    case alibaba
-    case alibabatokenplan
-    case antigravity
-    case zai
-    case copilot
-    case minimax
-    case kilo
-    case opencode
-    case opencodego
-
-    static let typeDisplayRepresentation = TypeDisplayRepresentation(name: "Provider")
-
-    static let caseDisplayRepresentations: [HistoryProviderChoice: DisplayRepresentation] = [
-        .codex: DisplayRepresentation(title: "Codex"),
-        .claude: DisplayRepresentation(title: "Claude"),
-        .gemini: DisplayRepresentation(title: "Gemini"),
-        .alibaba: DisplayRepresentation(title: "Alibaba"),
-        .alibabatokenplan: DisplayRepresentation(title: "Alibaba Token Plan"),
-        .antigravity: DisplayRepresentation(title: "Antigravity"),
-        .zai: DisplayRepresentation(title: "z.ai"),
-        .copilot: DisplayRepresentation(title: "Copilot"),
-        .minimax: DisplayRepresentation(title: "MiniMax"),
-        .kilo: DisplayRepresentation(title: "Kilo"),
-        .opencode: DisplayRepresentation(title: "OpenCode"),
-        .opencodego: DisplayRepresentation(title: "OpenCode Go"),
-    ]
-
-    var provider: UsageProvider {
-        switch self {
-        case .codex: .codex
-        case .claude: .claude
-        case .gemini: .gemini
-        case .alibaba: .alibaba
-        case .alibabatokenplan: .alibabatokenplan
-        case .antigravity: .antigravity
-        case .zai: .zai
-        case .copilot: .copilot
-        case .minimax: .minimax
-        case .kilo: .kilo
-        case .opencode: .opencode
-        case .opencodego: .opencodego
-        }
-    }
-
-    init?(provider: UsageProvider) {
-        switch provider {
-        case .codex: self = .codex
-        case .claude: self = .claude
-        case .gemini: self = .gemini
-        case .alibaba: self = .alibaba
-        case .alibabatokenplan: self = .alibabatokenplan
-        case .antigravity: self = .antigravity
-        case .zai: self = .zai
-        case .copilot: self = .copilot
-        case .minimax: self = .minimax
-        case .kilo: self = .kilo
-        case .opencode: self = .opencode
-        case .opencodego: self = .opencodego
-        default: return nil
-        }
+/// Returns all `ProviderChoice` cases (including `.ark`) so the Usage Widget
+/// picker offers Ark. Uses AppIntents' `DynamicOptionsProvider` with
+/// `optionsProvider` on the `@Parameter` initializer — the SDK-supported way
+/// to filter `AppEnum` options per intent.
+struct UsageProviderOptionsProvider: DynamicOptionsProvider {
+    static func results() async throws -> [ProviderChoice] {
+        ProviderChoice.allCases
     }
 }
 
-/// M4 S6: Provider choices for Metric Widget, excluding Ark.
+/// M4 S6: Dynamic options provider that excludes `.ark`.
 ///
-/// Ark does not provide credits or cost values, so it must not appear in the
-/// Metric Widget picker. Raw values match `ProviderChoice`.
-enum MetricProviderChoice: String, AppEnum {
-    case codex
-    case claude
-    case gemini
-    case alibaba
-    case alibabatokenplan
-    case antigravity
-    case zai
-    case copilot
-    case minimax
-    case kilo
-    case opencode
-    case opencodego
-
-    static let typeDisplayRepresentation = TypeDisplayRepresentation(name: "Provider")
-
-    static let caseDisplayRepresentations: [MetricProviderChoice: DisplayRepresentation] = [
-        .codex: DisplayRepresentation(title: "Codex"),
-        .claude: DisplayRepresentation(title: "Claude"),
-        .gemini: DisplayRepresentation(title: "Gemini"),
-        .alibaba: DisplayRepresentation(title: "Alibaba"),
-        .alibabatokenplan: DisplayRepresentation(title: "Alibaba Token Plan"),
-        .antigravity: DisplayRepresentation(title: "Antigravity"),
-        .zai: DisplayRepresentation(title: "z.ai"),
-        .copilot: DisplayRepresentation(title: "Copilot"),
-        .minimax: DisplayRepresentation(title: "MiniMax"),
-        .kilo: DisplayRepresentation(title: "Kilo"),
-        .opencode: DisplayRepresentation(title: "OpenCode"),
-        .opencodego: DisplayRepresentation(title: "OpenCode Go"),
-    ]
-
-    var provider: UsageProvider {
-        switch self {
-        case .codex: .codex
-        case .claude: .claude
-        case .gemini: .gemini
-        case .alibaba: .alibaba
-        case .alibabatokenplan: .alibabatokenplan
-        case .antigravity: .antigravity
-        case .zai: .zai
-        case .copilot: .copilot
-        case .minimax: .minimax
-        case .kilo: .kilo
-        case .opencode: .opencode
-        case .opencodego: .opencodego
-        }
-    }
-
-    init?(provider: UsageProvider) {
-        switch provider {
-        case .codex: self = .codex
-        case .claude: self = .claude
-        case .gemini: self = .gemini
-        case .alibaba: self = .alibaba
-        case .alibabatokenplan: self = .alibabatokenplan
-        case .antigravity: self = .antigravity
-        case .zai: self = .zai
-        case .copilot: self = .copilot
-        case .minimax: self = .minimax
-        case .kilo: self = .kilo
-        case .opencode: self = .opencode
-        case .opencodego: self = .opencodego
-        default: return nil
-        }
+/// Used by History and Metric Widget intents where Ark has no data to display.
+/// Keeps the existing `ProviderChoice` parameter type so persisted
+/// configurations remain compatible; only the picker option list is filtered.
+struct ExcludingArkOptionsProvider: DynamicOptionsProvider {
+    static func results() async throws -> [ProviderChoice] {
+        ProviderChoice.allCases.filter { $0 != .ark }
     }
 }
 
@@ -279,7 +157,7 @@ struct ProviderSelectionIntent: AppIntent, WidgetConfigurationIntent {
     static let title: LocalizedStringResource = "Provider"
     static let description = IntentDescription("Select the provider to display in the widget.")
 
-    @Parameter(title: "Provider", default: .codex)
+    @Parameter(title: "Provider", default: .codex, optionsProvider: UsageProviderOptionsProvider.self)
     var provider: ProviderChoice
 
     init() {
@@ -287,16 +165,17 @@ struct ProviderSelectionIntent: AppIntent, WidgetConfigurationIntent {
     }
 }
 
-/// M4 S6: History Widget provider selection intent.
+/// M4 S6 (S19): History Widget provider selection intent.
 ///
-/// Uses `HistoryProviderChoice` (excludes Ark) so Ark never appears in the
-/// History Widget picker. Ark has no daily history data to display.
+/// Retains the existing `ProviderChoice` parameter type for compatibility but
+/// uses `ExcludingArkOptionsProvider` so Ark never appears in the History
+/// Widget picker. Ark has no daily history data to display.
 struct HistoryProviderSelectionIntent: AppIntent, WidgetConfigurationIntent {
     static let title: LocalizedStringResource = "Provider"
     static let description = IntentDescription("Select the provider to display in the history widget.")
 
-    @Parameter(title: "Provider", default: .codex)
-    var provider: HistoryProviderChoice
+    @Parameter(title: "Provider", default: .codex, optionsProvider: ExcludingArkOptionsProvider.self)
+    var provider: ProviderChoice
 
     init() {
         self.provider = .codex
@@ -327,8 +206,8 @@ struct CompactMetricSelectionIntent: AppIntent, WidgetConfigurationIntent {
     static let title: LocalizedStringResource = "Provider + Metric"
     static let description = IntentDescription("Select the provider and metric to display.")
 
-    @Parameter(title: "Provider", default: .codex)
-    var provider: MetricProviderChoice
+    @Parameter(title: "Provider", default: .codex, optionsProvider: ExcludingArkOptionsProvider.self)
+    var provider: ProviderChoice
 
     @Parameter(title: "Metric", default: .credits)
     var metric: CompactMetric

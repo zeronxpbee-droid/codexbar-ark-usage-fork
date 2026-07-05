@@ -839,8 +839,10 @@ private struct UsageBarRow: View {
 ///
 /// Displays title, percent, bar, and the M3 `detailText`/`resetsAt` fields.
 /// `detailText` is never parsed; reset display derives only from `resetsAt`.
-/// In compact mode (medium widget), detail and reset are laid out
-/// horizontally to avoid displacing provider/updated state.
+/// Uses `ViewThatFits` to progressively drop lower-priority content
+/// (detailText > resetsAt) when space is insufficient, rather than crowding
+/// or truncating. Compact mode (medium widget) lays out detail and reset
+/// horizontally; full mode (small widget) stacks them vertically.
 private struct ArkUsageBarRow: View {
     @Environment(\.widgetUsageShowsUsed) private var showUsed
     let row: WidgetUsageRow
@@ -866,37 +868,70 @@ private struct ArkUsageBarRow: View {
                 }
             }
             .frame(height: 6)
-            if self.compact {
-                if self.row.detailText != nil || self.row.resetsAt != nil {
-                    HStack(spacing: 4) {
-                        if let detail = self.row.detailText {
-                            Text(detail)
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(1)
-                        }
-                        if let resetsAt = self.row.resetsAt {
-                            Spacer(minLength: 4)
-                            Text(WidgetFormat.relativeDate(resetsAt))
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(1)
-                        }
+            if self.row.detailText != nil || self.row.resetsAt != nil {
+                ViewThatFits(in: self.compact ? .horizontal : .vertical) {
+                    if self.compact {
+                        self.compactDetailAndReset
+                    } else {
+                        self.fullDetailAndReset
                     }
-                }
-            } else {
-                if let detail = self.row.detailText {
-                    Text(detail)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
-                if let resetsAt = self.row.resetsAt {
-                    Text(WidgetFormat.relativeDate(resetsAt))
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
+                    self.detailOnly
+                    self.resetOnly
                 }
             }
+        }
+    }
+
+    private var compactDetailAndReset: some View {
+        HStack(spacing: 4) {
+            if let detail = self.row.detailText {
+                Text(detail)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            if let resetsAt = self.row.resetsAt {
+                Spacer(minLength: 4)
+                Text(WidgetFormat.relativeDate(resetsAt))
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+        }
+    }
+
+    private var fullDetailAndReset: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            if let detail = self.row.detailText {
+                Text(detail)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            if let resetsAt = self.row.resetsAt {
+                Text(WidgetFormat.relativeDate(resetsAt))
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var detailOnly: some View {
+        if let detail = self.row.detailText {
+            Text(detail)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+        }
+    }
+
+    @ViewBuilder
+    private var resetOnly: some View {
+        if let resetsAt = self.row.resetsAt {
+            Text(WidgetFormat.relativeDate(resetsAt))
+                .font(.caption2)
+                .foregroundStyle(.secondary)
         }
     }
 }

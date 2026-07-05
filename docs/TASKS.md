@@ -11,12 +11,14 @@ M4 — Ark Widget Provider Picker + Small/Medium UI
 ## Goal Status
 
 ```text
-Status: M4 CORRECTIVE LOOP AUTHORIZED — S19 Option A approved by Bee
-Audit State: implementation commit 95927a5e remains FAIL per Entry 060; Bee
-approved the upstream-aligned single-ProviderChoice correction, minimum History
-registration touch, actual fit fallback, and static-check/document corrections
-Next: Claude creates one additive corrective commit from the Entry 061
-governance commit and stops for Codex re-audit
+Status: M4 CORRECTIVE COMMIT CREATED — awaiting Codex re-audit
+Audit State: initial implementation commit 95927a5e was FAIL per Entry 060;
+Bee approved S19 Option A in Entry 061; Claude created the additive corrective
+commit (Entry 062) addressing all six findings — single ProviderChoice +
+DynamicOptionsProvider, ViewThatFits fit fallback, S19 registration isolation,
+test count 13, docs/widgets.md updated
+Next: Codex re-audits the complete M4 diff and records PASS/FAIL; Bee decides
+merge or moving to M5
 Implementation Owner: Claude / GLM Developer
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
