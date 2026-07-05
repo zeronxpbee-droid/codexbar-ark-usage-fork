@@ -11,15 +11,13 @@ M4 — Ark Widget Provider Picker + Small/Medium UI
 ## Goal Status
 
 ```text
-Status: M4 CORRECTIVE LOOP 2 COMMIT CREATED — awaiting Codex mechanical gate
-Audit State: Entry 063 found DynamicOptionsProvider API errors (static results,
-.self metatype) and 12 multiline_arguments violations; Entry 064 approved
-token-efficient two-stage handoff; Claude corrective commit (Entry 065) fixes
-all three findings — instance results(), ExcludingArkOptionsProvider() instance,
-removed UsageProviderOptionsProvider, one-param-per-line lint fix
-Next: Codex runs mechanical gate (git diff --check, SwiftFormat --lint,
-SwiftLint --strict --no-cache, swift build, focused tests); if all pass,
-proceed to judgment audit
+Status: M4 CODE AUDIT PASS — runtime Widget visual QA blocked by synced-folder packaging
+Audit State: a711f4b7 passes the complete mechanical gate and judgment/source
+audit; make check also passes. Debug app/Widget packaging reaches signing but
+fails on Google Drive resource-fork metadata, so Small/Medium runtime visual
+proof remains open (see PROJECT_LOG Entry 066)
+Next: no Claude code change. Codex/Bee packages from a non-synced workspace and
+captures Small/Medium Ark Widget proof before final M4 acceptance
 Implementation Owner: Claude / GLM Developer
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
@@ -147,13 +145,8 @@ Codex may:
 
 Claude / GLM may:
 
-- Modify only:
-  - `Sources/CodexBarWidget/CodexBarWidgetProvider.swift`;
-  - `Tests/CodexBarTests/CodexBarWidgetProviderTests.swift`;
-  - `docs/TASKS.md`;
-  - `docs/PROJECT_LOG.md`.
-- Preserve the accepted S7 ViewThatFits and S19 Bundle changes unchanged.
-- Create one additive local corrective commit and stop for Codex re-audit.
+- Make no further M4 product/test changes unless runtime QA exposes a
+  reproducible product defect.
 
 ## Forbidden Scope
 
@@ -168,37 +161,16 @@ Claude / GLM may:
 - No push, PR, merge, release, destructive operation, or history rewrite
   without Bee approval.
 
-## Next Task — Claude M4 Corrective Loop 2
+## Next Task — M4 Runtime Visual QA Gate
 
-1. Re-read LOOP, upstream baseline rules, and Entry 063. Confirm HEAD is the
-   Entry 063 audit documentation commit (whose parent is `d5deddbc`) and the
-   worktree/index are clean.
-2. Remove the unnecessary `UsageProviderOptionsProvider` and restore
-   `ProviderSelectionIntent` to its original parameter initializer; the single
-   `ProviderChoice` AppEnum already exposes all cases, including Ark.
-3. Make `ExcludingArkOptionsProvider.results()` an instance method, pass
-   `ExcludingArkOptionsProvider()` (not `.self`) to the History and Metric
-   `@Parameter` initializers, and update its focused test to call an instance.
-   Preserve the existing Metric intent and `ProviderChoice` parameter type.
-4. Fix all 12 `multiline_arguments` findings in
-   `arkFourWindowEntry()` by putting every initializer argument on its own
-   line.
-5. Do not change `CodexBarWidgetViews.swift`,
-   `CodexBarWidgetBundle.swift`, `docs/widgets.md`, M3 schema/snapshot code, or
-   any unrelated provider.
-6. Run the mechanical handoff gate only:
-   - `git diff --check`;
-   - project-pinned SwiftFormat `--lint` and SwiftLint `--strict --no-cache`
-     on the two changed Swift files;
-   - `swift build`;
-   - `swift test --filter CodexBarWidgetProviderTests`;
-   - `swift test --filter Ark`.
-   Stop at the first code-owned failure. Do not rerun the unchanged external
-   KeyboardShortcuts `make test` blocker in this corrective loop.
-7. Create one additive local commit. No amend/reset/rebase/temporary index,
-   push, PR, merge, M5, or release.
-8. Send Codex only the commit SHA, parent SHA, changed files, command/result
-   matrix, and known limitations. Do not paste the implementation narrative.
+1. Build/package exact HEAD from a non-synced temporary workspace so macOS
+   signing is not contaminated by Google Drive resource-fork metadata.
+2. Validate Ark appears in Usage and static Switcher, but not History/Metric.
+3. Capture Small proof (one highest-risk row) and Medium proof (four stable
+   rows), including fit behavior, detail/reset readability, and updated state.
+4. Record PASS/FAIL compactly. Product/test changes remain frozen unless the
+   runtime evidence exposes a reproducible defect.
+5. No push, PR, merge, M5, or release before final M4 PASS and Bee approval.
 
 ## Definition of Done — M4
 

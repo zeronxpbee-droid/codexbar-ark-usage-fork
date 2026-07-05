@@ -4422,6 +4422,48 @@ Codex runs the mechanical gate (`git diff --check`, SwiftFormat `--lint`,
 SwiftLint `--strict --no-cache`, `swift build`, focused tests). If all pass,
 proceed to judgment audit.
 
+## Entry 066 — M4 Code Audit Passes; Runtime Widget QA Blocked
+
+Date: 2026-07-05
+Actor: Codex
+Type: Review
+Status: CODE PASS / QA BLOCKED
+
+### Active Goal
+
+M4 — Ark Widget Provider Picker + Small/Medium UI
+
+### LOOP Result
+
+Two-stage audit applied to `a711f4b7` (parent `d52d866d`). Mechanical gate was
+fully green before security/scope/compatibility/UI source review began.
+
+### Evidence
+
+| Gate | Result |
+|---|---|
+| Branch/ancestry/scope + `git diff --check` | PASS |
+| SwiftFormat changed files | PASS, 0/2 |
+| SwiftLint changed files | PASS, 0 violations |
+| `swift build` | PASS, 27.46s |
+| Widget focused tests | PASS, 43/43 |
+| Ark focused tests | PASS, 59/59 |
+| `make check` final candidate | PASS, 0/1231 format; 0/1230 lint |
+| Security/scope/compatibility source audit | PASS |
+
+S6/S7/S19 code findings are closed. No secrets/network changes, unrelated
+providers, snapshot schema, or new large-family Ark layout were found. Debug
+packaging reaches signing, then Google Drive resource-fork metadata on Sparkle
+`Downloader.xpc` is rejected. The accepted History reset risk remains
+documented; the unchanged KeyboardShortcuts blocker is referenced from Entry
+063 rather than reproduced.
+
+### Decision / Next Action
+
+M4 product code is frozen and needs no Claude correction. Final acceptance is
+blocked only on Small/Medium runtime visual proof from a non-synced build.
+No push, PR, merge, M5, or release is authorized yet.
+
 ## Entry Template
 
 ```text
