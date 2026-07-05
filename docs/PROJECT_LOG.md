@@ -3553,6 +3553,196 @@ Bee decides whether Codex may push the M3 branch and open its PR, then whether
 it may merge and open M4. No further M3 product change is authorized absent a
 new finding or Bee decision.
 
+## Entry 057 — M3 Merged and M4 Independent Preflight Opened
+
+Date: 2026-07-05
+Actor: Bee (approval) + Codex (repository operation / preflight)
+Type: Milestone Transition / Review
+Status: M3 MERGED / M4 PREFLIGHT BLOCKED ON PRODUCT-ARCHITECTURE DECISION
+
+### Active Goal
+
+M4 — Ark Widget Provider Picker + Small/Medium UI
+
+### LOOP Result
+
+Bee approved the repository/milestone operations offered after Entry 056.
+Codex pushed the exact audited M3 branch, created and verified a ready PR,
+merged it with a merge commit, fast-forwarded local `main`, created the M4
+branch from the exact merge, and performed a read-only independent picker/view
+preflight. No M4 product or test code was written.
+
+### Summary
+
+- Pushed `feature/m3-ark-widget-snapshot` at audit commit `50982297`.
+- Created ready PR #4:
+  `https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/4`.
+- Verified PR #4 was mergeable with merge state CLEAN, correct head/base, and
+  no configured remote status checks.
+- Merged PR #4 with merge commit
+  `9a24cf7356b6cace5fdbaeac5424609093245887`.
+- Fast-forwarded local `main` to the exact merge commit.
+- Created local `feature/m4-ark-widget-picker-ui` from that commit. The M4
+  branch has not been pushed.
+- Advanced durable state to M4 preflight and refined S6/S7 as proposals.
+
+### Preflight Findings
+
+1. **S6 has broader exposure than its old one-line description implied.**
+   `ProviderChoice` is shared by the Usage and History widget intents,
+   `CompactMetricSelectionIntent`, and the static switcher's supported-provider
+   filter/buttons. Adding `.ark` directly exposes Ark in History and Metric,
+   where current snapshots provide no Ark daily history, credits, or cost.
+2. **S7 is required to consume M3.** `WidgetUsageRow` currently copies only
+   id/title/percent and drops `resetsAt`/`detailText`. `UsageBarRow` renders
+   only percentage and a bar.
+3. **Small layout policy is undefined.** Ark has no row limit, so the existing
+   small view would attempt all four rows. Bee must choose highest-risk known
+   row (recommended) or fixed 5h with Daily fallback.
+4. **Medium layout needs an explicit compact contract.** All four rows fit as
+   percentage bars, but complete used/quota/remaining detail plus reset text
+   cannot be assumed to fit without a deliberate presentation policy.
+5. The same views also serve the static Switcher and large family. Existing
+   provider behavior and large scope must remain controlled during M4.
+
+### Files Changed
+
+- `docs/TASKS.md`
+- `docs/M0_INTEGRATION_BOUNDARY.md`
+- `docs/PROJECT_LOG.md`
+
+No source or test file changed in this preflight.
+
+### Evidence
+
+- PR #4 final state: MERGED.
+- PR head: `5098229734dba0e838f698d28b4a2fafb872bb4f`.
+- PR base before merge:
+  `27ec5fa07548b4fd5774b842134344d16fe83205`.
+- Merge commit:
+  `9a24cf7356b6cace5fdbaeac5424609093245887`.
+- Remote M3 branch remains preserved at `50982297`; no branch was deleted.
+- M4 branch base before this governance commit: `9a24cf73`.
+- Source seams inspected:
+  `ProviderChoice`, `ProviderSelectionIntent`,
+  `CompactMetricSelectionIntent`, `CodexBarSwitcherTimelineProvider`,
+  `WidgetUsageRow`, `UsageBarRow`, small/medium Usage/Switcher views, and
+  widget-family registrations.
+- `ProviderChoice(provider: .ark)` still returns nil; no M4 capability is
+  active.
+- Worktree/index were clean before this governance record.
+
+### Issues / Risks
+
+- A shared `.ark` ProviderChoice without restriction creates misleading
+  History/Metric picker options.
+- A four-row small tile is likely crowded; showing every detail/reset line in
+  medium may truncate or displace useful state.
+- S6/S7 are proposed only. No Claude implementation may begin until Bee
+  resolves the picker and layout decisions.
+- The known external `KeyboardShortcuts` Preview macro environment blocker
+  remains relevant for the future M4 test gate.
+
+### Decision
+
+M3 is merged and M4 is open only as an independent preflight. S6/S7 remain
+unapproved implementation scope.
+
+Recommended policy:
+
+- expose Ark in Usage + static Switcher only, not History/Metric;
+- small shows one highest-risk known row with detail and reset where space
+  allows;
+- medium shows all four stable rows, with compact detail/reset presentation
+  constrained by available space.
+
+### Next Action
+
+Bee approves or changes the recommended picker/small/medium policy. Codex then
+registers the exact S6/S7 implementation boundary. Claude must not write M4
+product/test code before that approval.
+
+## Entry 058 — Bee Approves M4 S6/S7 Picker and Layout Policy
+
+Date: 2026-07-05
+Actor: Bee (decision) + Codex (boundary registration)
+Type: Decision / Documentation
+Status: APPROVED / IMPLEMENTATION AUTHORIZED
+
+### Active Goal
+
+M4 — Ark Widget Provider Picker + Small/Medium UI
+
+### LOOP Result
+
+After Entry 057 exposed the shared-picker and row-layout consequences, Bee
+instructed Codex to continue. This approves the recommended Usage/Switcher-only
+picker policy, highest-risk small policy, and stable four-row medium policy.
+The smallest next loop is the exact S6/S7 implementation plus focused model
+tests; no M4 product code was written in this governance step.
+
+### Summary
+
+- S6 is approved:
+  - add Ark to `ProviderChoice` and its display/provider mappings;
+  - make Ark available in CodexBar Usage and the static Switcher;
+  - use intent-specific options filtering so History and Metric exclude Ark;
+  - do not change burn-down choices or rename/split the persisted enum.
+- S7 is approved:
+  - preserve M3 `resetsAt` and opaque `detailText` in Widget row projection;
+  - Small selects one highest-risk known Ark row (lowest remaining percent),
+    with stable tie order and first-row unavailable fallback;
+  - Medium keeps all available Ark rows in stable
+    5h/Daily/Weekly/Monthly order;
+  - compact fit fallbacks may omit lower-priority detail/reset text rather than
+    crowding provider/updated state;
+  - reset display comes only from `resetsAt`; `detailText` is never parsed.
+- Existing non-Ark behavior and large-family layout must remain unchanged.
+- No source, test, dependency, snapshot schema, network, or provider file was
+  changed in this approval loop.
+
+### Files Changed
+
+- `docs/TASKS.md`
+- `docs/M0_INTEGRATION_BOUNDARY.md`
+- `docs/PROJECT_LOG.md`
+
+### Evidence
+
+- Bee replied `继续` after Codex explicitly requested approval of the
+  recommended M4 strategy and permission to retry the governance commit.
+- Entry 057 records the source-level need and exposure risks.
+- `DynamicOptionsProvider`-style intent filtering can preserve the existing
+  `ProviderChoice` raw values while constraining History/Metric choices; exact
+  Swift API syntax remains subject to build verification.
+- M4 branch base:
+  `9a24cf7356b6cace5fdbaeac5424609093245887`.
+
+### Issues / Risks
+
+- Intent-specific options filtering has no existing local precedent and must
+  be validated by compilation and focused tests.
+- SwiftUI fit behavior is layout-sensitive. M4 acceptance must test the stable
+  row-selection/presentation model seams and honestly record any visual
+  verification limits.
+- The known external `KeyboardShortcuts` Preview macro blocker may prevent
+  full `make test` discovery; direct Widget/Ark tests and `make check` remain
+  mandatory.
+
+### Decision
+
+Approve S6/S7 exactly as registered. Claude / GLM may implement the bounded
+M4 slice on `feature/m4-ark-widget-picker-ui` in one additive local commit.
+
+This approval does not authorize push, PR creation/update, merge, M5,
+release, unrelated Widget refactors, or any Ark network/snapshot-schema change.
+
+### Next Action
+
+Codex commits the combined M3 merge/M4 preflight and S6/S7 approval governance
+record. Claude / GLM then implements only the exact scope in `docs/TASKS.md`
+and stops for Codex audit.
+
 ## Entry Template
 
 ```text
