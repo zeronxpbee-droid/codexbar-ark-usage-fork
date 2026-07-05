@@ -252,4 +252,73 @@ struct UsageStoreWidgetSnapshotTests {
         #expect(entry.tokenUsage?.sessionTokens == 4200)
         #expect(entry.tokenUsage?.last30DaysTokens == 42000)
     }
+
+    @Test
+    func `widget snapshot includes ark four window rows via persist path`() async throws {
+        let suite = "UsageStoreWidgetSnapshotTests-ark-four-window"
+        let defaults = try #require(UserDefaults(suiteName: suite))
+        defaults.removePersistentDomain(forName: suite)
+
+        let settings = SettingsStore(
+            userDefaults: defaults,
+            configStore: testConfigStore(suiteName: suite),
+            zaiTokenStore: NoopZaiTokenStore(),
+            syntheticTokenStore: NoopSyntheticTokenStore())
+        settings.statusChecksEnabled = false
+        settings.usageBarsShowUsed = true
+
+        let store = UsageStore(
+            fetcher: UsageFetcher(environment: [:]),
+            browserDetection: BrowserDetection(cacheTTL: 0),
+            settings: settings)
+
+        let resetDate = Date(timeIntervalSince1970: 1_742_771_200 + 3600)
+        let detailText = "100 / 500 AFP · 400 remaining"
+        let snapshot = UsageSnapshot(
+            primary: RateWindow(
+                usedPercent: 20, windowMinutes: nil, resetsAt: resetDate, resetDescription: detailText),
+            secondary: RateWindow(
+                usedPercent: 30, windowMinutes: nil, resetsAt: resetDate, resetDescription: detailText),
+            tertiary: RateWindow(
+                usedPercent: 40, windowMinutes: nil, resetsAt: resetDate, resetDescription: detailText),
+            extraRateWindows: [
+                NamedRateWindow(
+                    id: "ark-afp-monthly",
+                    title: "Monthly",
+                    window: RateWindow(
+                        usedPercent: 10, windowMinutes: nil, resetsAt: resetDate, resetDescription: detailText),
+                    usageKnown: true),
+            ],
+            updatedAt: Date(),
+            identity: ProviderIdentitySnapshot(
+                providerID: .ark,
+                accountEmail: nil,
+                accountOrganization: nil,
+                loginMethod: nil))
+
+        store._setSnapshotForTesting(snapshot, provider: .ark)
+
+        var widgetSnapshots: [WidgetSnapshot] = []
+        store._test_widgetSnapshotSaveOverride = { widgetSnapshots.append($0) }
+        defer { store._test_widgetSnapshotSaveOverride = nil }
+
+        store.persistWidgetSnapshot(reason: "ark-four-window-test")
+        await store.widgetSnapshotPersistTask?.value
+
+        let entry = try #require(widgetSnapshots.last?.entries.first { $0.provider == .ark })
+        let rows = try #require(entry.usageRows)
+        #expect(rows.count == 4)
+        #expect(rows.map(\.id) == ["ark-afp-5h", "ark-afp-daily", "ark-afp-weekly", "ark-afp-monthly"])
+        #expect(rows.map(\.title) == ["5h", "Daily", "Weekly", "Monthly"])
+        // remainingPercent = 100 - usedPercent
+        #expect(rows[0].percentLeft == 80)
+        #expect(rows[1].percentLeft == 70)
+        #expect(rows[2].percentLeft == 60)
+        #expect(rows[3].percentLeft == 90)
+        // S18 fields: real reset date and M2 opaque detail string preserved.
+        for row in rows {
+            #expect(row.resetsAt == resetDate)
+            #expect(row.detailText == detailText)
+        }
+    }
 }
