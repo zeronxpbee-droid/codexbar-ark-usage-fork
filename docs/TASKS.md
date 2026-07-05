@@ -11,13 +11,15 @@ M4 — Ark Widget Provider Picker + Small/Medium UI
 ## Goal Status
 
 ```text
-Status: M4 RE-AUDIT FAIL — bounded corrective commit required
-Audit State: d5deddbc correctly removes duplicate provider enums and adds the
-approved ViewThatFits/S19 structure, but the DynamicOptionsProvider API usage
-does not compile and make check still reports 12 serious lint violations (see
-PROJECT_LOG Entry 063)
-Next: Claude creates one additive corrective commit from the Entry 063 audit
-documentation commit and stops for Codex re-audit; no new Bee decision needed
+Status: M4 CORRECTIVE LOOP 2 COMMIT CREATED — awaiting Codex mechanical gate
+Audit State: Entry 063 found DynamicOptionsProvider API errors (static results,
+.self metatype) and 12 multiline_arguments violations; Entry 064 approved
+token-efficient two-stage handoff; Claude corrective commit (Entry 065) fixes
+all three findings — instance results(), ExcludingArkOptionsProvider() instance,
+removed UsageProviderOptionsProvider, one-param-per-line lint fix
+Next: Codex runs mechanical gate (git diff --check, SwiftFormat --lint,
+SwiftLint --strict --no-cache, swift build, focused tests); if all pass,
+proceed to judgment audit
 Implementation Owner: Claude / GLM Developer
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT

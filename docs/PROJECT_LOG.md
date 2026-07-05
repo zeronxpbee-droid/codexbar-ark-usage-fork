@@ -4348,6 +4348,80 @@ acceptance bar; Codex converted the policy into durable workflow rules only.
 Codex commits this governance update. Claude receives only the compact TASKS
 handoff and performs the mechanical corrective loop.
 
+## Entry 065 — Claude M4 Corrective Loop 2 (API + Lint Fix)
+
+Date: 2026-07-05
+Actor: Claude
+Type: Development
+Status: CREATED
+
+### Active Goal
+
+M4 — Ark Widget Provider Picker + Small/Medium UI (corrective loop 2 per Entry
+063 findings and Entry 064 handoff rules).
+
+### LOOP Result
+
+Bounded mechanical corrective loop. Codex was Evaluator (Entry 063); Claude was
+Generator. Applied the eight TASKS steps exactly; no judgment scope added.
+
+### Summary
+
+Fixed all three Entry 063 findings:
+
+1. **[P1] DynamicOptionsProvider API**: `results()` changed from `static func`
+   to instance `func`. `@Parameter(optionsProvider:)` now passes
+   `ExcludingArkOptionsProvider()` (instance) instead of `.self` (metatype).
+2. **[P2] Removed `UsageProviderOptionsProvider`**: `ProviderSelectionIntent`
+   restored to `@Parameter(title: "Provider", default: .codex)` — the
+   `ProviderChoice` AppEnum already exposes all cases including `.ark`.
+3. **[P1] `multiline_arguments`**: all 4 `WidgetUsageRowSnapshot` initializers
+   in `arkFourWindowEntry()` split to one parameter per line (12 violations
+   resolved). Removed the `usage provider options include ark` test (provider
+   no longer exists); updated `excluding ark options provider omits ark` to
+   call `ExcludingArkOptionsProvider().results()`.
+
+### Files Changed
+
+- `Sources/CodexBarWidget/CodexBarWidgetProvider.swift`
+- `Tests/CodexBarTests/CodexBarWidgetProviderTests.swift`
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| `git diff --check` | PASS |
+| Long lines (>120, Swift) | None |
+| Multiline args residual | None |
+| M4 `@Test` count | 12 |
+| Total `@Test` count | 43 |
+| Diff stat | 2 files, +27, -32 |
+| `swift build` | Not run (no Swift toolchain in sandbox) |
+| `swift test --filter CodexBarWidgetProviderTests` | Not run (same) |
+| `swift test --filter Ark` | Not run (same) |
+| SwiftFormat `--lint` | Not run (same) |
+| SwiftLint `--strict --no-cache` | Not run (same) |
+
+### Issues / Risks
+
+- No local Swift toolchain; all mechanical gates requiring build/test/lint
+  deferred to Codex on macOS.
+- `ViewThatFits` runtime Widget visual proof still required before final M4
+  acceptance (per Entry 063).
+- KeyboardShortcuts `make test` blocker unchanged; not reproduced this loop
+  per Entry 064 policy.
+
+### Decision
+
+Claude creates one additive local corrective commit and stops for Codex
+re-audit. No push, PR, merge, M5, release, or history rewrite.
+
+### Next Action
+
+Codex runs the mechanical gate (`git diff --check`, SwiftFormat `--lint`,
+SwiftLint `--strict --no-cache`, `swift build`, focused tests). If all pass,
+proceed to judgment audit.
+
 ## Entry Template
 
 ```text

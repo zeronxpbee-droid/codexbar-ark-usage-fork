@@ -116,25 +116,15 @@ enum ProviderChoice: String, AppEnum {
     }
 }
 
-/// M4 S6: Dynamic options provider for Usage Widget and Switcher.
-///
-/// Returns all `ProviderChoice` cases (including `.ark`) so the Usage Widget
-/// picker offers Ark. Uses AppIntents' `DynamicOptionsProvider` with
-/// `optionsProvider` on the `@Parameter` initializer — the SDK-supported way
-/// to filter `AppEnum` options per intent.
-struct UsageProviderOptionsProvider: DynamicOptionsProvider {
-    static func results() async throws -> [ProviderChoice] {
-        ProviderChoice.allCases
-    }
-}
-
 /// M4 S6: Dynamic options provider that excludes `.ark`.
 ///
 /// Used by History and Metric Widget intents where Ark has no data to display.
 /// Keeps the existing `ProviderChoice` parameter type so persisted
 /// configurations remain compatible; only the picker option list is filtered.
+/// `results()` is an instance method per the `DynamicOptionsProvider` protocol
+/// contract; `@Parameter(optionsProvider:)` receives a provider instance.
 struct ExcludingArkOptionsProvider: DynamicOptionsProvider {
-    static func results() async throws -> [ProviderChoice] {
+    func results() async throws -> [ProviderChoice] {
         ProviderChoice.allCases.filter { $0 != .ark }
     }
 }
@@ -157,7 +147,7 @@ struct ProviderSelectionIntent: AppIntent, WidgetConfigurationIntent {
     static let title: LocalizedStringResource = "Provider"
     static let description = IntentDescription("Select the provider to display in the widget.")
 
-    @Parameter(title: "Provider", default: .codex, optionsProvider: UsageProviderOptionsProvider.self)
+    @Parameter(title: "Provider", default: .codex)
     var provider: ProviderChoice
 
     init() {
@@ -174,7 +164,7 @@ struct HistoryProviderSelectionIntent: AppIntent, WidgetConfigurationIntent {
     static let title: LocalizedStringResource = "Provider"
     static let description = IntentDescription("Select the provider to display in the history widget.")
 
-    @Parameter(title: "Provider", default: .codex, optionsProvider: ExcludingArkOptionsProvider.self)
+    @Parameter(title: "Provider", default: .codex, optionsProvider: ExcludingArkOptionsProvider())
     var provider: ProviderChoice
 
     init() {
@@ -206,7 +196,7 @@ struct CompactMetricSelectionIntent: AppIntent, WidgetConfigurationIntent {
     static let title: LocalizedStringResource = "Provider + Metric"
     static let description = IntentDescription("Select the provider and metric to display.")
 
-    @Parameter(title: "Provider", default: .codex, optionsProvider: ExcludingArkOptionsProvider.self)
+    @Parameter(title: "Provider", default: .codex, optionsProvider: ExcludingArkOptionsProvider())
     var provider: ProviderChoice
 
     @Parameter(title: "Metric", default: .credits)

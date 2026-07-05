@@ -617,15 +617,8 @@ struct CodexBarWidgetProviderTests {
     }
 
     @Test
-    func `usage provider options include ark`() async throws {
-        let options = try await UsageProviderOptionsProvider.results()
-        #expect(options.contains(.ark))
-        #expect(options.count == ProviderChoice.allCases.count)
-    }
-
-    @Test
     func `excluding ark options provider omits ark`() async throws {
-        let options = try await ExcludingArkOptionsProvider.results()
+        let options = try await ExcludingArkOptionsProvider().results()
         #expect(!options.contains(.ark))
         #expect(options.count == ProviderChoice.allCases.count - 1)
     }
@@ -810,17 +803,29 @@ struct CodexBarWidgetProviderTests {
             tertiary: nil,
             usageRows: [
                 WidgetSnapshot.WidgetUsageRowSnapshot(
-                    id: "ark-afp-5h", title: "5h", percentLeft: 80,
-                    resetsAt: self.arkResetDate, detailText: self.arkDetailText),
+                    id: "ark-afp-5h",
+                    title: "5h",
+                    percentLeft: 80,
+                    resetsAt: self.arkResetDate,
+                    detailText: self.arkDetailText),
                 WidgetSnapshot.WidgetUsageRowSnapshot(
-                    id: "ark-afp-daily", title: "Daily", percentLeft: 70,
-                    resetsAt: self.arkResetDate, detailText: self.arkDetailText),
+                    id: "ark-afp-daily",
+                    title: "Daily",
+                    percentLeft: 70,
+                    resetsAt: self.arkResetDate,
+                    detailText: self.arkDetailText),
                 WidgetSnapshot.WidgetUsageRowSnapshot(
-                    id: "ark-afp-weekly", title: "Weekly", percentLeft: 60,
-                    resetsAt: self.arkResetDate, detailText: self.arkDetailText),
+                    id: "ark-afp-weekly",
+                    title: "Weekly",
+                    percentLeft: 60,
+                    resetsAt: self.arkResetDate,
+                    detailText: self.arkDetailText),
                 WidgetSnapshot.WidgetUsageRowSnapshot(
-                    id: "ark-afp-monthly", title: "Monthly", percentLeft: 90,
-                    resetsAt: self.arkResetDate, detailText: self.arkDetailText),
+                    id: "ark-afp-monthly",
+                    title: "Monthly",
+                    percentLeft: 90,
+                    resetsAt: self.arkResetDate,
+                    detailText: self.arkDetailText),
             ],
             creditsRemaining: nil,
             codeReviewRemainingPercent: nil,
