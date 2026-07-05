@@ -5,11 +5,32 @@ public struct WidgetSnapshot: Codable, Sendable {
         public let id: String
         public let title: String
         public let percentLeft: Double?
+        /// Real reset date for this window, when the provider reports one.
+        ///
+        /// M3 S18: backward-compatible optional field. Old snapshots that lack
+        /// this key decode to `nil`; new snapshots omit it when the provider
+        /// does not report a reset date.
+        public let resetAt: Date?
+        /// Opaque, display-only detail string (e.g. Ark's M2 complete
+        /// `used / quota AFP · remaining remaining` text).
+        ///
+        /// M3 S18: backward-compatible optional field. Consumers must never
+        /// parse this string back into numeric values. Old snapshots that lack
+        /// this key decode to `nil`.
+        public let detailText: String?
 
-        public init(id: String, title: String, percentLeft: Double?) {
+        public init(
+            id: String,
+            title: String,
+            percentLeft: Double?,
+            resetAt: Date? = nil,
+            detailText: String? = nil)
+        {
             self.id = id
             self.title = title
             self.percentLeft = percentLeft
+            self.resetAt = resetAt
+            self.detailText = detailText
         }
     }
 

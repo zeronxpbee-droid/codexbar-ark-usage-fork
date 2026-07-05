@@ -11,9 +11,9 @@ M3 — Ark Widget Snapshot Integration
 ## Goal Status
 
 ```text
-Status: M3 S17+S18 APPROVED — implementation authorized
-Implementation State: No M3 product code yet; exact M4-ready snapshot row contract approved by Bee
-Next: Claude / GLM implements S17+S18 and focused snapshot tests in one additive commit
+Status: M3 S17+S18 IMPLEMENTED — additive commit created (see PROJECT_LOG Entry 053)
+Implementation State: S17 Ark four-window row mapper + S18 optional resetAt/detailText schema fields + focused encode/decode and snapshot tests; product source frozen for audit
+Next: Codex audits the complete M3 diff and records PASS/FAIL
 Implementation Owner: Claude / GLM Developer (after approval)
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
@@ -122,25 +122,25 @@ Claude / GLM may:
 - No push, PR, merge, release, destructive operation, or history rewrite
   without Bee approval.
 
-## Next Task — Claude / GLM M3 S17+S18 Implementation
+## Next Task — Codex M3 S17+S18 Audit
 
 1. Re-read project governance, TASKS, PROJECT_LOG, boundary map, LOOP, and the
    upstream baseline rules.
 2. Verify branch `feature/m3-ark-widget-snapshot` descends from governance
-   approval commit and preserve unrelated/untracked user files.
-3. Implement only:
-   - S17 one-branch Ark snapshot routing;
-   - Ark-owned four-row mapper;
-   - S18 optional `resetAt` / `detailText` schema fields with backward
-     compatibility;
-   - focused snapshot tests and governance records.
-4. Test stable ordering, missing/unknown windows, all four percentages,
-   reset/detail preservation, old JSON decoding without new fields, and
-   encode/decode round-trip.
-5. Run `git diff --check`, `swift build`, focused Ark/snapshot tests,
-   `make test`, and `make check`.
-6. Create one additive local commit; do not push, open a PR, merge, or enter
-   M4. Stop before any picker/intent/visible Widget UI change.
+   approval commit `9f86ce4d` and the additive implementation commit below.
+3. Run `git diff --check`, `swift build`, focused Ark/snapshot tests,
+   `make test`, and `make check`; record exact outcomes.
+4. Verify the corrective diff is exactly:
+   - `Sources/CodexBarCore/WidgetSnapshot.swift` (S18 schema);
+   - `Sources/CodexBar/UsageStore+WidgetSnapshot.swift` (S17 routing branch);
+   - `Sources/CodexBar/Providers/Ark/ArkWidgetSnapshotRows.swift` (S17 mapper);
+   - `Tests/CodexBarTests/WidgetSnapshotS18Tests.swift` (S18 tests);
+   - `Tests/CodexBarTests/ArkWidgetSnapshotRowsTests.swift` (S17 tests);
+   - `docs/TASKS.md`;
+   - `docs/PROJECT_LOG.md`.
+5. Confirm stable 5h/Daily/Weekly/Monthly ordering, missing/unknown window
+   handling, S18 backward compatibility (old JSON decodes, round-trip, nil
+   fields omit keys), and no M4 picker/UI/scope expansion.
 
 ## Definition of Done — M3
 

@@ -106,6 +106,9 @@ extension UsageStore {
         snapshot: UsageSnapshot) -> [WidgetSnapshot.WidgetUsageRowSnapshot]
     {
         let metadata = ProviderDefaults.metadata[provider]
+        if provider == .ark {
+            return ArkWidgetSnapshotRows.rows(from: snapshot)
+        }
         if provider == .codex {
             let projection = self.codexConsumerProjection(
                 surface: .widget,

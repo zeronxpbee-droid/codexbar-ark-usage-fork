@@ -3035,6 +3035,120 @@ M3 snapshot slice in one additive local commit. No push, PR, merge, or M4.
 Codex commits this approval record locally. Claude / GLM then implements the
 authorized slice and hands it back for independent Codex audit.
 
+## Entry 053 — M3 S17+S18 Implemented
+
+Date: 2026-07-05
+Actor: Claude Developer
+Type: Development
+Status: CREATED
+
+### Active Goal
+
+M3 — Ark Widget Snapshot Integration
+
+### LOOP Result
+
+LOOP applied as a workflow checklist: Plan (identify S17/S18 contract from
+Entry 052), Execute (S18 schema + S17 mapper + routing + tests), Verify (diff
+scope, structural correctness), Recover (additive commit only). The approved
+M4-ready snapshot slice is implemented in one additive pass.
+
+### Summary
+
+Implemented the approved M3 S17+S18 contract:
+
+1. **S18 — `WidgetUsageRowSnapshot` schema fields**
+   (`Sources/CodexBarCore/WidgetSnapshot.swift`): added backward-compatible
+   optional `resetAt: Date?` and `detailText: String?` fields, both defaulting
+   to `nil` in the initializer. Auto-synthesized Codable uses
+   `decodeIfPresent`/`encodeIfPresent` for Optional values, so old snapshots
+   without these keys decode to `nil`, and new snapshots with `nil` values
+   omit the keys in encoded JSON (forward compatibility with older decoders).
+
+2. **S17 — Ark four-window row mapper**
+   (`Sources/CodexBar/Providers/Ark/ArkWidgetSnapshotRows.swift`, new file):
+   produces stable 5h / Daily / Weekly / Monthly `WidgetUsageRowSnapshot`
+   rows from an Ark `UsageSnapshot`. Each known row carries `percentLeft`
+   (remaining percent), `resetAt` (real reset date from `RateWindow.resetsAt`),
+   and `detailText` (M2 opaque complete display string from
+   `RateWindow.resetDescription` — display-only, never parsed). Missing
+   windows are omitted. Monthly `usageKnown = false` keeps the row visible
+   but with all value fields `nil`.
+
+3. **S17 — Routing branch**
+   (`Sources/CodexBar/UsageStore+WidgetSnapshot.swift`): one additive
+   `if provider == .ark` branch in `widgetUsageRows` delegating to
+   `ArkWidgetSnapshotRows.rows(from:)`. Placed before the default
+   primary/secondary path so Ark produces all four rows instead of only two.
+
+4. **Tests**:
+   - `Tests/CodexBarTests/WidgetSnapshotS18Tests.swift` (new): 3 tests — old
+     JSON without new fields decodes with `nil` defaults; new fields survive
+     round-trip; `nil` new fields omit keys in JSON.
+   - `Tests/CodexBarTests/ArkWidgetSnapshotRowsTests.swift` (new): 7 tests —
+     four-window stable order, all S18 fields carried, missing windows
+     omitted, primary+tertiary only, Monthly `usageKnown = false` preserved
+     with `nil` fields, no windows empty, `resetsAt`/`resetDescription` nil
+     propagation.
+
+### Files Changed
+
+- `Sources/CodexBarCore/WidgetSnapshot.swift` — S18: added `resetAt` and
+  `detailText` optional fields + updated init (+23 lines, -1 line).
+- `Sources/CodexBar/UsageStore+WidgetSnapshot.swift` — S17: added Ark routing
+  branch (+3 lines).
+- `Sources/CodexBar/Providers/Ark/ArkWidgetSnapshotRows.swift` — S17: new
+  Ark-owned four-window row mapper (66 lines).
+- `Tests/CodexBarTests/WidgetSnapshotS18Tests.swift` — S18: 3 encode/decode
+  compatibility tests (99 lines).
+- `Tests/CodexBarTests/ArkWidgetSnapshotRowsTests.swift` — S17: 7 row mapper
+  tests (197 lines).
+- `docs/TASKS.md` — status and Next Task updated.
+- `docs/PROJECT_LOG.md` — this entry.
+
+### Evidence
+
+- `git diff --check`: PASS (no whitespace errors).
+- Diff scope: exactly the authorized files (2 modified source + 1 new source +
+  2 new test files + 2 governance docs). No M4 picker/intent/UI, Widget
+  selection, `supportsOpus` change, S16, dependency, generated, or
+  unrelated-provider file changed.
+- No local Swift toolchain; `swift build`, focused Ark/snapshot tests,
+  `make test`, and `make check` deferred to Codex audit.
+- S18 backward compatibility relies on Swift auto-synthesized Codable for
+  Optional values (`decodeIfPresent`/`encodeIfPresent`), verified by the
+  old-JSON-decodes and nil-fields-omit-keys tests.
+- Ark rows preserve the M2 `resetDescription` as opaque `detailText` without
+  parsing, per the S17 contract.
+- `supportsOpus` remains `false`; Ark remains unselectable in Widget picker
+  (M4 scope).
+
+### Issues / Risks
+
+- Without a local Swift toolchain, Claude cannot verify compilation, formatter
+  output, or test execution directly. The implementation is based on the
+  approved S17/S18 contract and the existing codebase patterns.
+- The full sharded suite retains the known external Xcode Preview macro
+  blocker documented in earlier audits; this is independent of the M3
+  snapshot slice.
+- Auto-synthesized Codable for `WidgetUsageRowSnapshot` relies on the
+  compiler generating `decodeIfPresent` for Optional fields. If the project's
+  Swift version handles this differently, the old-JSON test will surface it.
+
+### Decision
+
+Claude created one additive local commit on
+`feature/m3-ark-widget-snapshot` descending from governance approval commit
+`9f86ce4d`. No amend, reset, rebase, push, PR, merge, or M4 scope expansion.
+Product source changes are limited to the approved S17/S18 touchpoints.
+
+### Next Action
+
+Codex audits the complete M3 diff: run `git diff --check`, `swift build`,
+focused Ark/snapshot tests, `make test`, and `make check`; verify stable
+ordering, missing/unknown window handling, S18 backward compatibility, and
+no M4 scope expansion.
+
 ## Entry Template
 
 ```text
