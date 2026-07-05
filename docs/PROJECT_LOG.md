@@ -2302,6 +2302,134 @@ source, amend, reset, rebase, or push.
 
 Codex re-audits. If green, M2 implementation is accepted.
 
+## Entry 045 — M2 S15 Test-Only Correction Re-Audit
+
+Date: 2026-07-05
+Actor: Codex
+Type: Review
+Status: FAIL
+
+### Active Goal
+
+M2 — Ark Popover Details
+
+### LOOP Result
+
+Re-audited additive test-only commit
+`5df12942e8004ba4d6924f180def9d122123f6b8` against Entry 043's two
+findings, the exact three-file correction boundary, the approved S15 design,
+and the M2 Definition of Done. Required evidence was direct additive ancestry,
+a clean real index/worktree, pinned formatting, full build, compiling and
+passing Ark/menu-card tests, full repository gates, preserved stale/error
+coverage, and no product-scope expansion. Codex changed no product or test
+source.
+
+### Summary
+
+The stale test now contains the requested visible-state assertions, and the
+complete App/Core/CLI/Widget build passes. Acceptance still fails because the
+test-only correction does not pass the pinned formatter and the Ark test
+target does not compile.
+
+The two helper calls changed from bare names to `Self.` are still wrong for
+the repository's combined `redundantSelf` / `redundantStaticSelf` rules: the
+pinned formatter mechanically changes them to lowercase `self.` inside static
+methods. Separately, every instance `@Test` method still calls static helpers
+such as `arkWindow`, `makeSnapshot`, and `makeModel` without `Self.`, which
+Swift 6 rejects before any Ark test can execute.
+
+Claude again left three zero-byte lock artifacts: `index.lock`, `HEAD.lock`,
+and `objects/maintenance.lock`. Codex confirmed the three changed
+working-tree, real-index, and HEAD blobs all matched commit `5df12942`, found
+no repository-writing Git process, and removed only the orphan locks. No
+index synchronization was necessary.
+
+### Files Reviewed
+
+- `Tests/CodexBarTests/ArkPopoverMetricsTests.swift`
+- `docs/TASKS.md`
+- `docs/PROJECT_LOG.md`
+- Complete M2 diff from merge baseline `239e4272`.
+- Complete fork diff from upstream baseline `6ab1cbb7`.
+
+### Evidence
+
+- Branch: `feature/m2-ark-popover-details`.
+- Reviewed commit:
+  `5df12942e8004ba4d6924f180def9d122123f6b8`.
+- Direct parent:
+  `d32c06c5411af02b64d1c93beed2d309776ff325`.
+- `git diff --check d32c06c5..5df12942`: PASS.
+- Corrective scope is exactly the authorized test file plus
+  `docs/TASKS.md` and `docs/PROJECT_LOG.md`; no product, S15 router, Widget,
+  CLI, native-menu, Preferences, S16, dependency, generated, or
+  unrelated-provider file changed.
+- Native `swift build`: PASS (`Build complete!`, 21.63 seconds), including
+  App, Core, CLI, and Widget products.
+- `make check`: FAIL after all portable checks passed. Pinned SwiftFormat
+  reports both `redundantSelf` and `redundantStaticSelf` at test lines 69 and
+  81. A diagnostic formatter run on a `/private/tmp` copy changed only:
+  - `Self.makeIdentity()` to `self.makeIdentity()`;
+  - `Self.metadata` to `self.metadata`.
+  The diagnostic copy was not applied to the repository.
+- Native `swift test --filter Ark`: FAIL while compiling
+  `ArkPopoverMetricsTests.swift`; no Ark test executed. Swift 6 reports
+  repeated `static member ... cannot be used on instance` errors for the
+  unqualified `arkWindow`, `makeSnapshot`, and `makeModel` calls in instance
+  test methods. Key-path and subtitle-style inference errors are cascading
+  consequences of the unresolved model construction.
+- The requested stale assertions are present:
+  `subtitleStyle == .info` and `subtitleText.hasPrefix("Updated")`, while
+  cached metrics are also asserted. They remain unexecuted because the test
+  file does not compile.
+- `make test`: environment-blocked during `swift test list` by the unchanged
+  external `KeyboardShortcuts` `PreviewsMacros.SwiftUIView` plugin-loading
+  failure recorded in M1 and earlier M2 audits. This blocker is independent
+  of the direct Ark test compilation failure.
+- A separate relevant menu-card filter was not run because
+  `swift test --filter Ark` already compiles the same complete test target and
+  deterministically fails before test selection.
+- Static scope/security review found no new product behavior, real AK/SK,
+  Authorization, signature, RequestId, raw response, account identifier,
+  committed config, real network test, functional Widget behavior, or
+  unrelated-provider change.
+
+### Findings
+
+1. **[P1] Make the Ark popover test file compile and pass pinned
+   SwiftFormat.** Inside static helper methods, use the formatter-required
+   lowercase `self.` calls. Inside instance `@Test` methods, qualify all static
+   helper/property references with `Self.` (or apply an equivalently small
+   test-only restructuring). Run the pinned formatter, then compile the test
+   target; formatting alone is not sufficient.
+
+2. **[P1] Preserve and execute the stale/error assertions.** The visible
+   `Updated …` / `.info` assertions now express the correct requirement, but
+   they do not provide evidence until the test target compiles and the Ark
+   suite passes. Do not weaken or remove them while fixing helper access.
+
+### Issues / Risks
+
+- No Ark or M2 popover test executed on the reviewed commit, so further test
+  failures may surface after the compile errors are fixed.
+- The full sharded suite retains the known external Xcode Preview macro
+  blocker and must be retried on the next additive correction.
+
+### Decision
+
+FAIL. Do not push, open a PR, merge, or enter M3 for commit `5df12942`.
+
+Claude / GLM may create one additive test-only correction plus task/log
+records within the exact three-file scope in `docs/TASKS.md`. Product source
+remains frozen; no amend, reset, rebase, temporary-index workaround, or scope
+expansion is authorized.
+
+### Next Action
+
+Claude / GLM fixes findings 1–2, runs the required formatter/build/test/check
+commands, records exact outcomes, and creates one additive local commit.
+Codex then re-audits.
+
 ## Entry Template
 
 ```text

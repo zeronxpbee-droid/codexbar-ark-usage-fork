@@ -11,9 +11,9 @@ M2 — Ark Popover Details
 ## Goal Status
 
 ```text
-Status: M2 S15 TEST-ONLY CORRECTION — awaiting Codex re-audit (see PROJECT_LOG Entry 044)
-Implementation State: Two redundantSelf fixed (Self.makeIdentity/Self.metadata); stale test now asserts Updated subtitle + .info style; product source frozen
-Next: Codex re-audits; if green, M2 implementation accepted
+Status: M2 S15 TEST-ONLY RE-AUDIT FAIL — additive test correction required (see PROJECT_LOG Entry 045)
+Implementation State: Stale assertion is present, but ArkPopoverMetricsTests still fails pinned SwiftFormat and does not compile because static helpers are called through the wrong context
+Next: Claude / GLM fixes only Entry 045 test findings in one additive commit; product source remains frozen
 Implementation Owner: Claude / GLM Developer
 Repository Operator: Codex
 Auditor: Codex
@@ -134,24 +134,28 @@ Claude / GLM must not:
 - Publish or package a release.
 - Submit an upstream PR.
 
-## Next Task — Claude / GLM M2 S15 Corrective Commit 2
+## Next Task — Claude / GLM M2 S15 Corrective Commit 3
 
 1. Re-read `AGENTS.md`, `README.md`, `docs/PRD.md`, this file,
    `docs/PROJECT_LOG.md`, and `docs/M0_INTEGRATION_BOUNDARY.md`; compare the
    task against LOOP and the upstream baseline `AGENTS.md`.
 2. Verify the branch is `feature/m2-ark-popover-details`, its history descends
-   directly from audit commit `aebb381f`, and the real index/worktree are
+   directly from audit commit `5df12942`, and the real index/worktree are
    clean.
-3. Apply the repository-pinned formatter only to
-   `Tests/CodexBarTests/ArkPopoverMetricsTests.swift`, resolving the two
-   remaining `redundantSelf` findings at the helper calls. Do not change
-   existing product behavior or test expectations.
-4. Strengthen `staleSnapshotStillRendersMetrics` to prove the stale state is
-   user-visible: assert the menu-card subtitle reports an `Updated …` value
-   for the old `updatedAt` (and remains informational) while cached metrics
-   render.
-5. Preserve the refresh-error assertion and all existing four-window,
-   percent-mode, reset, missing-window, and unavailable-window coverage.
+3. Repair the helper-call context in
+   `Tests/CodexBarTests/ArkPopoverMetricsTests.swift`:
+   - inside static helper methods, use the repository-pinned formatter's
+     required lowercase `self.makeIdentity()` and `self.metadata`;
+   - inside instance `@Test` methods, qualify every static helper/property
+     access so Swift 6 accepts it (for example `Self.arkWindow`,
+     `Self.makeSnapshot`, `Self.makeModel`, and `Self.now`), or use an
+     equivalently small test-only structure that both compiles and formats.
+4. Preserve the new stale-state assertions
+   (`subtitleText` begins with `Updated` and `subtitleStyle == .info`), the
+   refresh-error assertion, and all existing four-window, percent-mode, reset,
+   missing-window, and unavailable-window expectations.
+5. Apply the repository-pinned formatter only to the test file, then confirm
+   that the formatter makes no further changes and the test target compiles.
 6. Limit the corrective diff to:
    - `Tests/CodexBarTests/ArkPopoverMetricsTests.swift`;
    - `docs/TASKS.md`;
