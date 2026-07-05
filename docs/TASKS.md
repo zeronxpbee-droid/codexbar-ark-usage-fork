@@ -11,13 +11,13 @@ M4 — Ark Widget Provider Picker + Small/Medium UI
 ## Goal Status
 
 ```text
-Status: M4 CODE AUDIT PASS — runtime Widget visual QA blocked by synced-folder packaging
-Audit State: a711f4b7 passes the complete mechanical gate and judgment/source
-audit; make check also passes. Debug app/Widget packaging reaches signing but
-fails on Google Drive resource-fork metadata, so Small/Medium runtime visual
-proof remains open (see PROJECT_LOG Entry 066)
-Next: no Claude code change. Codex/Bee packages from a non-synced workspace and
-captures Small/Medium Ark Widget proof before final M4 acceptance
+Status: M4 AUDIT FAIL — Medium Ark Widget vertically overflows
+Audit State: a711f4b7 passes all code/mechanical gates and Small visual QA, but
+the exact 338x158 Medium Usage view clips the provider/updated header and the
+Monthly supplemental line. See PROJECT_LOG Entry 067.
+Next: Claude makes one bounded S7 corrective commit so Medium Usage/Switcher
+retain their header/switcher plus all four title/percent/bar rows; lower-priority
+detail/reset may be omitted under vertical pressure per Entry 058.
 Implementation Owner: Claude / GLM Developer
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
@@ -145,8 +145,12 @@ Codex may:
 
 Claude / GLM may:
 
-- Make no further M4 product/test changes unless runtime QA exposes a
-  reproducible product defect.
+- Modify only `Sources/CodexBarWidget/CodexBarWidgetViews.swift`,
+  `Tests/CodexBarTests/CodexBarWidgetProviderTests.swift`,
+  `docs/TASKS.md`, and `docs/PROJECT_LOG.md` for the Entry 067 Medium-layout
+  correction.
+- Preserve the passing Small Ark layout, non-Ark behavior, and large-family
+  behavior.
 
 ## Forbidden Scope
 
@@ -161,16 +165,23 @@ Claude / GLM may:
 - No push, PR, merge, release, destructive operation, or history rewrite
   without Bee approval.
 
-## Next Task — M4 Runtime Visual QA Gate
+## Next Task — M4 Medium Vertical-Fit Correction
 
-1. Build/package exact HEAD from a non-synced temporary workspace so macOS
-   signing is not contaminated by Google Drive resource-fork metadata.
-2. Validate Ark appears in Usage and static Switcher, but not History/Metric.
-3. Capture Small proof (one highest-risk row) and Medium proof (four stable
-   rows), including fit behavior, detail/reset readability, and updated state.
-4. Record PASS/FAIL compactly. Product/test changes remain frozen unless the
-   runtime evidence exposes a reproducible defect.
-5. No push, PR, merge, M5, or release before final M4 PASS and Bee approval.
+1. Start additively from the Codex Entry 067 audit-document commit; no
+   amend/reset/rebase.
+2. In both Medium Usage and Medium Switcher, keep the provider header/switcher
+   and all four 5h/Daily/Weekly/Monthly title + percent + bar rows visible at
+   338x158.
+3. Apply the approved Entry 058 priority: omit lower-priority detail/reset
+   lines when vertical space is insufficient; do not crowd or clip the header
+   or required rows. Keep Small behavior unchanged.
+4. Add focused regression coverage without introducing a new shared
+   touchpoint, snapshot schema, or Widget architecture.
+5. Run `git diff --check`, targeted SwiftFormat/SwiftLint, `swift build`,
+   `swift test --filter CodexBarWidgetProviderTests`, and
+   `swift test --filter Ark`; create one additive local commit and stop.
+6. Codex repeats Small/Medium visual QA and final `make check`. No push, PR,
+   merge, M5, or release before final M4 PASS and Bee approval.
 
 ## Definition of Done — M4
 

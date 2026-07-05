@@ -4464,6 +4464,49 @@ M4 product code is frozen and needs no Claude correction. Final acceptance is
 blocked only on Small/Medium runtime visual proof from a non-synced build.
 No push, PR, merge, M5, or release is authorized yet.
 
+## Entry 067 — M4 Visual Gate Fails on Medium Vertical Overflow
+
+Date: 2026-07-06
+Actor: Codex
+Type: Review
+Status: FAIL / BOUNDED CORRECTION AUTHORIZED
+
+### Active Goal
+
+M4 — Ark Widget Provider Picker + Small/Medium UI
+
+### LOOP Result
+
+Continued the Entry 066 QA-only loop from exact HEAD `212ff678`; no repository
+product/test source was changed. The Small view passed before the Medium view
+exposed a deterministic S7 layout defect.
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| Non-synced package + debug Widget discovery | PASS |
+| Usage intent can save Ark | PASS, manually confirmed |
+| Synthetic four-row fixture decode | PASS, 1/1 diagnostic |
+| Small 158x158 actual M4 view | PASS: Weekly 18%, detail fallback, reset |
+| Medium 338x158 actual M4 view | FAIL: header clipped; Monthly supplement clipped |
+| Original repository worktree/index | CLEAN |
+| QA app/snapshot/plugin cleanup | PASS; release Widget restored |
+
+The deterministic images were rendered at 2x from the actual private
+`SmallUsageView`/`MediumUsageView` through a temporary DEBUG-only wrapper in
+the `/private/tmp` clone. Small SHA-256 starts `e0704bc2`; Medium starts
+`a54400d6`. The Medium `VStack` emits a header plus four three-line
+`ArkUsageBarRow`s; row-level horizontal `ViewThatFits` cannot solve the
+container's vertical overflow.
+
+### Decision / Next Action
+
+M4 acceptance **FAILS**. This is not a new product-direction decision: Entry
+058 already permits lower-priority detail/reset omission to protect
+provider/updated state. Claude may make one additive correction only in the
+four files listed in TASKS. No push, PR, merge, M5, or release is authorized.
+
 ## Entry Template
 
 ```text
