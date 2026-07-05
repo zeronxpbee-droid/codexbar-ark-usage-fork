@@ -3304,6 +3304,119 @@ Claude / GLM applies findings 1–4, runs the complete command set recorded in
 `docs/TASKS.md`, updates the implementation record, and creates one additive
 local commit. Codex then re-audits.
 
+## Entry 055 — M3 S17+S18 Correction 1
+
+Date: 2026-07-05
+Actor: Claude Developer
+Type: Bugfix
+Status: CREATED
+
+### Active Goal
+
+M3 — Ark Widget Snapshot Integration
+
+### LOOP Result
+
+LOOP applied as a workflow checklist: Plan (identify Entry 054's four
+findings), Execute (rename + format/lint + persistence test), Verify (diff
+scope, structural correctness), Recover (additive commit only). All four
+findings addressed in a single additive pass.
+
+### Summary
+
+Fixed all four Entry 054 findings:
+
+1. **[P1] SwiftFormat/SwiftLint violations**:
+   - `ArkWidgetSnapshotRowsTests.swift`: Project `.swiftformat` configures
+     `--self insert`, requiring explicit `self.` prefix for instance-member
+     access in instance methods. Added `self.` to all instance property and
+     helper method references (`self.now`, `self.resetDate`, `self.detailText`,
+     `self.arkWindow(...)`, `self.monthlyNamedWindow(...)`, `self.makeIdentity()`).
+     Also extracted `makeIdentity()` helper to reduce repetition. The
+     `consecutiveSpaces` findings were resolved by the rewrite.
+   - `WidgetSnapshotS18Tests.swift:43`: replaced `String.data(using: .utf8)!`
+     with `Data(""".utf8)` to satisfy SwiftLint's
+     `non_optional_string_data_conversion` rule.
+
+2. **[P1] UsageStore persistence path test**: Added
+   `widget snapshot includes ark four window rows via persist path` test to
+   `UsageStoreWidgetSnapshotTests.swift`. It sets an Ark four-window snapshot
+   via `_setSnapshotForTesting`, calls `persistWidgetSnapshot`, awaits the
+   persist task, and asserts the captured persisted entry contains stable
+   5h/Daily/Weekly/Monthly rows with `percentLeft`, `resetsAt`, and
+   `detailText`. This closes the untested S17 router and persistence seam.
+
+3. **[P2] `resetAt` → `resetsAt` rename**: Renamed the S18 field from singular
+   `resetAt` to `resetsAt` across all M3 files (schema, mapper, tests) to
+   match `RateWindow.resetsAt` and upstream naming convention. No
+   compatibility alias added (field has not been merged/released). Files
+   renamed: `WidgetSnapshot.swift`, `ArkWidgetSnapshotRows.swift`,
+   `WidgetSnapshotS18Tests.swift`, `ArkWidgetSnapshotRowsTests.swift`.
+
+4. **[P2] Test-count correction**: Entry 053 incorrectly recorded 7 mapper
+   tests / 10 total. Corrected to 8 mapper tests / 11 total new M3 tests
+   (8 in `ArkWidgetSnapshotRowsTests` + 3 in `WidgetSnapshotS18Tests`).
+
+### Files Changed
+
+- `Sources/CodexBarCore/WidgetSnapshot.swift` — `resetAt` → `resetsAt` (field
+  name, init parameter, doc comments).
+- `Sources/CodexBar/Providers/Ark/ArkWidgetSnapshotRows.swift` — `resetAt` →
+  `resetsAt` (mapper field references).
+- `Tests/CodexBarTests/WidgetSnapshotS18Tests.swift` — `resetAt` → `resetsAt`
+  + `Data(...)` initializer fix.
+- `Tests/CodexBarTests/ArkWidgetSnapshotRowsTests.swift` — `resetAt` →
+  `resetsAt` + `self.` prefix insertion for instance members + extracted
+  `makeIdentity()` helper.
+- `Tests/CodexBarTests/UsageStoreWidgetSnapshotTests.swift` — new Ark
+  persistence path test (69 lines added).
+- `docs/TASKS.md` — status and Next Task updated.
+- `docs/PROJECT_LOG.md` — this entry.
+
+### Evidence
+
+- `git diff --check`: PASS (no whitespace errors).
+- Diff scope: exactly the authorized seven files (2 source + 3 test +
+  2 governance docs). No M4 picker/UI, `supportsOpus` unchanged, no
+  push/PR/merge.
+- No local Swift toolchain; `swift build`, focused M3 suites,
+  `swift test --filter Ark`, `make test`, and `make check` deferred to Codex
+  re-audit.
+- The `--self insert` configuration was confirmed by reading `.swiftformat`;
+  this explains the `redundantSelf` findings as missing `self.` prefixes.
+- The UsageStore persistence test follows the exact existing pattern
+  (`_setSnapshotForTesting` → `_test_widgetSnapshotSaveOverride` →
+  `persistWidgetSnapshot` → `await widgetSnapshotPersistTask?.value`) used by
+  the antigravity and codex tests in the same file.
+- Test count: 8 mapper tests (`ArkWidgetSnapshotRowsTests`) + 3 schema tests
+  (`WidgetSnapshotS18Tests`) = 11 total new M3 tests.
+
+### Issues / Risks
+
+- Without a local Swift toolchain, Claude cannot verify SwiftFormat/SwiftLint
+  output, compilation, or test execution directly. The corrections are based
+  on Codex's Entry 054 evidence and the `.swiftformat` configuration.
+- The `--self insert` rule applies broadly; if any instance-member access was
+  missed, SwiftFormat will flag it. The rewrite covered all identified
+  instance properties and methods.
+- The full sharded suite retains the known external Xcode Preview macro
+  blocker documented in earlier audits.
+
+### Decision
+
+Claude created one additive local commit on
+`feature/m3-ark-widget-snapshot` descending from audit commit `867d920a`.
+No amend, reset, rebase, push, PR, merge, or M4 scope expansion. Product
+behavior outside the S18 field rename is frozen.
+
+### Next Action
+
+Codex re-audits the additive corrective commit against Entry 054 findings
+1–4: run `swift build`, both focused M3 suites,
+`UsageStoreWidgetSnapshotTests`, `swift test --filter Ark`, `make test`, and
+`make check`; verify all four findings are resolved and no new finding
+surfaced.
+
 ## Entry Template
 
 ```text

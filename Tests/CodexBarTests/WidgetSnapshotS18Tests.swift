@@ -5,9 +5,9 @@ import Testing
 /// S18 backward-compatibility tests for `WidgetUsageRowSnapshot` schema.
 ///
 /// Verifies:
-/// - Old JSON without `resetAt`/`detailText` keys decodes successfully with
+/// - Old JSON without `resetsAt`/`detailText` keys decodes successfully with
 ///   both new fields defaulting to `nil`.
-/// - New rows with `resetAt`/`detailText` survive an encode/decode round-trip.
+/// - New rows with `resetsAt`/`detailText` survive an encode/decode round-trip.
 /// - Rows with `nil` new fields omit the keys in encoded JSON (forward
 ///   compatibility with older decoders).
 struct WidgetSnapshotS18Tests {
@@ -17,7 +17,7 @@ struct WidgetSnapshotS18Tests {
     func oldJSONWithoutNewFieldsDecodesWithNilDefaults() throws {
         // JSON shaped like a pre-S18 snapshot: usageRows have only
         // id/title/percentLeft. This must decode without error.
-        let json = """
+        let json = Data("""
         {
           "entries": [
             {
@@ -40,7 +40,7 @@ struct WidgetSnapshotS18Tests {
           "usageBarsShowUsed": false,
           "generatedAt": "2026-01-01T00:00:00Z"
         }
-        """.data(using: .utf8)!
+        """.utf8)
 
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
@@ -52,9 +52,9 @@ struct WidgetSnapshotS18Tests {
         #expect(rows[0].title == "Session")
         #expect(rows[0].percentLeft == 90)
         // S18 fields default to nil for old JSON.
-        #expect(rows[0].resetAt == nil)
+        #expect(rows[0].resetsAt == nil)
         #expect(rows[0].detailText == nil)
-        #expect(rows[1].resetAt == nil)
+        #expect(rows[1].resetsAt == nil)
         #expect(rows[1].detailText == nil)
     }
 
@@ -67,7 +67,7 @@ struct WidgetSnapshotS18Tests {
             id: "ark-afp-5h",
             title: "5h",
             percentLeft: 80,
-            resetAt: resetDate,
+            resetsAt: resetDate,
             detailText: "100 / 500 AFP · 400 remaining")
 
         let entry = WidgetSnapshot.ProviderEntry(
@@ -100,7 +100,7 @@ struct WidgetSnapshotS18Tests {
         #expect(decodedRow.id == "ark-afp-5h")
         #expect(decodedRow.title == "5h")
         #expect(decodedRow.percentLeft == 80)
-        #expect(decodedRow.resetAt == resetDate)
+        #expect(decodedRow.resetsAt == resetDate)
         #expect(decodedRow.detailText == "100 / 500 AFP · 400 remaining")
     }
 
@@ -135,11 +135,11 @@ struct WidgetSnapshotS18Tests {
         encoder.dateEncodingStrategy = .iso8601
         let data = try encoder.encode(snapshot)
 
-        // The encoded JSON must NOT contain "resetAt" or "detailText" keys
+        // The encoded JSON must NOT contain "resetsAt" or "detailText" keys
         // when both are nil — this preserves forward compatibility with older
         // decoders that do not know about S18 fields.
         let jsonString = String(data: data, encoding: .utf8) ?? ""
-        #expect(!jsonString.contains("resetAt"))
+        #expect(!jsonString.contains("resetsAt"))
         #expect(!jsonString.contains("detailText"))
     }
 }

@@ -10,7 +10,7 @@ public struct WidgetSnapshot: Codable, Sendable {
         /// M3 S18: backward-compatible optional field. Old snapshots that lack
         /// this key decode to `nil`; new snapshots omit it when the provider
         /// does not report a reset date.
-        public let resetAt: Date?
+        public let resetsAt: Date?
         /// Opaque, display-only detail string (e.g. Ark's M2 complete
         /// `used / quota AFP · remaining remaining` text).
         ///
@@ -23,13 +23,13 @@ public struct WidgetSnapshot: Codable, Sendable {
             id: String,
             title: String,
             percentLeft: Double?,
-            resetAt: Date? = nil,
+            resetsAt: Date? = nil,
             detailText: String? = nil)
         {
             self.id = id
             self.title = title
             self.percentLeft = percentLeft
-            self.resetAt = resetAt
+            self.resetsAt = resetsAt
             self.detailText = detailText
         }
     }

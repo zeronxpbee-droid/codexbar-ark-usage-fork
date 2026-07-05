@@ -6,13 +6,13 @@ import Foundation
 /// Produces stable 5h / Daily / Weekly / Monthly `WidgetUsageRowSnapshot`
 /// rows from an Ark `UsageSnapshot`. Each known row carries:
 /// - `percentLeft`: remaining percent (100 - usedPercent);
-/// - `resetAt`: the real window reset date (S18 field);
+/// - `resetsAt`: the real window reset date (S18 field);
 /// - `detailText`: the M2 opaque complete display string from
 ///   `RateWindow.resetDescription` (S18 field) — display-only, never parsed.
 ///
 /// Missing windows are omitted rather than invented as zero. Monthly
 /// `usageKnown = false` keeps the row visible (for reset context) but with
-/// `percentLeft`, `resetAt`, and `detailText` all `nil`.
+/// `percentLeft`, `resetsAt`, and `detailText` all `nil`.
 ///
 /// This mapper does not change `supportsOpus` or enable Widget selection/UI.
 enum ArkWidgetSnapshotRows {
@@ -41,7 +41,7 @@ enum ArkWidgetSnapshotRows {
                     id: monthly.id,
                     title: monthly.title,
                     percentLeft: nil,
-                    resetAt: nil,
+                    resetsAt: nil,
                     detailText: nil))
             }
         }
@@ -59,7 +59,7 @@ enum ArkWidgetSnapshotRows {
             id: id,
             title: title,
             percentLeft: window.remainingPercent,
-            resetAt: window.resetsAt,
+            resetsAt: window.resetsAt,
             detailText: window.resetDescription)
     }
 }

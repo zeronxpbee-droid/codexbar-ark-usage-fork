@@ -11,9 +11,9 @@ M3 — Ark Widget Snapshot Integration
 ## Goal Status
 
 ```text
-Status: M3 S17+S18 FIRST AUDIT FAIL — corrective additive commit required (see PROJECT_LOG Entry 054)
-Implementation State: product implementation remains at 1524d1c6; correction is limited to naming, tests, formatting/lint, and governance records
-Next: Claude / GLM creates one additive corrective commit within the exact scope below; Codex re-audits
+Status: M3 S17+S18 CORRECTION 1 READY FOR RE-AUDIT — additive commit created (see PROJECT_LOG Entry 055)
+Implementation State: resetAt→resetsAt rename, SwiftFormat/SwiftLint fixes, UsageStore persistence path test added; 11 total new M3 tests (8 mapper + 3 schema); product source frozen for audit
+Next: Codex re-audits the additive corrective commit against Entry 054 findings 1–4
 Implementation Owner: Claude / GLM Developer
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
@@ -126,36 +126,24 @@ Claude / GLM may:
 - No push, PR, merge, release, destructive operation, or history rewrite
   without Bee approval.
 
-## Next Task — Claude M3 S17+S18 Corrective Commit
+## Next Task — Codex M3 S17+S18 Re-Audit
 
-1. Rename the new S18 field and all M3 references from singular `resetAt` to
-   `resetsAt`, matching the existing `RateWindow.resetsAt` and upstream naming
-   convention. Do not add a compatibility alias: the unreleased field has not
-   crossed a merge/release boundary.
-2. In `WidgetSnapshotS18Tests.swift`, replace the lint-rejected non-optional
-   `String.data(using:)!` conversion with the repository-approved non-optional
-   `Data` initializer; preserve the exact old-JSON fixture and assertions.
-3. Add one focused Ark case to
-   `Tests/CodexBarTests/UsageStoreWidgetSnapshotTests.swift` that exercises
-   `_setSnapshotForTesting` → `persistWidgetSnapshot` → captured persisted
-   entry, and asserts stable 5h/Daily/Weekly/Monthly rows plus
-   `percentLeft`/`resetsAt`/`detailText`. This closes the untested S17 router
-   and persistence seam; do not test only the helper again.
-4. Correct the implementation record from 7 mapper tests / 10 total new tests
-   to 8 mapper tests / 11 total new tests.
-5. The corrective diff may touch only:
-   - `Sources/CodexBarCore/WidgetSnapshot.swift`;
-   - `Sources/CodexBar/Providers/Ark/ArkWidgetSnapshotRows.swift`;
-   - `Tests/CodexBarTests/WidgetSnapshotS18Tests.swift`;
-   - `Tests/CodexBarTests/ArkWidgetSnapshotRowsTests.swift`;
-   - `Tests/CodexBarTests/UsageStoreWidgetSnapshotTests.swift`;
+1. Verify branch `feature/m3-ark-widget-snapshot` descends from audit commit
+   `867d920a` and the additive corrective commit below.
+2. Run `git diff --check`, `swift build`, both focused M3 suites, the focused
+   `UsageStoreWidgetSnapshotTests`, `swift test --filter Ark`, `make test`,
+   and `make check`; record exact outcomes.
+3. Verify the corrective diff is exactly:
+   - `Sources/CodexBarCore/WidgetSnapshot.swift` (resetAt→resetsAt);
+   - `Sources/CodexBar/Providers/Ark/ArkWidgetSnapshotRows.swift` (resetAt→resetsAt);
+   - `Tests/CodexBarTests/WidgetSnapshotS18Tests.swift` (resetAt→resetsAt + Data init);
+   - `Tests/CodexBarTests/ArkWidgetSnapshotRowsTests.swift` (resetAt→resetsAt + self. insert);
+   - `Tests/CodexBarTests/UsageStoreWidgetSnapshotTests.swift` (Ark persist path test);
    - `docs/TASKS.md`;
    - `docs/PROJECT_LOG.md`.
-6. Run the pinned formatter only on touched Swift files, then
-   `git diff --check`, `swift build`, both focused M3 suites, the focused
-   `UsageStoreWidgetSnapshotTests`, `swift test --filter Ark`, `make test`,
-   and `make check`. Record exact outcomes and create one additive local
-   commit. No amend/reset/rebase/temporary index/push/PR/merge.
+4. Confirm all 4 findings from Entry 054 are addressed: SwiftFormat/SwiftLint
+   pass, UsageStore persistence path tested, resetsAt naming matches upstream,
+   test count recorded as 11 (8 mapper + 3 schema).
 
 ## Definition of Done — M3
 
