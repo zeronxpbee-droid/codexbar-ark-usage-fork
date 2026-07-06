@@ -11,14 +11,14 @@ M5A — Ark Fork Installation Identity Preflight
 ## Goal Status
 
 ```text
-Status: ACTIVE — PREFLIGHT PHASE 2 COMPLETE; implementation not authorized
+Status: ACTIVE — FINAL CONTRACT PROPOSED; implementation not authorized
 Audit State: M4 merged as b40762d8. Bee approved opening M5 independent-
 identity preflight. Closed M1/M2 logs are archived through Entry 051.
 Claude reports 23 collision surfaces, 9 S20+ proposals, and 8 decision
 questions. Codex completed the bounded Stage 1 decision screen and Phase 2
 App Group/signing/storage feasibility proof. Bee accepted the Stage 1/2
-recommendations. Next: Codex estimates and, only after any required approval,
-performs the final S20+ contract review before any source, packaging,
+recommendations. Codex completed the final touchpoint review below. Next: Bee
+accepts, revises, or rejects the exact contract before any source, packaging,
 identifier, config, Keychain, or updater change.
 Preflight Owner: Claude / GLM Developer (fresh thread, read-only)
 Repository Operator / Auditor: Codex
@@ -148,6 +148,48 @@ Minimum M5A fresh-state storage boundary:
 
 No S20+ touchpoint is approved by this feasibility result.
 
+## Proposed M5A Implementation Contract — Pending Bee
+
+The Claude preflight is not adopted wholesale. The following revised
+touchpoints are the complete proposed M5A implementation boundary:
+
+| ID | Exact surface | Allowed result |
+|---|---|---|
+| S20 | `Scripts/package_app.sh`, `Scripts/compile_and_run.sh`, `Scripts/launch.sh`, `Makefile`, `WidgetExtension/project.yml`, `WidgetExtension/Info.plist`, generated Widget `.pbxproj` | Package `CodexBar Ark.app`; release/debug app IDs use `com.zeronxpbee.codexbar-ark[.debug]`; Widget ID derives with `.widget`; visible app/Widget name is `CodexBar Ark`; internal Swift package/module/target/executable names stay unchanged |
+| S21 | `Sources/CodexBarCore/AppGroupSupport.swift`, packaging entitlements/team plumbing in S20 files, `Tests/CodexBarTests/AppGroupSupportTests.swift` | Fixed release/debug groups `group.com.zeronxpbee.codexbar-ark[.debug]`; remove official Team-ID dependence; fork legacy candidates must never point at official groups; fallback directory becomes `CodexBarArk` but is not the Widget sharing contract |
+| S22 | `Sources/CodexBarCore/Config/CodexBarConfigStore.swift`, `Tests/CodexBarTests/ConfigValidationTests.swift` | Default/XDG directory is `codexbar-ark`; `CODEXBAR_CONFIG` override remains; remove automatic fallback to official `~/.codexbar` or `~/.config/codexbar`; preserve atomic writes and mode `0600` |
+| S23 | `Sources/CodexBarCore/KeychainCacheStore.swift`; `Sources/CodexBar/{CookieHeaderStore,CopilotTokenStore,KeychainMigration,KimiK2TokenStore,KimiTokenStore,MiniMaxAPITokenStore,MiniMaxCookieStore,SyntheticTokenStore,ZaiTokenStore}.swift`; `Scripts/compile_and_run.sh`; `Tests/CodexBarTests/KeychainMigrationTests.swift` | CodexBar-owned services become `com.zeronxpbee.codexbar-ark.cache` and `com.zeronxpbee.codexbar-ark`; migration/clear paths operate only on fork services; no real Keychain tests, official-service reads, deletes, or copies |
+| S25 | Sparkle plist generation in `Scripts/package_app.sh` plus fork identity script tests | Every fork build has no official feed, no official Sparkle public key, and automatic checks disabled; retain the existing framework and upstream ad-hoc `DisabledUpdaterController` behavior |
+| S26 | signing branches in `Scripts/package_app.sh` / `Scripts/compile_and_run.sh`; `Scripts/sign-and-notarize.sh`; `Scripts/release.sh`; `.mac-release.env`; `Scripts/test_package_signing.sh` | Default local path is ad-hoc; identity signing requires explicit future fork credentials; remove/disable official identity, key path, feed, repo, notarization, and release defaults; signed/notarized release remains unavailable in M5A |
+| S27 | `Sources/CodexBarCLI/CLIHelpers.swift`, `bin/install-codexbar-cli.sh` and focused tests/docs | CLI reads fork release/debug defaults domains; installer targets `CodexBar Ark.app` and command `codexbar-ark`, so it cannot replace the official `codexbar` symlink |
+| S29 | current user/developer/provider docs that contain the changed app path, config path, Widget ID, or CodexBar-owned Keychain services | Mechanically synchronize fork values; update `README.md`, Widget/CLI/configuration/development/keychain docs and affected provider guides; do not rewrite archives, historical reports, old design specs, or unrelated upstream documentation |
+
+Rejected from M5A:
+
+- S24 broad Application Support/history/account/cost-cache/log isolation moves
+  to M5B.
+- S28 osLog, DispatchQueue, Notification, and RunLoop labels move to M5B.
+- No `Package.swift` product/module/target rename.
+- No Ark provider, API, menu, popover, snapshot schema, or Widget UI change.
+- No official config/App Group/Keychain migration or secret-bearing fixture.
+
+Implementation must treat the identity set atomically. Partial rollback is not
+safe; rollback reverts every M5A implementation commit in reverse order.
+
+Required evidence before Developer handoff:
+
+1. `git diff --check`, project-pinned format/lint, `swift build`.
+2. Script identity/signing tests, AppGroupSupport, ConfigValidation,
+   KeychainMigration, ArkCredentialProjection, and relevant Widget tests.
+3. Final-candidate `make check` and `make test`.
+4. Package exact `CodexBar Ark.app`; inspect app/Widget IDs, matching
+   entitlements, ad-hoc signature, absent official feed/key, and disabled
+   automatic checks.
+5. Keep official `CodexBar.app` installed while registering/launching only the
+   fork; verify the fork Widget reads the fork snapshot.
+6. No simultaneous-run test, real Keychain read, automatic credential copy,
+   official release command, notarization, or secret output.
+
 ## Allowed Implementation Scope
 
 Codex may:
@@ -174,16 +216,16 @@ Claude / GLM may:
 - No push, PR, merge, release, destructive operation, or history rewrite
   without Bee approval.
 
-## Next Task — M5A Final Contract Decision Gate
+## Next Task — Bee Decision on Proposed Contract
 
-1. Codex estimates the cost of final S20–S28 contract review and waits for Bee
-   if it is high.
-2. After approval, Codex narrows, reclassifies, or rejects the proposed
-   touchpoints against the
-   confirmed decisions; the Claude package is not adopted wholesale.
-3. Record the approved implementation contract in governance documents.
-4. Only then may Bee authorize implementation. Claude must not implement from
-   the unapproved preflight package.
+1. Bee accepts, revises, or rejects S20/S21/S22/S23/S25/S26/S27/S29 and the
+   S24/S28 deferrals.
+2. Codex records the decision and, only if approved, changes the task from
+   preflight to implementation.
+3. Claude Developer implements only the approved exact surfaces, then performs
+   same-thread Self-Check.
+4. Independent Claude Pre-Auditor reviews the exact candidate before Codex
+   Final Audit.
 
 ## Definition of Done — M5A Preflight
 

@@ -63,9 +63,24 @@
 | S17 (APPROVED — M3, Bee 2026-07-05) | `Sources/CodexBar/UsageStore+WidgetSnapshot.swift` `widgetUsageRows` | add one Ark routing branch to an Ark-owned four-window row mapper | Low–Med — additive branch in shared snapshot producer | Remove branch/helper; Ark falls back to primary/secondary rows |
 | S18 (APPROVED — M3, Bee 2026-07-05; naming corrected by Codex audit Entry 054) | `Sources/CodexBarCore/WidgetSnapshot.swift` `WidgetUsageRowSnapshot` | add backward-compatible optional `resetsAt` and `detailText` fields | Medium — shared persisted snapshot schema | Remove optional fields and Ark mapping |
 | S19 (APPROVED — M4, Bee 2026-07-05) | `Sources/CodexBarWidget/CodexBarWidgetBundle.swift` History Widget registration | change only the History Widget intent/timeline registration so History can use a filtered `ProviderChoice` option source while Usage keeps the existing registration | Medium — Bee accepts that changing the History intent type may reset existing History Widget configurations; Metric retains its existing type | Restore `ProviderSelectionIntent` / `CodexBarTimelineProvider` registration. |
+| S20 (PROPOSED — M5A) | Packaging, launch, and Widget metadata files listed in `docs/TASKS.md` | fork app/display/Bundle/Widget identity while retaining internal Swift/executable names | High — coupled packaging identity | Revert all M5A commits; never partially restore IDs |
+| S21 (PROPOSED — M5A) | `AppGroupSupport.swift` plus S20 entitlement/team plumbing | fixed fork App Group, no official Team ID/group migration | High — app/Widget shared storage contract | Revert all M5A commits |
+| S22 (PROPOSED — M5A) | `CodexBarConfigStore.swift` | fork-only config directory with no official fallback | Medium — credential location changes | Revert all M5A commits and manually re-enter only if Bee chooses |
+| S23 (PROPOSED — M5A) | CodexBar-owned Keychain cache/direct stores and migration/clear paths listed in `docs/TASKS.md` | fork-only services; no official read/copy/delete | Medium–High — security-sensitive multi-file identity | Revert all M5A commits; do not migrate items back |
+| S24 (DEFERRED — M5B) | broad Application Support/history/account/cache/log paths | no M5A edit | Broad and disproportionate for installation-only isolation | N/A |
+| S25 (PROPOSED — M5A) | `Scripts/package_app.sh` Sparkle plist generation | no official feed/public key; automatic checks disabled | Low | Revert all M5A commits |
+| S26 (PROPOSED — M5A) | packaging/signing/release scripts and `.mac-release.env` | ad-hoc local build; official signing/notarization/release defaults disabled | Medium — release tooling intentionally unavailable | Revert all M5A commits |
+| S27 (PROPOSED — M5A) | CLI defaults-domain lookup and installer | fork domains, app path, and `codexbar-ark` command | Low | Revert all M5A commits |
+| S28 (DEFERRED — M5B) | osLog/queue/notification/run-loop labels | no M5A edit | Low functional value for installation isolation | N/A |
+| S29 (PROPOSED — M5A) | current operational documentation named in `docs/TASKS.md` | mechanical synchronization only; archives/history/specs excluded | Low | Revert documentation with M5A |
 
 All shared edits are additive registrations/wiring. None rename, move, or
 reformat upstream code. Each milestone's PR must list the S# points it touches.
+
+For M5A, the older sentence above applies to S1–S19 only: identity isolation
+necessarily replaces existing packaging/storage constants rather than adding
+provider registrations. S20–S29 therefore form one atomic contract and must
+not be partially rolled back.
 
 ## M2 Approved Shared Touchpoint — S15
 

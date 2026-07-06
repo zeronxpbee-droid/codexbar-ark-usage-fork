@@ -1979,6 +1979,46 @@ review. Claude must not modify product, packaging, identity, persistence,
 Keychain, updater, signing, migration, tests, or documentation until the exact
 implementation contract is separately approved.
 
+## Entry 079 — M5A Final Touchpoint Contract Proposed
+
+Date: 2026-07-06
+Actor: Bee (review authorization) + Codex (contract review)
+Type: Architecture / Scope Review
+Status: PROPOSED / PENDING BEE
+
+### LOOP Result
+
+High-cost review was explicitly approved. Codex validated the real files and
+reduced Claude's package to an installation-isolation contract only; no build,
+runtime UI, product edit, or implementation authorization occurred.
+
+### Proposed Contract
+
+| Disposition | Touchpoints |
+|---|---|
+| M5A proposed | S20 identity/package, S21 App Group, S22 config, S23 Keychain, S25 Sparkle-off, S26 ad-hoc/release guard, S27 CLI, S29 docs |
+| M5B deferred | S24 support/history/cache/log paths; S28 diagnostic labels |
+| Explicitly frozen | `Package.swift` names, Ark/provider behavior, snapshot schema, Widget UI, official-data migration |
+
+The review corrected three preflight gaps: the physical app filename and
+launch helpers are part of S20; the CLI installer must use `codexbar-ark` so it
+cannot replace the official CLI; and Widget metadata has no root `project.yml`
+but does require the real `WidgetExtension` spec/Info/generated-project closure.
+
+### Security / Compatibility
+
+Fork config has no official fallback. Fork-owned Keychain services never
+read/copy/delete official CodexBar items; external provider-owned credentials
+remain external. Official Sparkle/signing/release defaults are disabled.
+Internal Swift/executable names remain unchanged to limit upstream conflicts.
+The coupled identity set has atomic rollback only.
+
+### Decision / Next Action
+
+No S20+ touchpoint is approved yet. Bee accepts, revises, or rejects the exact
+contract in `docs/TASKS.md`. Claude must not implement before that decision is
+recorded and the Active Goal is explicitly advanced to implementation.
+
 ## Entry Template
 
 ```text
