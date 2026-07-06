@@ -1950,6 +1950,35 @@ the official Team ID is not reused. No S20+ touchpoint is approved. Bee first
 accepts or revises the Phase 1/2 recommendations, then separately authorizes
 the final S20–S28 contract review.
 
+## Entry 078 — Bee Accepts M5A Stage 1 and Phase 2 Recommendations
+
+Date: 2026-07-06
+Actor: Bee
+Type: Architecture Decision
+Status: APPROVED RECOMMENDATIONS / IMPLEMENTATION NOT AUTHORIZED
+
+### Decision
+
+Bee accepted the simple M5A direction recorded in Entries 076–077:
+
+- `CodexBar Ark.app` with fork Bundle/Widget identities and unchanged internal
+  Swift target/module/executable names;
+- ad-hoc local signing and no official Sparkle update channel;
+- fixed fork App Group with no official Team ID or fallback-based sharing;
+- fresh config/App Group state, fork-owned Keychain service isolation, no
+  automatic copy of official credentials, and manual Ark credential entry;
+- Widget documentation updated with implementation;
+- simultaneous-run, broad support/cache/log isolation, and diagnostic labels
+  deferred to M5B.
+
+### Scope / Next Action
+
+This approves the architecture recommendations, not S20–S28 or implementation.
+Codex first applies the token-cost gate to the final touchpoint-contract
+review. Claude must not modify product, packaging, identity, persistence,
+Keychain, updater, signing, migration, tests, or documentation until the exact
+implementation contract is separately approved.
+
 ## Entry Template
 
 ```text

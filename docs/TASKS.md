@@ -16,9 +16,10 @@ Audit State: M4 merged as b40762d8. Bee approved opening M5 independent-
 identity preflight. Closed M1/M2 logs are archived through Entry 051.
 Claude reports 23 collision surfaces, 9 S20+ proposals, and 8 decision
 questions. Codex completed the bounded Stage 1 decision screen and Phase 2
-App Group/signing/storage feasibility proof. Next: Bee accepts or revises the
-recommendations, then separately authorizes final S20+ contract review before
-any source, packaging, identifier, config, Keychain, or updater change.
+App Group/signing/storage feasibility proof. Bee accepted the Stage 1/2
+recommendations. Next: Codex estimates and, only after any required approval,
+performs the final S20+ contract review before any source, packaging,
+identifier, config, Keychain, or updater change.
 Preflight Owner: Claude / GLM Developer (fresh thread, read-only)
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
@@ -94,13 +95,12 @@ Preferred phased target for evaluation:
 ## Preflight Status
 
 Claude reports the read-only survey complete: 23 collision surfaces mapped to
-9 S20+ proposals, with 21 surfaces proposed for M5A and 2 low-priority items
-deferrable to M5B; 8 decisions remain. The detailed decision package was
-transferred to Codex and received a bounded Stage 1 screen. No S20+ touchpoint
-is approved.
+9 S20+ proposals. The detailed decision package received a bounded Stage 1
+screen and Phase 2 feasibility proof. Bee accepted the resulting identity,
+signing, update, migration, App Group, documentation, and M5B-deferral
+recommendations. No S20+ touchpoint is approved.
 
-Codex completed the Stage 1 decision/risk screen. The following recommendations
-remain subject to Bee approval and do not authorize implementation:
+The approved recommendations do not authorize implementation:
 
 | Question | Codex recommendation |
 |---|---|
@@ -176,14 +176,13 @@ Claude / GLM may:
 
 ## Next Task — M5A Final Contract Decision Gate
 
-1. Bee accepts or revises the Stage 1 recommendations and Phase 2 fixed App
-   Group/fresh-state boundary.
-2. Codex estimates the cost of final S20–S28 contract review and waits for Bee
+1. Codex estimates the cost of final S20–S28 contract review and waits for Bee
    if it is high.
-3. Codex narrows, reclassifies, or rejects the proposed touchpoints against the
+2. After approval, Codex narrows, reclassifies, or rejects the proposed
+   touchpoints against the
    confirmed decisions; the Claude package is not adopted wholesale.
-4. Record the approved implementation contract in governance documents.
-5. Only then may Bee authorize implementation. Claude must not implement from
+3. Record the approved implementation contract in governance documents.
+4. Only then may Bee authorize implementation. Claude must not implement from
    the unapproved preflight package.
 
 ## Definition of Done — M5A Preflight
