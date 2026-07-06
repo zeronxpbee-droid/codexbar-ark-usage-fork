@@ -4658,6 +4658,52 @@ M5, release, or history rewrite.
 Developer Self-Check on the new candidate SHA. If PASS, Bee opens independent
 Pre-Auditor thread. If Pre-Audit PASS, Codex Final Audit.
 
+## Entry 071 — Codex M4 Final Audit Passes
+
+Date: 2026-07-06
+Actor: Codex
+Type: Review
+Status: PASS / AWAITING BEE MERGE DECISION
+
+### Active Goal
+
+M4 — Ark Widget Provider Picker + Small/Medium UI
+
+### LOOP Result
+
+Final Review Loop. Candidate `93123f6e` had exact-SHA `SELF-CHECK PASS` and
+independent `PRE-AUDIT PASS`. Codex ran the mechanical gate first, then reviewed
+the complete M4/baseline diff and deterministic Widget renders. No product or
+test source was changed by Codex.
+
+### Evidence
+
+| Gate | Result |
+|---|---|
+| Branch/parent/worktree/index/scope + `git diff --check` | PASS |
+| Changed-file SwiftFormat / SwiftLint | PASS, 0/2 and 0 violations |
+| `swift build` | PASS, 4.89s |
+| Widget focused tests | PASS, 44/44 |
+| Ark focused tests | PASS, 59/59 |
+| Full `make check` | PASS, 0/1231 format; 0/1230 lint |
+| Security/scope/upstream-baseline review | PASS |
+| Small 158x158 deterministic render | PASS |
+| Medium Usage + Switcher 338x158 renders | PASS; header/switcher and all four rows visible |
+
+Visual proof came from the exact candidate in a disposable `/private/tmp`
+clone using DEBUG-only audit wrappers: 2x PNG SHA-256 prefixes were
+`70c37249` (Small), `35853505` (Medium Usage), and `534670ba` (Medium
+Switcher). The original repository remained clean. Full `make test` was not
+re-run per Entry 064; Entry 063 owns the unchanged external KeyboardShortcuts
+Preview macro blocker.
+
+### Decision / Next Action
+
+M4 final audit **PASS**. Entry 067 is closed. No secrets, Ark network call,
+snapshot/schema change, unrelated-provider behavior change, or unapproved
+shared touchpoint was found. Bee must explicitly approve push/PR/merge; M5 and
+release remain unauthorized until M4 is merged.
+
 ## Entry Template
 
 ```text

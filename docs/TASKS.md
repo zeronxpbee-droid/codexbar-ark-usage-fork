@@ -11,12 +11,12 @@ M4 — Ark Widget Provider Picker + Small/Medium UI
 ## Goal Status
 
 ```text
-Status: M4 MEDIUM CORRECTION COMMITTED — Developer Self-Check in progress
-Audit State: Entry 067 found Medium 338x158 vertical overflow (header clipped,
-Monthly supplement clipped); Entry 069 kept M4 active; Claude corrective commit
-(Entry 070) omits detail/reset in compact mode, tightens spacing to fit 4 rows
-Next: Developer Self-Check on new candidate SHA; if PASS, Bee opens independent
-Pre-Auditor thread; if Pre-Audit PASS, Codex Final Audit
+Status: M4 FINAL AUDIT PASS — awaiting Bee merge authorization
+Audit State: Candidate 93123f6e passed Developer Self-Check, independent
+Pre-Audit, Codex mechanical/judgment review, and deterministic Small/Medium
+visual proof (Entry 071). Entry 067 Medium overflow is closed.
+Next: Bee decides whether Codex may push/update the M4 PR and merge. No M5 or
+release work starts before that decision and the M4 merge.
 Implementation Owner: Claude / GLM Developer
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
@@ -180,26 +180,18 @@ Claude / GLM may:
 - No push, PR, merge, release, destructive operation, or history rewrite
   without Bee approval.
 
-## Next Task — M4 Medium Vertical-Fit Correction
+## Next Task — M4 Merge Decision
 
-1. Start additively from the latest Codex Entry 069 governance commit; no
-   amend/reset/rebase.
-2. In both Medium Usage and Medium Switcher, keep the provider header/switcher
-   and all four 5h/Daily/Weekly/Monthly title + percent + bar rows visible at
-   338x158.
-3. Apply the approved Entry 058 priority: omit lower-priority detail/reset
-   lines when vertical space is insufficient; do not crowd or clip the header
-   or required rows. Keep Small behavior unchanged.
-4. Add focused regression coverage without introducing a new shared
-   touchpoint, snapshot schema, or Widget architecture.
-5. Create additive local commits and run Developer Self-Check using
-   `docs/CLAUDE_REVIEW_WORKFLOW.md`; do not advance until `SELF-CHECK PASS`.
-6. Bee opens a new Claude thread with the Pre-Auditor prompt. A FAIL returns
-   to step 5 and invalidates earlier gate results; a PASS produces the compact
-   candidate handoff.
-7. Codex then runs the Final Audit, including native mechanical checks,
-   deterministic Small/Medium visual proof, and final `make check`. No push,
-   PR, merge, M5, or release before final M4 PASS and Bee approval.
+1. Preserve candidate `93123f6e` and its Codex audit-documentation child
+   commit; no amend/reset/rebase.
+2. Bee decides whether Codex may push the branch, create/update the M4 PR, and
+   merge.
+3. If approved, Codex performs those repository operations and records the
+   branch, PR, and merge SHA.
+4. After M4 merges, archive the closed M1/M2 log segments and begin M5 in a
+   fresh thread as required by Entry 064.
+5. No M5 implementation, release, destructive operation, or history rewrite
+   before the merge decision.
 
 ## Definition of Done — M4
 
