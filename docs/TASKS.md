@@ -5,19 +5,19 @@
 ## Active Goal
 
 ```text
-M4 — Ark Widget Provider Picker + Small/Medium UI
+Post-M4 governance — M5 entry and installation-isolation decision
 ```
 
 ## Goal Status
 
 ```text
-Status: M4 FINAL AUDIT PASS — awaiting Bee merge authorization
-Audit State: Candidate 93123f6e passed Developer Self-Check, independent
-Pre-Audit, Codex mechanical/judgment review, and deterministic Small/Medium
-visual proof (Entry 071). Entry 067 Medium overflow is closed.
-Next: Bee decides whether Codex may push/update the M4 PR and merge. No M5 or
-release work starts before that decision and the M4 merge.
-Implementation Owner: Claude / GLM Developer
+Status: M4 MERGED — M5 product implementation not started
+Audit State: PR #5 merged as b40762d8 after candidate 93123f6e passed all four
+review stages and deterministic Small/Medium visual proof (Entries 071–072).
+Next: decide how the Ark fork and official CodexBar coexist without app/Widget
+identity or updater collisions; archive closed M1/M2 log segments; then Bee
+explicitly authorizes M5 in a fresh thread.
+Implementation Owner: None until M5 authorization
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
 ```
@@ -36,7 +36,8 @@ M2 merged PR: https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/3
 M2 merge commit: 27ec5fa07548b4fd5774b842134344d16fe83205
 M3 merged PR: https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/4
 M3 merge commit: 9a24cf7356b6cace5fdbaeac5424609093245887
-M4 branch: feature/m4-ark-widget-picker-ui
+M4 merged PR: https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/5
+M4 merge commit: b40762d8f259b286f82f6280ec3c5a777a379a60
 ```
 
 ## Mandatory Pre-Execution Rule
@@ -180,18 +181,17 @@ Claude / GLM may:
 - No push, PR, merge, release, destructive operation, or history rewrite
   without Bee approval.
 
-## Next Task — M4 Merge Decision
+## Next Task — Post-M4 Governance
 
-1. Preserve candidate `93123f6e` and its Codex audit-documentation child
-   commit; no amend/reset/rebase.
-2. Bee decides whether Codex may push the branch, create/update the M4 PR, and
-   merge.
-3. If approved, Codex performs those repository operations and records the
-   branch, PR, and merge SHA.
-4. After M4 merges, archive the closed M1/M2 log segments and begin M5 in a
-   fresh thread as required by Entry 064.
-5. No M5 implementation, release, destructive operation, or history rewrite
-   before the merge decision.
+1. Preserve M4 PR #5 and merge commit `b40762d8`; do not rewrite history.
+2. Evaluate official/fork coexistence across app name, app Bundle ID, Widget
+   Bundle ID, app-group snapshot identity, signing, updater channel, and config
+   migration. No identifier change is authorized before Bee chooses a design.
+3. Archive the closed M1/M2 PROJECT_LOG segments as required by Entry 064.
+4. Bee explicitly approves the installation-isolation direction and entry into
+   M5; M5 begins in a fresh thread.
+5. No packaging implementation, release, destructive operation, or upstream
+   synchronization before that decision.
 
 ## Definition of Done — M4
 

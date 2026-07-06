@@ -4704,6 +4704,41 @@ snapshot/schema change, unrelated-provider behavior change, or unapproved
 shared touchpoint was found. Bee must explicitly approve push/PR/merge; M5 and
 release remain unauthorized until M4 is merged.
 
+## Entry 072 — M4 PR Merged
+
+Date: 2026-07-06
+Actor: Bee (authorization) + Codex (repository operation)
+Type: Review / Documentation
+Status: MERGED
+
+### Active Goal
+
+M4 — Ark Widget Provider Picker + Small/Medium UI
+
+### LOOP Result
+
+Repository Operation Loop. Bee approved push, PR creation, and merge after
+Entry 071 PASS. Codex verified the clean branch, exact audited head, origin
+target, PR mergeability, and remote result before recording the transition.
+
+### Evidence
+
+| Item | Result |
+|---|---|
+| Branch pushed | `feature/m4-ark-widget-picker-ui` at `dc0dad99` |
+| Pull request | `https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/5` |
+| PR head / base | `dc0dad99` / M3 merge `9a24cf73` |
+| GitHub state | MERGED |
+| Merge commit | `b40762d8f259b286f82f6280ec3c5a777a379a60` |
+| Remote feature branch | Retained |
+
+### Decision / Next Action
+
+M4 is complete and merged. M5 implementation has not started. Before M5, Bee
+and Codex will decide an installation-identity/updater strategy so official
+CodexBar updates cannot replace or invalidate the Ark fork and its Widget.
+Closed M1/M2 log segments are then archived and M5 begins in a fresh thread.
+
 ## Entry Template
 
 ```text
