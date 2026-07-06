@@ -199,6 +199,16 @@ Codex must:
 - Stop for Bee before any major scope or architecture decision, new shared
   integration touchpoint, milestone transition, push, PR creation/update,
   merge, release, destructive operation, or history rewrite.
+- Before starting an audit, estimate its likely token cost from diff size,
+  document volume, test/log output, runtime or visual verification, and
+  environment/toolchain diagnostics. If the audit is likely to consume a
+  large amount of Codex quota, stop before the expensive work, warn Bee
+  concisely, explain the cost drivers and a staged or lower-cost alternative,
+  and continue only after Bee explicitly approves that high-cost audit.
+- If an initially normal audit unexpectedly expands into high-cost environment
+  troubleshooting, repeated full logs, broad visual automation, or similarly
+  expensive diagnostics, pause at that boundary and obtain Bee approval before
+  continuing. Already-completed low-cost evidence should be preserved.
 
 Codex must not:
 
@@ -242,9 +252,16 @@ Developer handoffs must be concise. Claude / GLM sends only:
 The repository is the source of implementation detail. Do not paste a long
 implementation narrative into chat.
 
-Codex audits in two stages:
+Codex audits through three gates:
 
-1. **Mechanical gate**
+1. **Token-cost gate**
+   - Estimate whether the planned audit is low, moderate, or high cost.
+   - Treat broad upstream/architecture comparisons, repeated full-suite output,
+     runtime/visual automation, and environment or toolchain troubleshooting as
+     likely high-cost work.
+   - For high-cost work, report the reason, proposed bounded first step, and
+     cheaper alternatives, then wait for Bee approval before execution.
+2. **Mechanical gate**
    - Verify ancestry, branch, worktree/index, and changed-file scope.
    - Run `git diff --check`.
    - Run project-pinned SwiftFormat and SwiftLint on changed Swift files.
@@ -252,7 +269,7 @@ Codex audits in two stages:
    - Run focused tests selected from the changed surface.
    - If any code-owned mechanical check fails, stop immediately, record a
      compact FAIL, and do not spend tokens on full architecture/UI review.
-2. **Judgment gate**
+3. **Judgment gate**
    - Enter only after the mechanical gate is green.
    - Review security, secret handling, scope, upstream compatibility,
      persistence compatibility, provider behavior, and UI/layout design.

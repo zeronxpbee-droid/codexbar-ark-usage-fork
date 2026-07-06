@@ -1808,6 +1808,38 @@ numbered S20+ touchpoints. No implementation, push, PR, merge, release, secret
 migration, or official signing/update credential use is authorized until
 Bee/Codex approve the resulting contract.
 
+## Entry 074 — Codex High-Token Audit Warning Gate Adopted
+
+Date: 2026-07-06
+Actor: Bee (decision) + Codex (governance)
+Type: Review Workflow / Quota Control
+Status: ADOPTED
+
+### LOOP Result
+
+Project Governance Loop. The current bottleneck is Codex review quota rather
+than implementation capacity. The smallest durable change is an audit-entry
+cost gate in `AGENTS.md`; no product, test, packaging, or M5A scope changes are
+required.
+
+### Decision
+
+Before starting an audit, Codex must estimate whether the likely token cost is
+low, moderate, or high. High-cost audits must be announced before expensive
+work begins, including the main cost drivers, a bounded first step, and any
+lower-cost alternative. Codex proceeds only after Bee explicitly approves.
+
+If a normal audit unexpectedly becomes high-cost environment/toolchain
+troubleshooting, repeated full-log analysis, broad visual automation, or a
+similarly expensive diagnostic loop, Codex pauses at that boundary and asks
+Bee before continuing. Evidence already gathered is retained.
+
+### Scope
+
+This is a standing Codex audit rule. It does not weaken required acceptance
+checks, authorize skipping safety evidence, or change the existing permissions
+for implementation, push, PR, merge, release, or destructive operations.
+
 ## Entry Template
 
 ```text
