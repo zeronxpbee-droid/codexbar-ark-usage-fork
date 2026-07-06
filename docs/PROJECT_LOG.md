@@ -1840,6 +1840,33 @@ This is a standing Codex audit rule. It does not weaken required acceptance
 checks, authorize skipping safety evidence, or change the existing permissions
 for implementation, push, PR, merge, release, or destructive operations.
 
+## Entry 075 — M5A Branch Pushed and Preflight Summary Received
+
+Date: 2026-07-06
+Actor: Bee (authorization) + Codex (repository operation) + Claude (preflight)
+Type: Repository Operation / Preflight Handoff
+Status: PUSHED / EVIDENCE TRANSFER PENDING
+
+### Evidence
+
+| Item | Result |
+|---|---|
+| Remote branch | `origin/feature/m5a-ark-installation-isolation` |
+| Pushed commits | `8fdf439c`, `ef117159` |
+| Worktree before push | CLEAN |
+| Claude survey summary | 23 collision surfaces; 9 S20+ proposals; 8 decisions |
+| Repository edits by Claude preflight | NONE (reported) |
+| Detailed tables/evidence received by Codex | NO |
+
+### Decision / Next Action
+
+The branch push is complete, but the preflight summary alone cannot authorize
+implementation or support acceptance of any S20+ touchpoint. Bee transfers
+Claude's compact collision map, proposal table, evidence, and eight decision
+questions. Codex applies the token-cost gate before substantive review; no
+source, packaging, identifier, persistence, updater, PR, or merge action is
+authorized by this entry.
+
 ## Entry Template
 
 ```text

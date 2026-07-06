@@ -11,12 +11,14 @@ M5A — Ark Fork Installation Identity Preflight
 ## Goal Status
 
 ```text
-Status: ACTIVE — PREFLIGHT ONLY; implementation not authorized
+Status: ACTIVE — PREFLIGHT REPORTED COMPLETE; implementation not authorized
 Audit State: M4 merged as b40762d8. Bee approved opening M5 independent-
 identity preflight. Closed M1/M2 logs are archived through Entry 051.
-Next: a fresh Claude thread performs the read-only M5A touchpoint survey and
-returns a compact S20+ proposal. Bee/Codex approve exact implementation scope
-before any source, packaging, identifier, config, Keychain, or updater change.
+Claude reports 23 collision surfaces, 9 S20+ proposals, and 8 decision
+questions. Codex has received only the completion summary, not the detailed
+tables/evidence. Next: transfer the compact preflight report, estimate review
+cost, then Bee/Codex decide exact implementation scope before any source,
+packaging, identifier, config, Keychain, or updater change.
 Preflight Owner: Claude / GLM Developer (fresh thread, read-only)
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
@@ -91,9 +93,11 @@ Preferred phased target for evaluation:
 
 ## Preflight Status
 
-No S20+ touchpoint is approved yet. The preflight must identify exact files,
-symbols, upstream patterns, compatibility risks, tests, and rollback before
-proposing any source or packaging edit.
+Claude reports the read-only survey complete: 23 collision surfaces mapped to
+9 S20+ proposals, with 21 surfaces proposed for M5A and 2 low-priority items
+deferrable to M5B; 8 decisions remain. The detailed collision map, touchpoint
+table, evidence, and decision questions have not yet been transferred to
+Codex. No S20+ touchpoint is approved.
 
 ## Allowed Implementation Scope
 
@@ -121,16 +125,17 @@ Claude / GLM may:
 - No push, PR, merge, release, destructive operation, or history rewrite
   without Bee approval.
 
-## Next Task — M5A Read-Only Preflight
+## Next Task — M5A Preflight Decision Gate
 
-1. A fresh Claude thread invokes LOOP and reads the current project/baseline
-   rules.
-2. Verify real branch/HEAD/worktree but perform no Git writes.
-3. Trace every identity/storage/update surface and distinguish required M5A
-   isolation from deferrable M5B work.
-4. Return proposed S20+ touchpoints in a compact table with exact
-   file/symbol/reason/risk/rollback/test evidence.
-5. Stop for Bee/Codex approval. Do not implement from the proposal.
+1. Transfer Claude's complete compact collision map, S20+ table, evidence, and
+   8 decision questions; do not substitute the completion summary.
+2. Codex estimates the review's token cost before starting substantive review
+   and warns Bee first if it is likely high.
+3. Bee/Codex accept, revise, defer, or reject each proposed touchpoint and
+   define the exact M5A/M5B boundary.
+4. Record the approved contract in governance documents.
+5. Only then may Bee authorize implementation. Claude must not implement from
+   the unapproved preflight summary.
 
 ## Definition of Done — M5A Preflight
 
