@@ -5,19 +5,19 @@
 ## Active Goal
 
 ```text
-Post-M4 governance — M5 entry and installation-isolation decision
+M5A — Ark Fork Installation Identity Preflight
 ```
 
 ## Goal Status
 
 ```text
-Status: M4 MERGED — M5 product implementation not started
-Audit State: PR #5 merged as b40762d8 after candidate 93123f6e passed all four
-review stages and deterministic Small/Medium visual proof (Entries 071–072).
-Next: decide how the Ark fork and official CodexBar coexist without app/Widget
-identity or updater collisions; archive closed M1/M2 log segments; then Bee
-explicitly authorizes M5 in a fresh thread.
-Implementation Owner: None until M5 authorization
+Status: ACTIVE — PREFLIGHT ONLY; implementation not authorized
+Audit State: M4 merged as b40762d8. Bee approved opening M5 independent-
+identity preflight. Closed M1/M2 logs are archived through Entry 051.
+Next: a fresh Claude thread performs the read-only M5A touchpoint survey and
+returns a compact S20+ proposal. Bee/Codex approve exact implementation scope
+before any source, packaging, identifier, config, Keychain, or updater change.
+Preflight Owner: Claude / GLM Developer (fresh thread, read-only)
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
 ```
@@ -38,6 +38,7 @@ M3 merged PR: https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/4
 M3 merge commit: 9a24cf7356b6cace5fdbaeac5424609093245887
 M4 merged PR: https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/5
 M4 merge commit: b40762d8f259b286f82f6280ec3c5a777a379a60
+M5A branch: feature/m5a-ark-installation-isolation
 ```
 
 ## Mandatory Pre-Execution Rule
@@ -62,160 +63,90 @@ Any source/test change invalidates the prior Self-Check and Pre-Audit.
 Reusable prompts and output contracts are in
 `docs/CLAUDE_REVIEW_WORKFLOW.md`.
 
-## M4 Objective
+## M5A Objective
 
-Make Ark selectable in the appropriate Widget configuration/switcher surface
-and render useful small and medium Widget states from the M3 persisted
-5h/Daily/Weekly/Monthly rows.
+Design the smallest upstream-aligned packaging/storage identity profile that
+lets official CodexBar and the Ark fork coexist without one replacing or
+invalidating the other.
 
-M4 owns picker/intent wiring and visible small/medium presentation only. It
-must consume the app-owned snapshot and must not call Ark directly.
+The preflight must cover:
 
-## Preflight Findings
+- app display name and app Bundle ID;
+- Widget Bundle ID and WidgetKit registration;
+- App Group ID and snapshot/defaults migration;
+- config path using the existing `CodexBarConfigStore` with mode `0600`;
+- Keychain cache service names and other persistent support directories;
+- Sparkle feed/public key/automatic-update behavior;
+- ad-hoc versus Developer ID signing and local installation;
+- side-by-side installation versus simultaneous execution;
+- minimal rollback and migration tests.
 
-1. M3 already persists stable Ark rows with `percentLeft`, `resetsAt`, and
-   opaque `detailText`; M4 needs no schema or network change.
-2. `ProviderChoice` currently drives all of:
-   - `CodexBar Usage`;
-   - `CodexBar History`;
-   - `CodexBar Metric` through `CompactMetricSelectionIntent`;
-   - the static switcher's supported-provider filter and buttons.
-   Adding one `.ark` case therefore exposes Ark beyond the requested Usage
-   small/medium surface. History has no Ark daily history, and Metric offers
-   credits/cost values Ark does not provide.
-3. The current `WidgetUsageRow` projection copies only id/title/percent and
-   drops M3's `resetsAt` and `detailText`. `UsageBarRow` renders only title,
-   percentage, and bar. S7 is required to make the M3 payload visible.
-4. Small and medium row limits are Ark-unaware. Small would currently render
-   all four Ark rows, risking crowding; medium also renders all four but has no
-   space policy for complete quota detail plus reset text.
-5. Existing large Usage and Switcher families share the same row views.
-   Enabling Ark selection may also make large rendering reachable even though
-   FR7 requires only small and medium behavior.
+Preferred phased target for evaluation:
 
-## Approved Shared Touchpoints
+- M5A solves safe side-by-side installation and prevents official updates from
+  overwriting the fork;
+- the fork uses no official Sparkle feed;
+- simultaneous execution and a fork-owned update service may be deferred to
+  M5B if isolating every cache is disproportionately broad.
 
-### S6 — Ark Widget provider choice (APPROVED)
+## Preflight Status
 
-- File: `Sources/CodexBarWidget/CodexBarWidgetProvider.swift`
-- Approved edit: add `.ark`, display representation `"Ark"`,
-  `.ark -> .ark`, and change `init?(provider: .ark)` from `nil` to `.ark`.
-- Ark may appear in `CodexBar Usage` and the static Switcher only.
-- Add intent-specific `DynamicOptionsProvider` filtering in the same file so
-  History and Metric exclude `.ark` without splitting/renaming the persisted
-  `ProviderChoice` enum or invalidating existing configurations.
-- Risk: Medium. The enum is shared, but picker filtering contains the new
-  exposure while preserving existing raw values.
-- Rollback: restore `.ark -> nil`, remove the enum/display/provider arms and
-  intent-specific filters.
-
-### S7 — Ark small/medium row presentation (APPROVED)
-
-- File: `Sources/CodexBarWidget/CodexBarWidgetViews.swift`
-- Approved edit: preserve `resetsAt`/`detailText` in `WidgetUsageRow`, define
-  the Ark-specific selection/presentation below, and route only Ark through
-  that presentation.
-- Small Usage/Switcher:
-  - choose the known row with the lowest `percentLeft` (highest risk);
-  - preserve stable source order on ties;
-  - if no row has known usage, show the first stable Ark row as unavailable;
-  - render title, percent/bar, opaque detail, and relative reset using a
-    compact fallback that omits lower-priority text rather than crowding.
-- Medium Usage/Switcher:
-  - retain all available Ark rows in stable 5h/Daily/Weekly/Monthly order;
-  - render compact title + percent/bar for every row;
-  - use a horizontal-fit fallback for opaque detail and relative reset so
-    provider/updated state is not displaced.
-- Large behavior is not an M4 deliverable. It may continue using generic rows
-  but must not receive new Ark-only layout logic.
-- Do not parse `detailText`; reset display derives only from `resetsAt`.
-- All generic behavior for existing providers must remain unchanged.
-- Risk: Medium. This file owns shared Usage and Switcher layouts across small,
-  medium, and large families.
-- Rollback: remove Ark-specific projection/selection/presentation and restore
-  percentage-only rows.
-
-### S19 — History Widget registration isolation (APPROVED)
-
-- File: `Sources/CodexBarWidget/CodexBarWidgetBundle.swift`
-- Approved edit: change only the History Widget intent/timeline registration
-  required to give History a filtered provider-options source while Usage
-  retains its existing registration.
-- The History intent parameter must remain the existing `ProviderChoice` type.
-- Risk accepted by Bee: changing the History intent type may reset an existing
-  History Widget configuration.
-- Metric must keep its existing intent and `ProviderChoice` parameter type;
-  its Ark exclusion uses filtered options and must not introduce a Metric
-  configuration-type reset.
-- Rollback: restore the original History `ProviderSelectionIntent` /
-  `CodexBarTimelineProvider` registration.
+No S20+ touchpoint is approved yet. The preflight must identify exact files,
+symbols, upstream patterns, compatibility risks, tests, and rollback before
+proposing any source or packaging edit.
 
 ## Allowed Implementation Scope
 
 Codex may:
 
-- Inspect the M4 diff and record audit evidence.
-- Maintain governance records and the M4 branch.
-- Register a Bee-approved S19 boundary, then authorize a bounded corrective
-  loop.
+- Maintain the M5A branch and governance records.
+- Inspect packaging, identity, persistence, and updater architecture.
+- Record proposed S20+ touchpoints after Bee reviews the preflight.
 
 Claude / GLM may:
 
-- Modify only `Sources/CodexBarWidget/CodexBarWidgetViews.swift`,
-  `Tests/CodexBarTests/CodexBarWidgetProviderTests.swift`,
-  `docs/TASKS.md`, and `docs/PROJECT_LOG.md` for the Entry 067 Medium-layout
-  correction.
-- Preserve the passing Small Ark layout, non-Ark behavior, and large-family
-  behavior.
+- Perform read-only investigation in a fresh thread.
+- Compare release/debug packaging and official upstream patterns.
+- Return a compact touchpoint proposal; make no repository edits or commits.
 
 ## Forbidden Scope
 
-- No Widget API call to Ark.
-- No Ark exposure in History, Metric, burn-down, or any new Widget kind.
-- No change to Ark signing, networking, credentials, menu bar, or popover.
-- No `supportsOpus=true` workaround.
-- No S16 typed popover payload.
-- No new snapshot schema, unrelated provider, dependency, generated-file, or
-  global Widget
-  architecture change.
+- No product, source, test, packaging, entitlement, identifier, config,
+  Keychain, updater, signing, or migration implementation during preflight.
+- No new dependency, release credential, Sparkle key, certificate, profile,
+  secret, real config, or credential migration.
+- No change to Ark API, provider, menu bar, popover, snapshot, or Widget UI.
+- No assumption that changing only the `.app` filename provides isolation.
+- No use of the official CodexBar signing identity or Sparkle private key.
 - No push, PR, merge, release, destructive operation, or history rewrite
   without Bee approval.
 
-## Next Task — Post-M4 Governance
+## Next Task — M5A Read-Only Preflight
 
-1. Preserve M4 PR #5 and merge commit `b40762d8`; do not rewrite history.
-2. Evaluate official/fork coexistence across app name, app Bundle ID, Widget
-   Bundle ID, app-group snapshot identity, signing, updater channel, and config
-   migration. No identifier change is authorized before Bee chooses a design.
-3. Archive the closed M1/M2 PROJECT_LOG segments as required by Entry 064.
-4. Bee explicitly approves the installation-isolation direction and entry into
-   M5; M5 begins in a fresh thread.
-5. No packaging implementation, release, destructive operation, or upstream
-   synchronization before that decision.
+1. A fresh Claude thread invokes LOOP and reads the current project/baseline
+   rules.
+2. Verify real branch/HEAD/worktree but perform no Git writes.
+3. Trace every identity/storage/update surface and distinguish required M5A
+   isolation from deferrable M5B work.
+4. Return proposed S20+ touchpoints in a compact table with exact
+   file/symbol/reason/risk/rollback/test evidence.
+5. Stop for Bee/Codex approval. Do not implement from the proposal.
 
-## Definition of Done — M4
+## Definition of Done — M5A Preflight
 
-M4 is Done only when:
+- Official and fork collision mechanisms are evidence-backed.
+- App, Widget, App Group, config, Keychain, support storage, signing, and
+  updater identities are all accounted for.
+- Minimum side-by-side installation scope is separated from optional
+  simultaneous-run/full-release scope.
+- Every proposed shared edit is a numbered S20+ touchpoint.
+- Migration avoids printing, committing, or silently copying secrets.
+- Rollback and verification commands are concrete.
+- Repository remains clean and no product/packaging code is changed.
+- Bee approves or rejects the implementation contract.
 
-- LOOP and baseline rules were followed.
-- Bee approves the exact picker and layout policy.
-- Ark is selectable only in the approved Widget surfaces.
-- Small Widget shows a useful Ark usage/reset state under the approved policy.
-- Medium Widget shows the four available Ark windows in stable order.
-- Unknown/missing windows remain unavailable/omitted rather than zero.
-- M3 `resetsAt`/`detailText` data is consumed without parsing opaque detail.
-- Widget performs no Ark network call.
-- Existing provider Widget behavior remains unchanged.
-- Focused picker, row projection/selection, and small/medium model tests pass.
-- `swift build`, relevant Widget/Ark tests, `make test`, and `make check` pass,
-  or an
-  environment-only blocker is reproduced and recorded.
-- Codex audits the complete M4 diff and records PASS/FAIL.
-- Bee approves merge or moving to M5.
+## Planned Milestones
 
-## Planned Milestones After M4
-
-- After M4 merge: archive closed M1/M2 PROJECT_LOG segments, then start M5 in
-  a fresh thread.
-- M5 — Stabilization and local release candidate.
+- M5A — Installation identity isolation and local release candidate.
+- M5B — Optional full simultaneous-run and fork-owned update isolation.
 - M6 — Optional upstream contribution review.
