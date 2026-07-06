@@ -15,10 +15,10 @@ Status: ACTIVE — PREFLIGHT REPORTED COMPLETE; implementation not authorized
 Audit State: M4 merged as b40762d8. Bee approved opening M5 independent-
 identity preflight. Closed M1/M2 logs are archived through Entry 051.
 Claude reports 23 collision surfaces, 9 S20+ proposals, and 8 decision
-questions. Codex has received only the completion summary, not the detailed
-tables/evidence. Next: transfer the compact preflight report, estimate review
-cost, then Bee/Codex decide exact implementation scope before any source,
-packaging, identifier, config, Keychain, or updater change.
+questions. Codex received the detailed package and completed the bounded
+Stage 1 decision screen. Next: Bee accepts or revises the recommendations,
+then separately authorizes Phase 2 before any source, packaging, identifier,
+config, Keychain, or updater change.
 Preflight Owner: Claude / GLM Developer (fresh thread, read-only)
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
@@ -95,9 +95,27 @@ Preferred phased target for evaluation:
 
 Claude reports the read-only survey complete: 23 collision surfaces mapped to
 9 S20+ proposals, with 21 surfaces proposed for M5A and 2 low-priority items
-deferrable to M5B; 8 decisions remain. The detailed collision map, touchpoint
-table, evidence, and decision questions have not yet been transferred to
-Codex. No S20+ touchpoint is approved.
+deferrable to M5B; 8 decisions remain. The detailed decision package was
+transferred to Codex and received a bounded Stage 1 screen. No S20+ touchpoint
+is approved.
+
+Codex completed the Stage 1 decision/risk screen. The following recommendations
+remain subject to Bee approval and do not authorize implementation:
+
+| Question | Codex recommendation |
+|---|---|
+| Q1 Bundle ID | `com.zeronxpbee.codexbar-ark`; debug adds `.debug`; Widget derives `.widget` |
+| Q2 visible name | `CodexBar Ark` / `CodexBar Ark.app`; keep Swift package, module, target, process, and executable names unchanged |
+| Q3 signing | M5A uses the upstream-supported ad-hoc path only |
+| Q4 Sparkle | no official feed or automatic checks in any fork build; keep the existing framework unless Phase 2 proves more is required |
+| Q5 migration | fresh isolated state; no automatic config, Keychain, snapshot, defaults, or support-directory copying; Bee re-enters Ark credentials |
+| Q6 App Group | UNRESOLVED; do not adopt Application Support fallback or the official Team ID without Phase 2 macOS proof |
+| Q7 documentation | update `docs/widgets.md` together with the eventual implementation |
+| Q8 diagnostics | defer osLog, queue labels, notification names, and run-loop labels to M5B |
+
+Stage 1 also found that the physical `.app` filename is part of Q2 and that
+renaming `Package.swift` products/modules would add conflict without helping
+installation identity. No S20+ touchpoint is approved.
 
 ## Allowed Implementation Scope
 
@@ -127,15 +145,14 @@ Claude / GLM may:
 
 ## Next Task — M5A Preflight Decision Gate
 
-1. Transfer Claude's complete compact collision map, S20+ table, evidence, and
-   8 decision questions; do not substitute the completion summary.
-2. Codex estimates the review's token cost before starting substantive review
-   and warns Bee first if it is likely high.
-3. Bee/Codex accept, revise, defer, or reject each proposed touchpoint and
-   define the exact M5A/M5B boundary.
-4. Record the approved contract in governance documents.
+1. Bee accepts or revises the eight Stage 1 recommendations.
+2. After separate approval, Phase 2 validates only the App Group/Widget
+   sandbox and signing behavior plus the minimum storage isolation needed for
+   the selected fresh-state policy.
+3. Codex then reviews and narrows S20–S28 against the confirmed decisions.
+4. Record the approved implementation contract in governance documents.
 5. Only then may Bee authorize implementation. Claude must not implement from
-   the unapproved preflight summary.
+   the unapproved preflight package.
 
 ## Definition of Done — M5A Preflight
 

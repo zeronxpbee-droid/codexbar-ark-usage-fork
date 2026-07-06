@@ -1867,6 +1867,48 @@ questions. Codex applies the token-cost gate before substantive review; no
 source, packaging, identifier, persistence, updater, PR, or merge action is
 authorized by this entry.
 
+## Entry 076 — M5A Stage 1 Decision Screen Completed
+
+Date: 2026-07-06
+Actor: Bee (authorization) + Codex (architecture review)
+Type: Preflight Review / Decision Recommendation
+Status: RECOMMENDATIONS PENDING BEE
+
+### LOOP Result
+
+Bounded architecture-review loop. Codex reviewed only the eight decision
+questions and directly relevant local evidence; it did not validate every
+S20–S28 file, run builds, perform macOS entitlement experiments, or authorize
+implementation.
+
+### Recommendations
+
+| Area | Recommendation |
+|---|---|
+| Identity | `com.zeronxpbee.codexbar-ark`; visible bundle `CodexBar Ark.app` |
+| Internal names | Keep Swift package/module/target/process/executable names |
+| Signing | Upstream-supported ad-hoc path for M5A |
+| Updates | No official Sparkle feed or automatic checks |
+| Migration | Fresh state; no automatic secret/config/snapshot/defaults copy |
+| App Group | UNRESOLVED pending macOS App + sandboxed Widget proof |
+| Docs | Update Widget instructions with implementation |
+| Diagnostic labels | Defer C19/C21–C23 to M5B |
+
+### Findings / Risks
+
+Claude's Q5 automatic Keychain/config copy conflicts with the project's rule
+against silently copying secrets and unnecessarily expands M5A. Q6's
+Application Support fallback is not accepted because a sandboxed Widget may
+not be able to read the main app's fallback location. The official Team ID
+must not be reused as a fork identity. Renaming `Package.swift` products or
+executables is unnecessary; changing the physical app bundle name is not.
+
+### Decision / Next Action
+
+No S20+ touchpoint is approved. Bee accepts or revises these eight
+recommendations. Phase 2, if separately approved, is limited to App Group,
+Widget sandbox, signing, and minimum fresh-state storage feasibility.
+
 ## Entry Template
 
 ```text
