@@ -121,29 +121,7 @@ resolve_signing_mode() {
     return
   fi
 
-  local candidate=""
-  for candidate in \
-    "Developer ID Application: Peter Steinberger (Y5PE65HELJ)" \
-    "CodexBar Development"
-  do
-    if has_signing_identity "${candidate}"; then
-      APP_IDENTITY="${candidate}"
-      export APP_IDENTITY
-      export_team_id_from_identity "${APP_IDENTITY}"
-      SIGNING_MODE="identity"
-      return
-    fi
-  done
-
-  candidate="$(detect_codesigning_identity)"
-  if [[ -n "${candidate}" ]]; then
-    APP_IDENTITY="${candidate}"
-    export APP_IDENTITY
-    export_team_id_from_identity "${APP_IDENTITY}"
-    SIGNING_MODE="identity"
-    return
-  fi
-
+  # M5A S26: fork defaults to ad-hoc; identity signing requires explicit APP_IDENTITY.
   SIGNING_MODE="adhoc"
 }
 
@@ -276,8 +254,8 @@ if [[ "${SIGNING_MODE:-adhoc}" == "adhoc" && "${CLEAR_ADHOC_KEYCHAIN}" == "1" ]]
   log "==> Clearing CodexBar keychain entries (adhoc signing)"
   # Clear both the legacy keychain store and the current cache service when developers explicitly want a clean reset
   # of CodexBar-owned keychain state for ad-hoc builds.
-  delete_keychain_service_items "com.steipete.CodexBar"
-  delete_keychain_service_items "com.steipete.codexbar.cache"
+  delete_keychain_service_items "com.zeronxpbee.codexbar-ark"
+  delete_keychain_service_items "com.zeronxpbee.codexbar-ark.cache"
 elif [[ "${SIGNING_MODE:-adhoc}" == "adhoc" ]]; then
   log "==> Preserving CodexBar keychain entries (pass --clear-adhoc-keychain to reset adhoc keychain state)"
 fi

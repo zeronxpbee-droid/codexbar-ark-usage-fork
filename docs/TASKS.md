@@ -11,16 +11,12 @@ M5A — Ark Fork Installation Identity Implementation
 ## Goal Status
 
 ```text
-Status: ACTIVE — IMPLEMENTATION AUTHORIZED
-Audit State: M4 merged as b40762d8. Bee approved opening M5 independent-
-identity preflight. Closed M1/M2 logs are archived through Entry 051.
-Claude reports 23 collision surfaces, 9 S20+ proposals, and 8 decision
-questions. Codex completed the bounded Stage 1 decision screen and Phase 2
-App Group/signing/storage feasibility proof. Bee accepted the Stage 1/2
-recommendations. Codex completed the final touchpoint review and Bee approved
-the exact S20/S21/S22/S23/S25/S26/S27/S29 contract with S24/S28 deferred.
-Next: Claude implements only the approved surfaces and completes same-thread
-Self-Check before independent Pre-Audit.
+Status: M5A IMPLEMENTATION COMMITTED — Developer Self-Check in progress
+Audit State: Entry 080 approved S20/S21/S22/S23/S25/S26/S27/S29 contract;
+Claude implemented all 8 touchpoints (Entry 081); 35 files changed; S24/S28
+deferred to M5B; fresh-state policy (no official data migration)
+Next: Developer Self-Check on candidate SHA; if PASS, Bee opens independent
+Pre-Auditor thread; if Pre-Audit PASS, Codex Final Audit
 Implementation Owner: Claude / GLM Developer
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT

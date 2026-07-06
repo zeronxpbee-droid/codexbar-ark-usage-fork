@@ -2052,6 +2052,94 @@ Claude implements and returns a clean exact SHA with `SELF-CHECK PASS`. A new
 independent Claude Pre-Auditor must then return `PRE-AUDIT PASS` for that same
 SHA before Codex begins Final Audit.
 
+## Entry 081 — Claude M5A Implementation (S20/S21/S22/S23/S25/S26/S27/S29)
+
+Date: 2026-07-07
+Actor: Claude
+Type: Development
+Status: CREATED
+
+### Active Goal
+
+M5A — Ark Fork Installation Identity Implementation
+
+### LOOP Result
+
+Bounded implementation loop per Entry 080 approved contract. Codex was
+Evaluator (Stage 1/2 + final touchpoint review); Bee approved the exact
+S20/S21/S22/S23/S25/S26/S27/S29 contract with S24/S28 deferred. Claude
+implemented only the approved surfaces.
+
+### Summary
+
+Implemented all 8 approved touchpoints:
+
+- S20: Bundle ID `com.zeronxpbee.codexbar-ark[.debug]`; Widget derives `.widget`;
+  display name `CodexBar Ark`; app bundle `CodexBar Ark.app`; internal
+  package/module/target/executable names unchanged.
+- S21: Fixed App Group `group.com.zeronxpbee.codexbar-ark[.debug]`; removed
+  Team-ID dependence; legacy candidates point only at fork groups; fallback
+  directory `CodexBarArk`.
+- S22: Config directory `codexbar-ark`; removed fallback to official
+  `~/.codexbar` and `~/.config/codexbar`; `CODEXBAR_CONFIG` override retained;
+  `0600` permissions preserved.
+- S23: Keychain services `com.zeronxpbee.codexbar-ark.cache` and
+  `com.zeronxpbee.codexbar-ark`; migration items reference only fork services;
+  no official-service reads/deletes/copies.
+- S25: All fork builds disable Sparkle (empty feed URL, cleared public key,
+  `SUEnableAutomaticChecks=false`); framework retained.
+- S26: Default ad-hoc signing; identity mode requires explicit `APP_IDENTITY`;
+  official Developer ID/notarization/release defaults removed.
+- S27: CLI command `codexbar-ark`; installer targets `CodexBar Ark.app` and
+  `codexbar-ark` symlinks; CLIHelpers reads fork defaults domains.
+- S29: Updated docs/widgets.md, docs/cli.md, docs/codex.md, docs/cursor.md,
+  docs/opencode.md, docs/factory.md, docs/augment.md, docs/DEVELOPMENT_SETUP.md,
+  docs/KEYCHAIN_FIX.md, docs/FORK_QUICK_START.md, docs/packaging.md, README.md.
+
+### Files Changed
+
+35 files: Scripts (package_app.sh, compile_and_run.sh, launch.sh,
+sign-and-notarize.sh), .mac-release.env, Makefile, WidgetExtension (project.yml,
+Info.plist), Sources (AppGroupSupport, CodexBarConfigStore, KeychainCacheStore,
+8 TokenStores, KeychainMigration, CLIHelpers), bin/install-codexbar-cli.sh,
+Tests (AppGroupSupportTests, ConfigValidationTests, KeychainMigrationTests),
+12 docs.
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| `git diff --check` | PASS |
+| Long lines (>120, Swift) | None |
+| `com.steipete` in Sources (excl. S28 labels) | None (S24/S28 deferred) |
+| `Y5PE65HELJ` in Scripts | None |
+| `swift build` | NOT RUN (no Swift toolchain in sandbox) |
+| `swift test --filter AppGroupSupportTests` | NOT RUN (same) |
+| `swift test --filter ConfigValidationTests` | NOT RUN (same) |
+| `swift test --filter KeychainMigrationTests` | NOT RUN (same) |
+| SwiftFormat `--lint` | NOT RUN (same) |
+| SwiftLint `--strict --no-cache` | NOT RUN (same) |
+| `make check` / `make test` | NOT RUN (same) |
+| Package `CodexBar Ark.app` | NOT RUN (same) |
+
+### Issues / Risks
+
+- No local Swift toolchain; all mechanical gates deferred to Pre-Auditor/Codex.
+- Visual/packaging evidence (exact `CodexBar Ark.app` inspection) NOT RUN.
+- S24 (Application Support history/cost-cache/log isolation) deferred to M5B.
+- S28 (osLog/DispatchQueue/Notification/RunLoop labels) deferred to M5B.
+- Q5 fresh-state policy: no automatic migration from official CodexBar data.
+
+### Decision
+
+Claude creates one additive local commit and proceeds to Developer Self-Check.
+No push, PR, merge, M5B, release, or history rewrite.
+
+### Next Action
+
+Developer Self-Check on candidate SHA. If PASS, Bee opens independent
+Pre-Auditor thread. If Pre-Audit PASS, Codex Final Audit.
+
 ## Entry Template
 
 ```text

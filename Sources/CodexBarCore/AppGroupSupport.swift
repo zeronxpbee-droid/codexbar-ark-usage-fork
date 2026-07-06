@@ -4,10 +4,13 @@ import Security
 #endif
 
 public enum AppGroupSupport {
-    public static let defaultTeamID = "Y5PE65HELJ"
+    // M5A S21: fork uses fixed App Group IDs; Team ID is no longer used for
+    // group construction. defaultTeamID remains as an empty fallback for
+    // resolvedTeamID() callers, but currentGroupID ignores it.
+    public static let defaultTeamID = ""
     public static let teamIDInfoKey = "CodexBarTeamID"
-    public static let legacyReleaseGroupID = "group.com.steipete.codexbar"
-    public static let legacyDebugGroupID = "group.com.steipete.codexbar.debug"
+    public static let legacyReleaseGroupID = "group.com.zeronxpbee.codexbar-ark"
+    public static let legacyDebugGroupID = "group.com.zeronxpbee.codexbar-ark.debug"
     public static let widgetSnapshotFilename = "widget-snapshot.json"
     public static let migrationVersion = 1
     public static let migrationVersionKey = "appGroupMigrationVersion"
@@ -40,7 +43,8 @@ public enum AppGroupSupport {
     }
 
     static func currentGroupID(teamID: String, bundleID: String?) -> String {
-        let base = "\(teamID).com.steipete.codexbar"
+        // M5A S21: fork uses fixed App Group IDs; Team ID is not used.
+        let base = "group.com.zeronxpbee.codexbar-ark"
         return self.isDebugBundleID(bundleID) ? "\(base).debug" : base
     }
 
@@ -111,7 +115,7 @@ public enum AppGroupSupport {
     {
         let base = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? fileManager.temporaryDirectory
-        let directory = base.appendingPathComponent("CodexBar", isDirectory: true)
+        let directory = base.appendingPathComponent("CodexBarArk", isDirectory: true)
         try? fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
         return directory
     }

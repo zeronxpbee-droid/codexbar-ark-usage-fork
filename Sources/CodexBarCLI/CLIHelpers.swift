@@ -158,8 +158,8 @@ extension CodexBarCLI {
 
     static func resetTimeDisplayStyleFromDefaults() -> ResetTimeDisplayStyle {
         let domains = [
-            "com.steipete.codexbar",
-            "com.steipete.codexbar.debug",
+            "com.zeronxpbee.codexbar-ark",
+            "com.zeronxpbee.codexbar-ark.debug",
         ]
         for domain in domains {
             if let value = UserDefaults(suiteName: domain)?.object(forKey: "resetTimesShowAbsolute") as? Bool {
@@ -172,8 +172,8 @@ extension CodexBarCLI {
 
     static func weeklyProgressWorkDaysFromDefaults() -> Int? {
         let domains = [
-            "com.steipete.codexbar",
-            "com.steipete.codexbar.debug",
+            "com.zeronxpbee.codexbar-ark",
+            "com.zeronxpbee.codexbar-ark.debug",
         ]
         for domain in domains {
             if let value = UserDefaults(suiteName: domain)?.object(forKey: "weeklyProgressWorkDays") as? Int {

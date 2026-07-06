@@ -163,7 +163,8 @@ struct ConfigValidationTests {
     }
 
     @Test
-    func `config store default url ignores relative xdg config home`() throws {
+    func `config store default url ignores relative xdg config home and uses fork default`() throws {
+        // M5A S22: fork does not fall back to official ~/.codexbar or ~/.config/codexbar.
         let fileManager = FileManager.default
         let home = try Self.makeTemporaryHome()
         defer { try? fileManager.removeItem(at: home) }
@@ -177,7 +178,7 @@ struct ConfigValidationTests {
             ],
             fileManager: fileManager)
 
-        #expect(url == legacy)
+        #expect(url == Self.configURL(in: home.appendingPathComponent(".config", isDirectory: true)))
     }
 
     @Test
@@ -192,7 +193,8 @@ struct ConfigValidationTests {
     }
 
     @Test
-    func `config store default url keeps existing legacy config`() throws {
+    func `config store default url does not fall back to official legacy path`() throws {
+        // M5A S22: fork uses codexbar-ark directory; no fallback to official ~/.codexbar.
         let fileManager = FileManager.default
         let home = try Self.makeTemporaryHome()
         defer { try? fileManager.removeItem(at: home) }
@@ -201,11 +203,13 @@ struct ConfigValidationTests {
 
         let url = CodexBarConfigStore.defaultURL(home: home, environment: [:], fileManager: fileManager)
 
-        #expect(url == legacy)
+        #expect(url != legacy)
+        #expect(url == Self.configURL(in: home.appendingPathComponent(".config", isDirectory: true)))
     }
 
     @Test
-    func `config store default url prefers existing xdg default over legacy config`() throws {
+    func `config store default url returns fork xdg default`() throws {
+        // M5A S22: legacy path is irrelevant; fork always returns codexbar-ark default.
         let fileManager = FileManager.default
         let home = try Self.makeTemporaryHome()
         defer { try? fileManager.removeItem(at: home) }
@@ -233,7 +237,7 @@ struct ConfigValidationTests {
 
     private static func configURL(in directory: URL) -> URL {
         directory
-            .appendingPathComponent("codexbar", isDirectory: true)
+            .appendingPathComponent("codexbar-ark", isDirectory: true)
             .appendingPathComponent("config.json")
     }
 

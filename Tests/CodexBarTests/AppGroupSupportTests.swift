@@ -4,23 +4,25 @@ import Testing
 
 struct AppGroupSupportTests {
     @Test
-    func `app group identifiers use resolved team-prefixed release and debug variants`() {
+    func `fork app group identifiers are fixed and ignore team id`() {
+        // M5A S21: fork uses fixed group IDs; Team ID is not used for construction.
         #expect(
-            AppGroupSupport.currentGroupID(teamID: "Y5PE65HELJ", bundleID: "com.steipete.codexbar")
-                == "Y5PE65HELJ.com.steipete.codexbar")
+            AppGroupSupport.currentGroupID(teamID: "Y5PE65HELJ", bundleID: "com.zeronxpbee.codexbar-ark")
+                == "group.com.zeronxpbee.codexbar-ark")
         #expect(
-            AppGroupSupport.currentGroupID(teamID: "ABCDE12345", bundleID: "com.steipete.codexbar.debug")
-                == "ABCDE12345.com.steipete.codexbar.debug")
+            AppGroupSupport.currentGroupID(teamID: "ABCDE12345", bundleID: "com.zeronxpbee.codexbar-ark.debug")
+                == "group.com.zeronxpbee.codexbar-ark.debug")
         #expect(
-            AppGroupSupport.legacyGroupID(for: "com.steipete.codexbar")
-                == "group.com.steipete.codexbar")
+            AppGroupSupport.legacyGroupID(for: "com.zeronxpbee.codexbar-ark")
+                == "group.com.zeronxpbee.codexbar-ark")
         #expect(
-            AppGroupSupport.legacyGroupID(for: "com.steipete.codexbar.debug")
-                == "group.com.steipete.codexbar.debug")
+            AppGroupSupport.legacyGroupID(for: "com.zeronxpbee.codexbar-ark.debug")
+                == "group.com.zeronxpbee.codexbar-ark.debug")
     }
 
     @Test
-    func `resolved team id falls back to plist and then default`() {
+    func `resolved team id falls back to plist and then empty default`() {
+        // M5A S21: defaultTeamID is empty; fork does not use Team ID for groups.
         #expect(
             AppGroupSupport.resolvedTeamID(
                 infoDictionaryOverride: [AppGroupSupport.teamIDInfoKey: "ABCDE12345"],
@@ -29,6 +31,7 @@ struct AppGroupSupportTests {
             AppGroupSupport.resolvedTeamID(
                 infoDictionaryOverride: nil,
                 bundleURLOverride: nil) == AppGroupSupport.defaultTeamID)
+        #expect(AppGroupSupport.defaultTeamID.isEmpty)
     }
 
     @Test
@@ -62,7 +65,7 @@ struct AppGroupSupportTests {
 
         let currentSnapshotURL = root.appendingPathComponent("current/widget-snapshot.json", isDirectory: false)
         let result = AppGroupSupport.migrateLegacyDataIfNeeded(
-            bundleID: "com.steipete.codexbar",
+            bundleID: "com.zeronxpbee.codexbar-ark",
             standardDefaults: standardDefaults,
             currentDefaultsOverride: currentDefaults,
             legacyDefaultsOverride: legacyDefaults,
@@ -80,7 +83,7 @@ struct AppGroupSupportTests {
                 == AppGroupSupport.migrationVersion)
 
         let secondResult = AppGroupSupport.migrateLegacyDataIfNeeded(
-            bundleID: "com.steipete.codexbar",
+            bundleID: "com.zeronxpbee.codexbar-ark",
             standardDefaults: standardDefaults,
             currentDefaultsOverride: currentDefaults,
             legacyDefaultsOverride: legacyDefaults,
@@ -108,7 +111,7 @@ struct AppGroupSupportTests {
         legacyDefaults.set(UsageProvider.cursor.rawValue, forKey: "widgetSelectedProvider")
 
         let result = AppGroupSupport.migrateLegacyDataIfNeeded(
-            bundleID: "com.steipete.codexbar",
+            bundleID: "com.zeronxpbee.codexbar-ark",
             standardDefaults: standardDefaults,
             currentDefaultsOverride: currentDefaults,
             legacyDefaultsOverride: legacyDefaults)
@@ -117,5 +120,16 @@ struct AppGroupSupportTests {
         #expect(result.copiedDefaults == 0)
         #expect(!currentDefaults.bool(forKey: "debugDisableKeychainAccess"))
         #expect(currentDefaults.string(forKey: "widgetSelectedProvider") == UsageProvider.codex.rawValue)
+    }
+
+    @Test
+    func `fork legacy group ids never point at official groups`() {
+        // M5A S21: fork legacy candidates must never point at official groups.
+        let releaseLegacy = AppGroupSupport.legacyGroupID(for: "com.zeronxpbee.codexbar-ark")
+        let debugLegacy = AppGroupSupport.legacyGroupID(for: "com.zeronxpbee.codexbar-ark.debug")
+        #expect(!releaseLegacy.contains("steipete"))
+        #expect(!debugLegacy.contains("steipete"))
+        #expect(releaseLegacy == "group.com.zeronxpbee.codexbar-ark")
+        #expect(debugLegacy == "group.com.zeronxpbee.codexbar-ark.debug")
     }
 }

@@ -15,7 +15,7 @@ When developing CodexBar, you may see frequent keychain permission prompts like:
 > **CodexBar wants to access key "Claude Code-credentials" in your keychain.**
 
 This happens because each rebuild creates a new code signature, and macOS treats it as a "different" app.
-That can affect both CodexBar-owned entries (`com.steipete.CodexBar`, `com.steipete.codexbar.cache`) and
+That can affect both CodexBar-owned entries (`com.zeronxpbee.codexbar-ark`, `com.zeronxpbee.codexbar-ark.cache`) and
 third-party items such as `Claude Code-credentials`, so an ad-hoc-signed rebuild can keep re-triggering
 password/keychain approval dialogs even after you previously chose **Always Allow**.
 
