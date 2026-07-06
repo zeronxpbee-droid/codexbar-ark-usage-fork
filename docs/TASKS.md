@@ -11,14 +11,14 @@ M5A — Ark Fork Installation Identity Preflight
 ## Goal Status
 
 ```text
-Status: ACTIVE — PREFLIGHT REPORTED COMPLETE; implementation not authorized
+Status: ACTIVE — PREFLIGHT PHASE 2 COMPLETE; implementation not authorized
 Audit State: M4 merged as b40762d8. Bee approved opening M5 independent-
 identity preflight. Closed M1/M2 logs are archived through Entry 051.
 Claude reports 23 collision surfaces, 9 S20+ proposals, and 8 decision
-questions. Codex received the detailed package and completed the bounded
-Stage 1 decision screen. Next: Bee accepts or revises the recommendations,
-then separately authorizes Phase 2 before any source, packaging, identifier,
-config, Keychain, or updater change.
+questions. Codex completed the bounded Stage 1 decision screen and Phase 2
+App Group/signing/storage feasibility proof. Next: Bee accepts or revises the
+recommendations, then separately authorizes final S20+ contract review before
+any source, packaging, identifier, config, Keychain, or updater change.
 Preflight Owner: Claude / GLM Developer (fresh thread, read-only)
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
@@ -109,13 +109,44 @@ remain subject to Bee approval and do not authorize implementation:
 | Q3 signing | M5A uses the upstream-supported ad-hoc path only |
 | Q4 Sparkle | no official feed or automatic checks in any fork build; keep the existing framework unless Phase 2 proves more is required |
 | Q5 migration | fresh isolated state; no automatic config, Keychain, snapshot, defaults, or support-directory copying; Bee re-enters Ark credentials |
-| Q6 App Group | UNRESOLVED; do not adopt Application Support fallback or the official Team ID without Phase 2 macOS proof |
+| Q6 App Group | use fixed `group.com.zeronxpbee.codexbar-ark` (`.debug` for debug); do not use the official Team ID or Application Support fallback as the sharing contract |
 | Q7 documentation | update `docs/widgets.md` together with the eventual implementation |
 | Q8 diagnostics | defer osLog, queue labels, notification names, and run-loop labels to M5B |
 
 Stage 1 also found that the physical `.app` filename is part of Q2 and that
 renaming `Package.swift` products/modules would add conflict without helping
 installation identity. No S20+ touchpoint is approved.
+
+### Phase 2 Feasibility Result
+
+Codex ran a disposable, ad-hoc-signed App Group probe on macOS 26.4.1. Both an
+ordinary App-equivalent process and an App-Sandbox-enabled Widget-equivalent
+process read the same seeded marker through
+`FileManager.containerURL(forSecurityApplicationGroupIdentifier:)`. The
+recommended fixed `group.com.zeronxpbee.codexbar-ark` form worked without a
+Team Identifier in the ad-hoc signature. All uniquely named probe containers
+and crash reports were removed afterward; the repository remained clean.
+
+This proves the local M5A path, not future distribution. A future Developer ID
+or App Store build must register/authorize the group for that signing team.
+The Application Support fallback remains only a failure fallback; it is not a
+valid cross-sandbox sharing contract.
+
+Minimum M5A fresh-state storage boundary:
+
+- use a new config path with no fallback read from official CodexBar;
+- use the fixed fork App Group for Widget snapshot/shared defaults, with no
+  migration read from official or legacy groups;
+- rely on the new Bundle ID to isolate standard `UserDefaults`;
+- give CodexBar-owned Keychain services fork-specific names and prevent the
+  fork's migration pass from reading official CodexBar services;
+- leave external provider-owned credentials, such as Claude CLI credentials,
+  under their provider-owned identities;
+- defer unrelated Application Support history/account caches, cost caches,
+  logs, and diagnostic labels to M5B, with the explicit limitation that M5A is
+  not full simultaneous-run/storage isolation.
+
+No S20+ touchpoint is approved by this feasibility result.
 
 ## Allowed Implementation Scope
 
@@ -143,13 +174,14 @@ Claude / GLM may:
 - No push, PR, merge, release, destructive operation, or history rewrite
   without Bee approval.
 
-## Next Task — M5A Preflight Decision Gate
+## Next Task — M5A Final Contract Decision Gate
 
-1. Bee accepts or revises the eight Stage 1 recommendations.
-2. After separate approval, Phase 2 validates only the App Group/Widget
-   sandbox and signing behavior plus the minimum storage isolation needed for
-   the selected fresh-state policy.
-3. Codex then reviews and narrows S20–S28 against the confirmed decisions.
+1. Bee accepts or revises the Stage 1 recommendations and Phase 2 fixed App
+   Group/fresh-state boundary.
+2. Codex estimates the cost of final S20–S28 contract review and waits for Bee
+   if it is high.
+3. Codex narrows, reclassifies, or rejects the proposed touchpoints against the
+   confirmed decisions; the Claude package is not adopted wholesale.
 4. Record the approved implementation contract in governance documents.
 5. Only then may Bee authorize implementation. Claude must not implement from
    the unapproved preflight package.

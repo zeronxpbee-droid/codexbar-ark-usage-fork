@@ -1909,6 +1909,47 @@ No S20+ touchpoint is approved. Bee accepts or revises these eight
 recommendations. Phase 2, if separately approved, is limited to App Group,
 Widget sandbox, signing, and minimum fresh-state storage feasibility.
 
+## Entry 077 — M5A Phase 2 App Group and Storage Feasibility Proven
+
+Date: 2026-07-06
+Actor: Bee (authorization) + Codex (runtime verification)
+Type: Architecture Verification / Security Boundary
+Status: PHASE 2 PASS / IMPLEMENTATION NOT AUTHORIZED
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| Host | macOS 26.4.1; no valid local code-signing identity |
+| Signature | ad-hoc; `TeamIdentifier=not set` |
+| Ordinary App-equivalent probe | fixed fork App Group READ/WRITE PASS |
+| App-Sandbox Widget-equivalent probe | same seeded marker READ PASS |
+| Recommended group | `group.com.zeronxpbee.codexbar-ark` (`.debug` variant) |
+| Network / Keychain access | NONE |
+| Probe containers/crash reports | REMOVED |
+| Repository product change | NONE |
+
+Apple documents both Team-prefixed macOS groups and registered `group.` groups.
+The local ad-hoc result proves M5A feasibility only; future Developer ID/App
+Store distribution must authorize the fixed group for the signing team.
+
+### Storage Decision Recommendation
+
+M5A isolates the fork config without reading official fallback data, uses the
+fixed fork App Group without legacy official migration, and isolates
+CodexBar-owned Keychain service names so the fork cannot silently read or
+migrate official CodexBar credentials. Standard defaults isolate through the
+new Bundle ID. External provider-owned credentials remain provider-owned.
+Unrelated support/history/cost caches, logs, and diagnostic labels defer to
+M5B, so M5A does not promise full simultaneous-run/storage isolation.
+
+### Decision / Next Action
+
+Application Support fallback is rejected as the Widget sharing contract, and
+the official Team ID is not reused. No S20+ touchpoint is approved. Bee first
+accepts or revises the Phase 1/2 recommendations, then separately authorizes
+the final S20–S28 contract review.
+
 ## Entry Template
 
 ```text
