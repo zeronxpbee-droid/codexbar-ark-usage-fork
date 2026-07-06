@@ -16,6 +16,7 @@ enum ProviderChoice: String, AppEnum {
     case kilo
     case opencode
     case opencodego
+    case ark
 
     static let typeDisplayRepresentation = TypeDisplayRepresentation(name: "Provider")
 
@@ -32,6 +33,7 @@ enum ProviderChoice: String, AppEnum {
         .kilo: DisplayRepresentation(title: "Kilo"),
         .opencode: DisplayRepresentation(title: "OpenCode"),
         .opencodego: DisplayRepresentation(title: "OpenCode Go"),
+        .ark: DisplayRepresentation(title: "Ark"),
     ]
 
     var provider: UsageProvider {
@@ -48,6 +50,7 @@ enum ProviderChoice: String, AppEnum {
         case .kilo: .kilo
         case .opencode: .opencode
         case .opencodego: .opencodego
+        case .ark: .ark
         }
     }
 
@@ -107,9 +110,22 @@ enum ProviderChoice: String, AppEnum {
         case .deepgram: return nil // Deepgram not yet supported in widgets
         case .poe: return nil // Poe not yet supported in widgets
         case .chutes: return nil // Chutes not yet supported in widgets
-        case .ark: return nil // Ark not yet supported in widgets (M1 compile stub; picker/UI deferred to M3–M4)
+        case .ark: self = .ark // M4 S6: Ark now selectable in Usage Widget and Switcher
         case .zed: return nil // Zed not yet supported in widgets
         }
+    }
+}
+
+/// M4 S6: Dynamic options provider that excludes `.ark`.
+///
+/// Used by History and Metric Widget intents where Ark has no data to display.
+/// Keeps the existing `ProviderChoice` parameter type so persisted
+/// configurations remain compatible; only the picker option list is filtered.
+/// `results()` is an instance method per the `DynamicOptionsProvider` protocol
+/// contract; `@Parameter(optionsProvider:)` receives a provider instance.
+struct ExcludingArkOptionsProvider: DynamicOptionsProvider {
+    func results() async throws -> [ProviderChoice] {
+        ProviderChoice.allCases.filter { $0 != .ark }
     }
 }
 
@@ -132,6 +148,23 @@ struct ProviderSelectionIntent: AppIntent, WidgetConfigurationIntent {
     static let description = IntentDescription("Select the provider to display in the widget.")
 
     @Parameter(title: "Provider", default: .codex)
+    var provider: ProviderChoice
+
+    init() {
+        self.provider = .codex
+    }
+}
+
+/// M4 S6 (S19): History Widget provider selection intent.
+///
+/// Retains the existing `ProviderChoice` parameter type for compatibility but
+/// uses `ExcludingArkOptionsProvider` so Ark never appears in the History
+/// Widget picker. Ark has no daily history data to display.
+struct HistoryProviderSelectionIntent: AppIntent, WidgetConfigurationIntent {
+    static let title: LocalizedStringResource = "Provider"
+    static let description = IntentDescription("Select the provider to display in the history widget.")
+
+    @Parameter(title: "Provider", default: .codex, optionsProvider: ExcludingArkOptionsProvider())
     var provider: ProviderChoice
 
     init() {
@@ -163,7 +196,7 @@ struct CompactMetricSelectionIntent: AppIntent, WidgetConfigurationIntent {
     static let title: LocalizedStringResource = "Provider + Metric"
     static let description = IntentDescription("Select the provider and metric to display.")
 
-    @Parameter(title: "Provider", default: .codex)
+    @Parameter(title: "Provider", default: .codex, optionsProvider: ExcludingArkOptionsProvider())
     var provider: ProviderChoice
 
     @Parameter(title: "Metric", default: .credits)
@@ -213,6 +246,39 @@ struct CodexBarTimelineProvider: AppIntentTimelineProvider {
 
     func timeline(
         for configuration: ProviderSelectionIntent,
+        in context: Context) async -> Timeline<CodexBarWidgetEntry>
+    {
+        let provider = configuration.provider.provider
+        let snapshot = WidgetSnapshotStore.load() ?? WidgetPreviewData.emptySnapshot()
+        let entry = CodexBarWidgetEntry(date: Date(), provider: provider, snapshot: snapshot)
+        let refresh = Date().addingTimeInterval(30 * 60)
+        return Timeline(entries: [entry], policy: .after(refresh))
+    }
+}
+
+/// M4 S6: Timeline provider for History Widget.
+///
+/// Identical to `CodexBarTimelineProvider` but driven by
+/// `HistoryProviderSelectionIntent` (excludes Ark). History Widget entries
+/// reuse `CodexBarWidgetEntry` since the data shape is the same.
+struct HistoryTimelineProvider: AppIntentTimelineProvider {
+    func placeholder(in context: Context) -> CodexBarWidgetEntry {
+        CodexBarWidgetEntry(
+            date: Date(),
+            provider: .codex,
+            snapshot: WidgetPreviewData.snapshot())
+    }
+
+    func snapshot(for configuration: HistoryProviderSelectionIntent, in context: Context) async -> CodexBarWidgetEntry {
+        let provider = configuration.provider.provider
+        return CodexBarWidgetEntry(
+            date: Date(),
+            provider: provider,
+            snapshot: WidgetSnapshotStore.load() ?? WidgetPreviewData.snapshot())
+    }
+
+    func timeline(
+        for configuration: HistoryProviderSelectionIntent,
         in context: Context) async -> Timeline<CodexBarWidgetEntry>
     {
         let provider = configuration.provider.provider

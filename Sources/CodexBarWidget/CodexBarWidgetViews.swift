@@ -337,10 +337,17 @@ private struct SwitcherSmallUsageView: View {
                 for: self.entry,
                 limit: WidgetUsageRow.smallWidgetRowLimit(for: self.entry)))
             { row in
-                UsageBarRow(
-                    title: row.title,
-                    percentLeft: row.percentLeft,
-                    color: WidgetColors.color(for: self.entry.provider))
+                if self.entry.provider == .ark {
+                    ArkUsageBarRow(
+                        row: row,
+                        color: WidgetColors.color(for: self.entry.provider),
+                        compact: false)
+                } else {
+                    UsageBarRow(
+                        title: row.title,
+                        percentLeft: row.percentLeft,
+                        color: WidgetColors.color(for: self.entry.provider))
+                }
             }
             if let codeReview = entry.codeReviewRemainingPercent {
                 UsageBarRow(
@@ -364,15 +371,22 @@ private struct SwitcherMediumUsageView: View {
     let entry: WidgetSnapshot.ProviderEntry
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: self.entry.provider == .ark ? 2 : 10) {
             ForEach(WidgetUsageRow.rows(
                 for: self.entry,
                 limit: WidgetUsageRow.mediumWidgetRowLimit(for: self.entry)))
             { row in
-                UsageBarRow(
-                    title: row.title,
-                    percentLeft: row.percentLeft,
-                    color: WidgetColors.color(for: self.entry.provider))
+                if self.entry.provider == .ark {
+                    ArkUsageBarRow(
+                        row: row,
+                        color: WidgetColors.color(for: self.entry.provider),
+                        compact: true)
+                } else {
+                    UsageBarRow(
+                        title: row.title,
+                        percentLeft: row.percentLeft,
+                        color: WidgetColors.color(for: self.entry.provider))
+                }
             }
             if let credits = entry.creditsRemaining {
                 ValueLine(title: "Credits", value: WidgetFormat.credits(credits))
@@ -441,10 +455,17 @@ private struct SmallUsageView: View {
                 for: self.entry,
                 limit: WidgetUsageRow.smallWidgetRowLimit(for: self.entry)))
             { row in
-                UsageBarRow(
-                    title: row.title,
-                    percentLeft: row.percentLeft,
-                    color: WidgetColors.color(for: self.entry.provider))
+                if self.entry.provider == .ark {
+                    ArkUsageBarRow(
+                        row: row,
+                        color: WidgetColors.color(for: self.entry.provider),
+                        compact: false)
+                } else {
+                    UsageBarRow(
+                        title: row.title,
+                        percentLeft: row.percentLeft,
+                        color: WidgetColors.color(for: self.entry.provider))
+                }
             }
             if let codeReview = entry.codeReviewRemainingPercent {
                 UsageBarRow(
@@ -469,16 +490,23 @@ private struct MediumUsageView: View {
     let entry: WidgetSnapshot.ProviderEntry
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: self.entry.provider == .ark ? 2 : 10) {
             HeaderView(provider: self.entry.provider, updatedAt: self.entry.updatedAt)
             ForEach(WidgetUsageRow.rows(
                 for: self.entry,
                 limit: WidgetUsageRow.mediumWidgetRowLimit(for: self.entry)))
             { row in
-                UsageBarRow(
-                    title: row.title,
-                    percentLeft: row.percentLeft,
-                    color: WidgetColors.color(for: self.entry.provider))
+                if self.entry.provider == .ark {
+                    ArkUsageBarRow(
+                        row: row,
+                        color: WidgetColors.color(for: self.entry.provider),
+                        compact: true)
+                } else {
+                    UsageBarRow(
+                        title: row.title,
+                        percentLeft: row.percentLeft,
+                        color: WidgetColors.color(for: self.entry.provider))
+                }
             }
             if let credits = entry.creditsRemaining {
                 ValueLine(title: "Credits", value: WidgetFormat.credits(credits))
@@ -544,6 +572,20 @@ struct WidgetUsageRow: Identifiable, Equatable {
     let id: String
     let title: String
     let percentLeft: Double?
+    /// M4 S7: Real reset date from M3 `resetsAt`. Used for Ark relative reset
+    /// display. `nil` for providers that do not report a reset date.
+    let resetsAt: Date?
+    /// M4 S7: Opaque display-only detail string from M3 `detailText`. Must
+    /// never be parsed back into numeric values.
+    let detailText: String?
+
+    init(id: String, title: String, percentLeft: Double?, resetsAt: Date? = nil, detailText: String? = nil) {
+        self.id = id
+        self.title = title
+        self.percentLeft = percentLeft
+        self.resetsAt = resetsAt
+        self.detailText = detailText
+    }
 
     private enum AntigravityQuotaFamily {
         case gemini
@@ -551,7 +593,10 @@ struct WidgetUsageRow: Identifiable, Equatable {
     }
 
     static func smallWidgetRowLimit(for entry: WidgetSnapshot.ProviderEntry) -> Int? {
-        self.antigravityQuotaSummaryRowLimit(for: entry, limit: 2)
+        if entry.provider == .ark {
+            return 1
+        }
+        return self.antigravityQuotaSummaryRowLimit(for: entry, limit: 2)
     }
 
     static func mediumWidgetRowLimit(for entry: WidgetSnapshot.ProviderEntry) -> Int? {
@@ -576,7 +621,12 @@ struct WidgetUsageRow: Identifiable, Equatable {
         let rows: [WidgetUsageRow]
         if let usageRows = entry.usageRows {
             rows = usageRows.map { row in
-                WidgetUsageRow(id: row.id, title: row.title, percentLeft: row.percentLeft)
+                WidgetUsageRow(
+                    id: row.id,
+                    title: row.title,
+                    percentLeft: row.percentLeft,
+                    resetsAt: row.resetsAt,
+                    detailText: row.detailText)
             }
         } else {
             let metadata = ProviderDefaults.metadata[entry.provider]
@@ -599,6 +649,9 @@ struct WidgetUsageRow: Identifiable, Equatable {
             rows = defaultRows.filter { $0.percentLeft != nil }
         }
         guard let limit else { return rows }
+        if entry.provider == .ark {
+            return self.arkSmallSelection(from: rows, limit: limit)
+        }
         if entry.provider == .antigravity,
            limit >= 2,
            rows.contains(where: { $0.id.hasPrefix("antigravity-quota-summary-") })
@@ -672,6 +725,31 @@ struct WidgetUsageRow: Identifiable, Equatable {
         case (.none, .none):
             false
         }
+    }
+
+    /// M4 S7: Ark small widget row selection.
+    ///
+    /// Selects the known row with the lowest `percentLeft` (highest risk),
+    /// preserving stable source order on ties. If no row has known usage,
+    /// returns the first stable Ark row as an unavailable placeholder.
+    private static func arkSmallSelection(from rows: [WidgetUsageRow], limit: Int) -> [WidgetUsageRow] {
+        let knownRows = rows.enumerated().filter { $0.element.percentLeft != nil }
+        if let selected = knownRows.min(by: { lhs, rhs in
+            switch (lhs.element.percentLeft, rhs.element.percentLeft) {
+            case let (.some(left), .some(right)):
+                left == right ? lhs.offset < rhs.offset : left < right
+            case (.some, .none):
+                true
+            case (.none, .some):
+                false
+            default:
+                lhs.offset < rhs.offset
+            }
+        }) {
+            return [selected.element]
+        }
+        // No row has known usage: show the first stable Ark row as unavailable.
+        return Array(rows.prefix(min(limit, 1)))
     }
 }
 
@@ -753,6 +831,86 @@ private struct UsageBarRow: View {
                 }
             }
             .frame(height: 6)
+        }
+    }
+}
+
+/// M4 S7: Ark-specific usage bar row with opaque detail and relative reset.
+///
+/// Displays title, percent, bar, and the M3 `detailText`/`resetsAt` fields.
+/// `detailText` is never parsed; reset display derives only from `resetsAt`.
+/// In full mode (small widget) `ViewThatFits` progressively drops lower-priority
+/// content (detailText > resetsAt) when space is insufficient. In compact mode
+/// (medium widget) detail/reset is omitted entirely so all four title + percent
+/// + bar rows stay visible without vertical overflow; the medium container uses
+/// a tighter spacing for the same reason.
+private struct ArkUsageBarRow: View {
+    @Environment(\.widgetUsageShowsUsed) private var showUsed
+    let row: WidgetUsageRow
+    let color: Color
+    let compact: Bool
+
+    var body: some View {
+        let percent = WidgetUsageDisplay.percent(fromRemaining: self.row.percentLeft, showUsed: self.showUsed)
+        VStack(alignment: .leading, spacing: self.compact ? 2 : 4) {
+            HStack {
+                Text(self.row.title)
+                    .font(.caption)
+                Spacer()
+                Text(WidgetFormat.percent(percent))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            GeometryReader { proxy in
+                let width = max(0, min(1, (percent ?? 0) / 100)) * proxy.size.width
+                ZStack(alignment: .leading) {
+                    Capsule().fill(Color.primary.opacity(0.08))
+                    Capsule().fill(self.color).frame(width: width)
+                }
+            }
+            .frame(height: 6)
+            if !self.compact, self.row.detailText != nil || self.row.resetsAt != nil {
+                ViewThatFits(in: .vertical) {
+                    self.fullDetailAndReset
+                    self.detailOnly
+                    self.resetOnly
+                }
+            }
+        }
+    }
+
+    private var fullDetailAndReset: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            if let detail = self.row.detailText {
+                Text(detail)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            if let resetsAt = self.row.resetsAt {
+                Text(WidgetFormat.relativeDate(resetsAt))
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var detailOnly: some View {
+        if let detail = self.row.detailText {
+            Text(detail)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+        }
+    }
+
+    @ViewBuilder
+    private var resetOnly: some View {
+        if let resetsAt = self.row.resetsAt {
+            Text(WidgetFormat.relativeDate(resetsAt))
+                .font(.caption2)
+                .foregroundStyle(.secondary)
         }
     }
 }

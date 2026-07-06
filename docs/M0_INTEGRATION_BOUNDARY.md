@@ -50,8 +50,8 @@
 | S3 | `ProviderDescriptor.swift` `descriptorsByID` | add `.ark:` entry | Low–Med — dict is hot upstream; new providers appended frequently, so merge conflicts are line-local. | Remove entry (bootstrap precondition then fails only if enum case remains). |
 | S4 | `ProviderImplementationRegistry.swift` | add `case .ark:` | Low–Med — switch over provider; additive case. | Remove case. |
 | S5 | `WidgetSnapshot.swift` | none expected (schema already generic via `usageRows`/windows) | Low — only touched if a new field is truly required. | Revert field. |
-| S6 | `CodexBarWidgetProvider.swift` `ProviderChoice` | add `.ark` enum case, display rep, and `init?(provider:)` mapping | Med — this enum is edited on every widget-enabled provider; expect conflicts on upstream sync. | Return `nil` for `.ark` / remove case. |
-| S7 | `CodexBarWidgetViews.swift` | minimal row wiring if needed | Low–Med. | Revert wiring. |
+| S6 (APPROVED — M4, Bee 2026-07-05) | `CodexBarWidgetProvider.swift` `ProviderChoice` | add `.ark` enum/display/provider mappings plus intent-specific options filtering so Ark is available only to Usage + static Switcher, not History/Metric | Med — shared enum and intent file, but existing raw values/configurations remain intact | Return `nil` for `.ark`; remove case and filters. |
+| S7 (APPROVED — M4, Bee 2026-07-05) | `CodexBarWidgetViews.swift` | preserve S18 row reset/detail, select one highest-risk row for Ark small, render four stable compact Ark rows in medium, and leave non-Ark/large behavior unchanged | Med — shared small/medium/large Usage and Switcher layouts | Remove Ark-specific row projection/selection/presentation. |
 | S8 | `ProviderConfigEnvironment.swift` | add Ark-specific projection from `ProviderConfig.apiKey` / `secretKey` into the existing in-memory provider environment | Low–Med — shared credential router, but the edit follows the upstream Bedrock convention and remains an additive provider case/helper. | Remove the Ark case/helper; Ark then has no production credential projection. |
 | S9 | `MenuBarMetricWindowResolver.swift` | add an Ark branch for `.automatic` that selects the highest-risk known AFP window and falls back to 5h, then Daily | Med — shared menu policy is provider-switched and frequently extended, but the Ark edit follows existing provider-specific resolver branches and remains line-local. | Remove the Ark branch; generic automatic behavior falls back to stable `primary` (5h), then `secondary` (Daily). |
 | S10 | `CodexBarWidgetProvider.swift` `ProviderChoice.init?(provider:)` | add only `case .ark: return nil` to close the exhaustive switch; do not add `ProviderChoice.ark` or a display representation | Low — one compile-only arm; Ark remains unsupported and unselectable in Widgets. | Remove the arm together with S1. |
@@ -62,6 +62,7 @@
 | S15 (APPROVED — M2, Bee 2026-07-03) | `Sources/CodexBar/MenuCardView.swift` `UsageMenuCardView.Model.metrics(input:)` | add one Ark router branch: `if input.provider == .ark { return ArkPopoverMetrics.metrics(input:snapshot:) }`; all Ark rendering logic stays in new Ark-owned `ArkPopoverMetrics.swift` | Low–Med — additive provider branch in shared menu-card router; Ark logic isolated | Remove the branch; Ark reverts to standard path (M1 behavior) |
 | S17 (APPROVED — M3, Bee 2026-07-05) | `Sources/CodexBar/UsageStore+WidgetSnapshot.swift` `widgetUsageRows` | add one Ark routing branch to an Ark-owned four-window row mapper | Low–Med — additive branch in shared snapshot producer | Remove branch/helper; Ark falls back to primary/secondary rows |
 | S18 (APPROVED — M3, Bee 2026-07-05; naming corrected by Codex audit Entry 054) | `Sources/CodexBarCore/WidgetSnapshot.swift` `WidgetUsageRowSnapshot` | add backward-compatible optional `resetsAt` and `detailText` fields | Medium — shared persisted snapshot schema | Remove optional fields and Ark mapping |
+| S19 (APPROVED — M4, Bee 2026-07-05) | `Sources/CodexBarWidget/CodexBarWidgetBundle.swift` History Widget registration | change only the History Widget intent/timeline registration so History can use a filtered `ProviderChoice` option source while Usage keeps the existing registration | Medium — Bee accepts that changing the History intent type may reset existing History Widget configurations; Metric retains its existing type | Restore `ProviderSelectionIntent` / `CodexBarTimelineProvider` registration. |
 
 All shared edits are additive registrations/wiring. None rename, move, or
 reformat upstream code. Each milestone's PR must list the S# points it touches.
@@ -200,6 +201,68 @@ before M3 merge. Ark maps the M2 opaque complete quota string directly to
 `detailText` without parsing and maps the real window reset date to
 `resetsAt`. S17 produces stable 5h/Daily/Weekly/Monthly rows without changing
 `supportsOpus` or enabling Widget selection/UI.
+
+## M4 Independent Preflight — Proposed S6/S7
+
+M3 merge commit `9a24cf7356b6cace5fdbaeac5424609093245887`
+provides the app-owned four-row snapshot contract. M4 needs no new snapshot or
+network touchpoint, but it cannot be implemented safely by changing the old
+Ark compile stub alone:
+
+- `ProviderChoice` is shared by Usage, History, Metric, and the static
+  switcher. A direct `.ark` case makes Ark selectable in History and Metric,
+  even though Ark currently supplies neither daily history nor credits/cost
+  metrics. Bee must choose an intent-specific Usage/Switcher restriction or
+  explicitly accept that broader picker exposure.
+- `WidgetUsageRow.rows` currently drops S18 `resetsAt` and `detailText`;
+  `UsageBarRow` renders percentage only. S7 is required to consume M3 data.
+- Ark currently receives no small/medium row limit. Small would render four
+  rows; medium would render four percentage-only rows. Bee must choose the
+  small-row policy and confirm the proposed medium compact layout before S7.
+
+Bee approved the recommended policy on 2026-07-05:
+
+- Ark is available in Usage + static Switcher only. History and Metric must
+  exclude it through intent-specific options filtering; burn-down remains
+  unchanged.
+- Small selects the known row with the lowest remaining percentage, preserving
+  stable order on ties and falling back to the first stable unavailable row.
+- Medium retains all four available rows in stable order.
+- Ark detail remains opaque display text; reset derives only from `resetsAt`.
+- Compact fit fallbacks may omit lower-priority text but must not crowd or
+  displace provider/updated state.
+
+S6 and S7 are approved only within that policy and the exact file/test boundary
+in `docs/TASKS.md`.
+
+### Entry 060 audit correction
+
+The submitted implementation showed that Usage and History share the same
+intent registration, so different option lists cannot be supplied without a
+History-specific registration touch in `CodexBarWidgetBundle.swift`. That file
+was not part of approved S6; S19 is therefore proposed and requires Bee's
+decision.
+
+The implementation's claim that `DynamicOptionsProvider` cannot filter an
+`AppEnum` is incorrect. The installed macOS AppIntents SDK exposes an
+`IntentParameter` initializer for `Value.ValueType: AppEnum` with an
+`optionsProvider`. Separate `HistoryProviderChoice` and
+`MetricProviderChoice` enums are not required. Keeping `ProviderChoice` as the
+parameter type minimizes divergence and avoids an unnecessary Metric Widget
+configuration reset. A History intent-type change may still reset History
+configuration and must be accepted explicitly with S19.
+
+S7 also requires an actual fit fallback (`ViewThatFits` or an equivalent
+bounded layout). Truncating text with `lineLimit(1)` is not the approved
+fallback because it does not remove lower-priority detail/reset content when
+space is insufficient.
+
+Bee approved Option A and S19 on 2026-07-05, with the explicit principle of
+aligning with official/upstream development patterns wherever possible. The
+corrective design therefore keeps the single persisted `ProviderChoice`
+catalog, uses Apple's supported AppIntents filtered-options mechanism, limits
+the new shared registration touch to History, and preserves Metric's existing
+intent and parameter type. Separate History/Metric provider enums are rejected.
 
 ## Upstream synchronization, conflict review & rollback procedure
 

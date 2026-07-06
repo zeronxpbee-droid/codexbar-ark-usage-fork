@@ -33,6 +33,8 @@ read_when:
 The configurable provider widgets currently expose:
 Codex, Claude, Gemini, Alibaba, Antigravity, z.ai, Copilot, MiniMax, Kilo, OpenCode, and OpenCode Go.
 
+Ark is selectable in CodexBar Usage and the static Switcher. History and Metric widgets use intent-specific filtered options (`ExcludingArkOptionsProvider`) to omit Ark, since Ark has no daily history or credits/cost data. The History Widget has a dedicated `HistoryProviderSelectionIntent` (S19) so its filtered option source is isolated from Usage without splitting the persisted `ProviderChoice` enum.
+
 Providers without a `ProviderChoice` case can still be present in the app snapshot, but they are not selectable from the widget configuration UI yet.
 
 Burn-down widgets currently support Codex and Claude. Their dedicated configuration intents keep existing Usage and History widget configurations unchanged.
