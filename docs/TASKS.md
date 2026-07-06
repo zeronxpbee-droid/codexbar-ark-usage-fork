@@ -11,13 +11,12 @@ M4 — Ark Widget Provider Picker + Small/Medium UI
 ## Goal Status
 
 ```text
-Status: M4 ACTIVE / CORRECTIVE LOOP — Bee decided not to freeze M4
-Audit State: a711f4b7 passes all code/mechanical gates and Small visual QA, but
-the exact 338x158 Medium Usage view clips the provider/updated header and the
-Monthly supplemental line. See PROJECT_LOG Entry 067.
-Next: Claude implements the bounded S7 correction, then the candidate must pass
-Developer Self-Check and independent Claude Pre-Audit before Codex Final Audit.
-M4 is not frozen; scope remains exactly the Entry 067 correction.
+Status: M4 MEDIUM CORRECTION COMMITTED — Developer Self-Check in progress
+Audit State: Entry 067 found Medium 338x158 vertical overflow (header clipped,
+Monthly supplement clipped); Entry 069 kept M4 active; Claude corrective commit
+(Entry 070) omits detail/reset in compact mode, tightens spacing to fit 4 rows
+Next: Developer Self-Check on new candidate SHA; if PASS, Bee opens independent
+Pre-Auditor thread; if Pre-Audit PASS, Codex Final Audit
 Implementation Owner: Claude / GLM Developer
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT

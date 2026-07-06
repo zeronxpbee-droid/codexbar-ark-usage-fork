@@ -371,7 +371,7 @@ private struct SwitcherMediumUsageView: View {
     let entry: WidgetSnapshot.ProviderEntry
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: self.entry.provider == .ark ? 2 : 10) {
             ForEach(WidgetUsageRow.rows(
                 for: self.entry,
                 limit: WidgetUsageRow.mediumWidgetRowLimit(for: self.entry)))
@@ -490,7 +490,7 @@ private struct MediumUsageView: View {
     let entry: WidgetSnapshot.ProviderEntry
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: self.entry.provider == .ark ? 2 : 10) {
             HeaderView(provider: self.entry.provider, updatedAt: self.entry.updatedAt)
             ForEach(WidgetUsageRow.rows(
                 for: self.entry,
@@ -839,10 +839,11 @@ private struct UsageBarRow: View {
 ///
 /// Displays title, percent, bar, and the M3 `detailText`/`resetsAt` fields.
 /// `detailText` is never parsed; reset display derives only from `resetsAt`.
-/// Uses `ViewThatFits` to progressively drop lower-priority content
-/// (detailText > resetsAt) when space is insufficient, rather than crowding
-/// or truncating. Compact mode (medium widget) lays out detail and reset
-/// horizontally; full mode (small widget) stacks them vertically.
+/// In full mode (small widget) `ViewThatFits` progressively drops lower-priority
+/// content (detailText > resetsAt) when space is insufficient. In compact mode
+/// (medium widget) detail/reset is omitted entirely so all four title + percent
+/// + bar rows stay visible without vertical overflow; the medium container uses
+/// a tighter spacing for the same reason.
 private struct ArkUsageBarRow: View {
     @Environment(\.widgetUsageShowsUsed) private var showUsed
     let row: WidgetUsageRow
@@ -851,7 +852,7 @@ private struct ArkUsageBarRow: View {
 
     var body: some View {
         let percent = WidgetUsageDisplay.percent(fromRemaining: self.row.percentLeft, showUsed: self.showUsed)
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: self.compact ? 2 : 4) {
             HStack {
                 Text(self.row.title)
                     .font(.caption)
@@ -868,34 +869,12 @@ private struct ArkUsageBarRow: View {
                 }
             }
             .frame(height: 6)
-            if self.row.detailText != nil || self.row.resetsAt != nil {
-                ViewThatFits(in: self.compact ? .horizontal : .vertical) {
-                    if self.compact {
-                        self.compactDetailAndReset
-                    } else {
-                        self.fullDetailAndReset
-                    }
+            if !self.compact, self.row.detailText != nil || self.row.resetsAt != nil {
+                ViewThatFits(in: .vertical) {
+                    self.fullDetailAndReset
                     self.detailOnly
                     self.resetOnly
                 }
-            }
-        }
-    }
-
-    private var compactDetailAndReset: some View {
-        HStack(spacing: 4) {
-            if let detail = self.row.detailText {
-                Text(detail)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-            }
-            if let resetsAt = self.row.resetsAt {
-                Spacer(minLength: 4)
-                Text(WidgetFormat.relativeDate(resetsAt))
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
             }
         }
     }

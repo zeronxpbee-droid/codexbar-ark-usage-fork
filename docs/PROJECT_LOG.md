@@ -4582,6 +4582,82 @@ Only TASKS and PROJECT_LOG governance state changed. Claude Developer starts
 additively from this governance commit and follows
 `docs/CLAUDE_REVIEW_WORKFLOW.md`.
 
+## Entry 070 — Claude M4 Medium Vertical-Fit Correction
+
+Date: 2026-07-06
+Actor: Claude
+Type: Development
+Status: CREATED
+
+### Active Goal
+
+M4 — Ark Widget Provider Picker + Small/Medium UI (Entry 067 medium layout
+correction per Entry 069 continuation).
+
+### LOOP Result
+
+Bounded mechanical corrective loop. Codex was Evaluator (Entry 067); Claude was
+Generator. Applied the seven TASKS steps exactly; no judgment scope added.
+Four-stage workflow followed: implementation complete, Self-Check next.
+
+### Summary
+
+Fixed the Entry 067 Medium vertical-overflow finding:
+
+- **Root cause**: Medium 338x158 could not fit header + four three-line
+  `ArkUsageBarRow`s (title+percent, bar, detail/reset). Row-level horizontal
+  `ViewThatFits` could not solve the container-level vertical overflow.
+- **Correction**: In compact (medium) mode `ArkUsageBarRow` omits detail/reset
+  entirely, keeping only title + percent + bar. Internal `VStack` spacing
+  reduced from 4 to 2 in compact mode. `MediumUsageView` and
+  `SwitcherMediumUsageView` use `spacing: 2` for Ark (non-Ark unchanged at 10).
+  Small (full) mode is unchanged — `ViewThatFits(in: .vertical)` still drops
+  detailText > resetsAt progressively.
+- **Removed**: `compactDetailAndReset` computed property (no longer used).
+- **Regression test**: `ark medium compact rows carry required title and
+  percent` verifies all four rows have non-empty title and non-nil
+  percentLeft — the required-fields contract for compact display.
+
+### Files Changed
+
+- `Sources/CodexBarWidget/CodexBarWidgetViews.swift`
+- `Tests/CodexBarTests/CodexBarWidgetProviderTests.swift`
+- `docs/TASKS.md`
+- `docs/PROJECT_LOG.md`
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| `git diff --check` | PASS |
+| Long lines (>120, Swift) | None |
+| M4 `@Test` count | 13 |
+| Total `@Test` count | 44 |
+| `swift build` | Not run (no Swift toolchain in sandbox) |
+| `swift test --filter CodexBarWidgetProviderTests` | Not run (same) |
+| `swift test --filter Ark` | Not run (same) |
+| SwiftFormat `--lint` | Not run (same) |
+| SwiftLint `--strict --no-cache` | Not run (same) |
+
+### Issues / Risks
+
+- No local Swift toolchain; all mechanical gates requiring build/test/lint
+  deferred to Pre-Auditor and Codex on macOS.
+- Visual evidence (deterministic 338x158 Medium render) is NOT RUN in sandbox;
+  must be verified by Codex Final Audit per Entry 067 standard.
+- Small layout unchanged; non-Ark behavior unchanged; large-family unchanged.
+
+### Decision
+
+Claude creates one additive local corrective commit and proceeds to Developer
+Self-Check per `docs/CLAUDE_REVIEW_WORKFLOW.md` Prompt A. No push, PR, merge,
+M5, release, or history rewrite.
+
+### Next Action
+
+Developer Self-Check on the new candidate SHA. If PASS, Bee opens independent
+Pre-Auditor thread. If Pre-Audit PASS, Codex Final Audit.
+
 ## Entry Template
 
 ```text

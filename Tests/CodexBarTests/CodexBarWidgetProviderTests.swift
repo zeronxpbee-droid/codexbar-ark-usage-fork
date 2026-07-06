@@ -744,6 +744,22 @@ struct CodexBarWidgetProviderTests {
     }
 
     @Test
+    func `ark medium compact rows carry required title and percent`() {
+        // Entry 067 regression: Medium compact mode must show all four
+        // title + percent + bar rows at 338x158. detail/reset is omitted
+        // under vertical pressure. This test guards the required-fields
+        // contract for the compact (medium) layout.
+        let entry = Self.arkFourWindowEntry()
+        let rows = WidgetUsageRow.rows(for: entry)
+
+        #expect(rows.count == 4)
+        for row in rows {
+            #expect(!row.title.isEmpty)
+            #expect(row.percentLeft != nil)
+        }
+    }
+
+    @Test
     func `widget usage row preserves s18 fields for ark`() {
         let entry = Self.arkFourWindowEntry()
         let rows = WidgetUsageRow.rows(for: entry)
