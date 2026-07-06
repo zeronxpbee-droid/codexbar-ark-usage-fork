@@ -11,13 +11,13 @@ M4 — Ark Widget Provider Picker + Small/Medium UI
 ## Goal Status
 
 ```text
-Status: M4 AUDIT FAIL — Medium Ark Widget vertically overflows
+Status: M4 ACTIVE / CORRECTIVE LOOP — Bee decided not to freeze M4
 Audit State: a711f4b7 passes all code/mechanical gates and Small visual QA, but
 the exact 338x158 Medium Usage view clips the provider/updated header and the
 Monthly supplemental line. See PROJECT_LOG Entry 067.
-Next: Claude makes one bounded S7 corrective commit so Medium Usage/Switcher
-retain their header/switcher plus all four title/percent/bar rows; lower-priority
-detail/reset may be omitted under vertical pressure per Entry 058.
+Next: Claude implements the bounded S7 correction, then the candidate must pass
+Developer Self-Check and independent Claude Pre-Audit before Codex Final Audit.
+M4 is not frozen; scope remains exactly the Entry 067 correction.
 Implementation Owner: Claude / GLM Developer
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
@@ -183,7 +183,7 @@ Claude / GLM may:
 
 ## Next Task — M4 Medium Vertical-Fit Correction
 
-1. Start additively from the Codex Entry 067 audit-document commit; no
+1. Start additively from the latest Codex Entry 069 governance commit; no
    amend/reset/rebase.
 2. In both Medium Usage and Medium Switcher, keep the provider header/switcher
    and all four 5h/Daily/Weekly/Monthly title + percent + bar rows visible at

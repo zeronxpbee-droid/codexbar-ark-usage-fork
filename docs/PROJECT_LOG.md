@@ -4548,6 +4548,40 @@ Codex final acceptance; no product decision or M4 freeze decision was made.
 Only governance files changed; Active Goal and M4 scope are unchanged.
 The next implementation candidate must use the new four-stage pipeline.
 
+## Entry 069 — Bee Keeps M4 Active Under the Four-Stage Workflow
+
+Date: 2026-07-06
+Actor: Bee (decision) + Codex (governance)
+Type: Decision / Documentation
+Status: APPROVED / M4 ACTIVE
+
+### Active Goal
+
+M4 — Ark Widget Provider Picker + Small/Medium UI
+
+### LOOP Result
+
+Project Governance Loop. Bee compared freezing M4 against completing the
+remaining bounded layout fix and chose to continue now using the Entry 068
+four-stage workflow. No implementation or audit was performed.
+
+### Decision
+
+- M4 is not frozen or deferred.
+- Entry 067 remains the sole open product finding: Medium Usage/Switcher must
+  retain header/switcher plus all four title/percent/bar rows at 338x158.
+- Entry 058 still permits lower-priority detail/reset omission under vertical
+  pressure; no new product or architecture decision is required.
+- The next candidate must pass Developer Self-Check and independent Claude
+  Pre-Audit before Codex Final Audit.
+- No push, PR, merge, M5, or release is authorized.
+
+### Verification / Next Action
+
+Only TASKS and PROJECT_LOG governance state changed. Claude Developer starts
+additively from this governance commit and follows
+`docs/CLAUDE_REVIEW_WORKFLOW.md`.
+
 ## Entry Template
 
 ```text
