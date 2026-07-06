@@ -5,22 +5,23 @@
 ## Active Goal
 
 ```text
-M5A — Ark Fork Installation Identity Preflight
+M5A — Ark Fork Installation Identity Implementation
 ```
 
 ## Goal Status
 
 ```text
-Status: ACTIVE — FINAL CONTRACT PROPOSED; implementation not authorized
+Status: ACTIVE — IMPLEMENTATION AUTHORIZED
 Audit State: M4 merged as b40762d8. Bee approved opening M5 independent-
 identity preflight. Closed M1/M2 logs are archived through Entry 051.
 Claude reports 23 collision surfaces, 9 S20+ proposals, and 8 decision
 questions. Codex completed the bounded Stage 1 decision screen and Phase 2
 App Group/signing/storage feasibility proof. Bee accepted the Stage 1/2
-recommendations. Codex completed the final touchpoint review below. Next: Bee
-accepts, revises, or rejects the exact contract before any source, packaging,
-identifier, config, Keychain, or updater change.
-Preflight Owner: Claude / GLM Developer (fresh thread, read-only)
+recommendations. Codex completed the final touchpoint review and Bee approved
+the exact S20/S21/S22/S23/S25/S26/S27/S29 contract with S24/S28 deferred.
+Next: Claude implements only the approved surfaces and completes same-thread
+Self-Check before independent Pre-Audit.
+Implementation Owner: Claude / GLM Developer
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
 ```
@@ -98,9 +99,9 @@ Claude reports the read-only survey complete: 23 collision surfaces mapped to
 9 S20+ proposals. The detailed decision package received a bounded Stage 1
 screen and Phase 2 feasibility proof. Bee accepted the resulting identity,
 signing, update, migration, App Group, documentation, and M5B-deferral
-recommendations. No S20+ touchpoint is approved.
+recommendations. Bee subsequently approved the final contract below.
 
-The approved recommendations do not authorize implementation:
+Approved decisions:
 
 | Question | Codex recommendation |
 |---|---|
@@ -115,7 +116,7 @@ The approved recommendations do not authorize implementation:
 
 Stage 1 also found that the physical `.app` filename is part of Q2 and that
 renaming `Package.swift` products/modules would add conflict without helping
-installation identity. No S20+ touchpoint is approved.
+installation identity. The approved contract below preserves that boundary.
 
 ### Phase 2 Feasibility Result
 
@@ -146,12 +147,12 @@ Minimum M5A fresh-state storage boundary:
   logs, and diagnostic labels to M5B, with the explicit limitation that M5A is
   not full simultaneous-run/storage isolation.
 
-No S20+ touchpoint is approved by this feasibility result.
+The feasibility result is implemented only through the approved contract below.
 
-## Proposed M5A Implementation Contract — Pending Bee
+## Approved M5A Implementation Contract
 
 The Claude preflight is not adopted wholesale. The following revised
-touchpoints are the complete proposed M5A implementation boundary:
+touchpoints are the complete approved M5A implementation boundary:
 
 | ID | Exact surface | Allowed result |
 |---|---|---|
@@ -195,19 +196,21 @@ Required evidence before Developer handoff:
 Codex may:
 
 - Maintain the M5A branch and governance records.
-- Inspect packaging, identity, persistence, and updater architecture.
-- Record proposed S20+ touchpoints after Bee reviews the preflight.
+- Audit the implementation and operate Git/PR state after the required gates.
+- Commit governance/audit records only; do not implement product fixes.
 
 Claude / GLM may:
 
-- Perform read-only investigation in a fresh thread.
-- Compare release/debug packaging and official upstream patterns.
-- Return a compact touchpoint proposal; make no repository edits or commits.
+- Implement only S20/S21/S22/S23/S25/S26/S27/S29 and required focused tests.
+- Modify the exact existing files/surfaces listed in the approved contract.
+- Add a fork-identity shell test when needed for deterministic script checks.
+- Update current operational documentation under S29 only.
+- Create additive local commits and complete Developer Self-Check.
 
 ## Forbidden Scope
 
-- No product, source, test, packaging, entitlement, identifier, config,
-  Keychain, updater, signing, or migration implementation during preflight.
+- No source, packaging, identity, persistence, Keychain, signing, release,
+  test, or documentation edit outside the approved contract.
 - No new dependency, release credential, Sparkle key, certificate, profile,
   secret, real config, or credential migration.
 - No change to Ark API, provider, menu bar, popover, snapshot, or Widget UI.
@@ -216,29 +219,31 @@ Claude / GLM may:
 - No push, PR, merge, release, destructive operation, or history rewrite
   without Bee approval.
 
-## Next Task — Bee Decision on Proposed Contract
+## Next Task — Claude Implementation + Self-Check
 
-1. Bee accepts, revises, or rejects S20/S21/S22/S23/S25/S26/S27/S29 and the
-   S24/S28 deferrals.
-2. Codex records the decision and, only if approved, changes the task from
-   preflight to implementation.
-3. Claude Developer implements only the approved exact surfaces, then performs
-   same-thread Self-Check.
-4. Independent Claude Pre-Auditor reviews the exact candidate before Codex
-   Final Audit.
+1. Claude invokes LOOP, verifies the exact branch/HEAD/worktree, and implements
+   the approved contract without broadening it.
+2. Claude adds/updates deterministic tests without real Keychain access,
+   release credentials, notarization, or official-data migration.
+3. Claude creates additive local commit(s), then performs same-thread
+   Self-Check against the complete M5A diff.
+4. Handoff only a clean exact candidate with `SELF-CHECK PASS`.
+5. A new independent Claude thread performs read-only Pre-Audit. Codex Final
+   Audit starts only after `PRE-AUDIT PASS` for the same SHA.
 
-## Definition of Done — M5A Preflight
+## Definition of Done — M5A Implementation
 
-- Official and fork collision mechanisms are evidence-backed.
-- App, Widget, App Group, config, Keychain, support storage, signing, and
-  updater identities are all accounted for.
-- Minimum side-by-side installation scope is separated from optional
-  simultaneous-run/full-release scope.
-- Every proposed shared edit is a numbered S20+ touchpoint.
-- Migration avoids printing, committing, or silently copying secrets.
-- Rollback and verification commands are concrete.
-- Repository remains clean and no product/packaging code is changed.
-- Bee approves or rejects the implementation contract.
+- S20/S21/S22/S23/S25/S26/S27/S29 are implemented exactly; S24/S28 remain
+  untouched.
+- Official and fork App, Widget, App Group, config, Keychain, updater, and CLI
+  identities do not collide within the approved M5A boundary.
+- Internal Swift package/module/target/executable names remain unchanged.
+- No official credential/config/App Group data is read, copied, deleted, or
+  migrated by fork-owned storage paths.
+- Required script, focused Swift, build, format/lint, final test, packaging,
+  entitlement, and Widget snapshot evidence passes.
+- Developer Self-Check and independent Pre-Audit pass for the exact candidate.
+- Codex Final Audit is recorded and Bee approves push/PR/merge separately.
 
 ## Planned Milestones
 

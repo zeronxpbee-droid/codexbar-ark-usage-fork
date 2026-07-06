@@ -2019,6 +2019,39 @@ No S20+ touchpoint is approved yet. Bee accepts, revises, or rejects the exact
 contract in `docs/TASKS.md`. Claude must not implement before that decision is
 recorded and the Active Goal is explicitly advanced to implementation.
 
+## Entry 080 — Bee Approves Final M5A Contract and Opens Implementation
+
+Date: 2026-07-07
+Actor: Bee (approval) + Codex (governance)
+Type: Architecture Decision / Milestone Gate
+Status: IMPLEMENTATION AUTHORIZED
+
+### Decision
+
+Bee approved the final atomic M5A contract:
+S20/S21/S22/S23/S25/S26/S27/S29. S24 broad support/history/cache/log
+isolation and S28 diagnostic-label isolation remain deferred to M5B.
+
+The approved result is the simple local-installation profile: `CodexBar
+Ark.app`, fork App/Widget IDs, fixed fork App Group, fork-only config and
+CodexBar-owned Keychain services, ad-hoc signing, no official update/release
+channel, `codexbar-ark` CLI, and synchronized current documentation. Internal
+Swift/executable names and all Ark provider/UI behavior stay unchanged.
+
+### Authorization Boundary
+
+Claude Developer may implement only the exact files/results in `docs/TASKS.md`,
+add deterministic non-Keychain tests, create additive local commits, and run
+same-thread Self-Check. No push, PR, merge, notarization, release, real
+Keychain access, automatic credential migration, M5B work, or unrelated
+refactor is authorized.
+
+### Next Action
+
+Claude implements and returns a clean exact SHA with `SELF-CHECK PASS`. A new
+independent Claude Pre-Auditor must then return `PRE-AUDIT PASS` for that same
+SHA before Codex begins Final Audit.
+
 ## Entry Template
 
 ```text
