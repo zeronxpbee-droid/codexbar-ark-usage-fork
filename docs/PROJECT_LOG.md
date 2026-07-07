@@ -2425,6 +2425,53 @@ detritus before nested signing, then repeat Self-Check and independent
 Pre-Audit for the exact new SHA before Codex reruns this package-focused final
 audit.
 
+## Entry 088 — M5A Package Re-Audit Advances to Widget Detritus Failure
+
+Date: 2026-07-07
+Actor: Codex
+Type: Review
+Status: FAIL
+
+### Active Goal
+
+M5A — Ark Fork Installation Identity Implementation
+
+### LOOP Result
+
+Bounded package-script re-audit. Codex verified the exact candidate, ran the
+mechanical gate, reran packaging, then stopped at the first package failure.
+No launch, Widget registration, PR, merge, or release action was run.
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| Candidate / parent | `9eadd214` / `5aed7158` |
+| Changed files | `Scripts/package_app.sh` only |
+| `git diff --check` | PASS |
+| `make check` | PASS |
+| Sparkle nested signing | PASS — previous `Downloader.xpc` blocker advanced past |
+| `CODEXBAR_SIGNING=adhoc Scripts/package_app.sh debug` | FAIL |
+| Failure artifact xattr probe | `.appex` still had `com.apple.FinderInfo` / file-provider xattr |
+
+### Findings
+
+| ID | Severity | Finding |
+|---|---|---|
+| PKG-P1 | P1 | Package now fails signing `CodexBarWidget.appex`: `resource fork, Finder information, or similar detritus not allowed`. The Sparkle cleanup is useful, but the Widget appex bundle can still acquire or retain detritus before bundle signing. |
+| DOC-P2 | P2 | S29 docs cleanup remains unresolved from Entry 086, but package failure remains the blocking issue. |
+
+### Decision
+
+FAIL. Do not push, PR, merge, launch, register Widget, package for use, or
+release this candidate.
+
+### Next Action
+
+Claude should make an additive package-script fix that preserves Sparkle cleanup
+and clears Widget appex detritus before bundle signing, then repeat Self-Check
+and independent Pre-Audit for the exact new SHA.
+
 ## Entry Template
 
 ```text
