@@ -2140,6 +2140,52 @@ No push, PR, merge, M5B, release, or history rewrite.
 Developer Self-Check on candidate SHA. If PASS, Bee opens independent
 Pre-Auditor thread. If Pre-Audit PASS, Codex Final Audit.
 
+## Entry 082 — M5A Final Audit Fails on Package Identity and App Group Migration
+
+Date: 2026-07-07
+Actor: Codex
+Type: Review
+Status: FAIL
+
+### Active Goal
+
+M5A — Ark Fork Installation Identity Implementation
+
+### LOOP Result
+
+Two-stage final audit. Mechanical gate ran first; judgment audit stopped after
+two P1 findings, before package launch/register tests, to avoid wasted quota
+and local state changes.
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| Candidate / parent | `52e7004b` / `3a25862f` |
+| `git diff --check` | PASS |
+| `make check` | PASS |
+| `swift build` | PASS |
+| Focused tests | AppGroup 5/5, Config 18/18, KeychainMigration 2/2, ArkCredential 3/3, WidgetProvider 44/44, CLI 420, Ark 59, KeychainCache 11 |
+
+### Findings
+
+| ID | Severity | Finding |
+|---|---|---|
+| S20-P1 | P1 | `Scripts/package_app.sh` still stages/finalizes `CodexBar.app` (`APP_FINAL` / `APP_STAGE`), while the approved contract requires exact `CodexBar Ark.app`. `Scripts/compile_and_run.sh` also still points at `CodexBar.app`, so package/runner identity conflicts with `launch.sh`, Makefile, CLI installer, and the side-by-side installation goal. |
+| S21-P1 | P1 | Runtime still schedules `AppGroupSupport.migrateLegacyDataIfNeeded()` from `SettingsStore`, and tests assert legacy snapshot/default copying. M5A approved fresh-state contract forbids automatic config/App Group/defaults/snapshot migration or copying. |
+| GOV-P2 | P2 | `TASKS.md` still described Developer Self-Check in progress; Bee reported Self-Check + independent Pre-Audit PASS in chat. Corrected in this audit commit. |
+
+### Decision
+
+FAIL. Do not push, PR, merge, package, launch, register Widget, or release this
+candidate. Claude must produce an additive corrective commit for the two P1
+findings only, then repeat Self-Check and independent Pre-Audit.
+
+### Next Action
+
+Claude fixes Entry 082 scope, returns a clean corrected SHA, and Codex reruns
+the two-stage final audit.
+
 ## Entry Template
 
 ```text

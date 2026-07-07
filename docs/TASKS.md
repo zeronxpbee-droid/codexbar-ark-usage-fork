@@ -11,12 +11,14 @@ M5A — Ark Fork Installation Identity Implementation
 ## Goal Status
 
 ```text
-Status: M5A IMPLEMENTATION COMMITTED — Developer Self-Check in progress
+Status: M5A FINAL AUDIT FAIL — corrective commit required
 Audit State: Entry 080 approved S20/S21/S22/S23/S25/S26/S27/S29 contract;
-Claude implemented all 8 touchpoints (Entry 081); 35 files changed; S24/S28
-deferred to M5B; fresh-state policy (no official data migration)
-Next: Developer Self-Check on candidate SHA; if PASS, Bee opens independent
-Pre-Auditor thread; if Pre-Audit PASS, Codex Final Audit
+Claude implemented candidate 52e7004b (Entry 081); Self-Check and independent
+Pre-Audit were reported PASS by Bee; Codex Final Audit Entry 082 failed on
+S20 package filename/path and S21 fresh-state/App Group migration.
+Next: Claude creates an additive corrective commit, repeats Self-Check, then a
+new independent Pre-Auditor re-checks the exact corrected SHA before Codex
+re-audits.
 Implementation Owner: Claude / GLM Developer
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
@@ -215,16 +217,18 @@ Claude / GLM may:
 - No push, PR, merge, release, destructive operation, or history rewrite
   without Bee approval.
 
-## Next Task — Claude Implementation + Self-Check
+## Next Task — Claude Corrective Commit + Self-Check
 
-1. Claude invokes LOOP, verifies the exact branch/HEAD/worktree, and implements
-   the approved contract without broadening it.
-2. Claude adds/updates deterministic tests without real Keychain access,
-   release credentials, notarization, or official-data migration.
-3. Claude creates additive local commit(s), then performs same-thread
-   Self-Check against the complete M5A diff.
-4. Handoff only a clean exact candidate with `SELF-CHECK PASS`.
-5. A new independent Claude thread performs read-only Pre-Audit. Codex Final
+1. Claude invokes LOOP and verifies the exact branch/HEAD/worktree.
+2. Fix Entry 082 findings only: package/runner paths must produce and launch
+   `CodexBar Ark.app`; automatic App Group/defaults/snapshot migration must be
+   removed or made inert per the fresh-state contract.
+3. Add/update deterministic tests for those fixes without real Keychain access,
+   release credentials, notarization, official-data migration, S24, or S28.
+4. Create additive local commit(s), then perform same-thread Self-Check against
+   the complete corrected M5A diff.
+5. Handoff only a clean exact candidate with `SELF-CHECK PASS`.
+6. A new independent Claude thread performs read-only Pre-Audit. Codex Final
    Audit starts only after `PRE-AUDIT PASS` for the same SHA.
 
 ## Definition of Done — M5A Implementation
