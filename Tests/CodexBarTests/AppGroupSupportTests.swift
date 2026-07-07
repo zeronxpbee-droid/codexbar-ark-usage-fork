@@ -35,7 +35,8 @@ struct AppGroupSupportTests {
     }
 
     @Test
-    func `legacy migration copies snapshot once`() throws {
+    func `fresh state migration does not copy snapshot`() throws {
+        // M5A S21: fresh-state policy — no automatic snapshot/defaults migration.
         let fileManager = FileManager.default
         let root = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
         try fileManager.createDirectory(at: root, withIntermediateDirectories: true)
@@ -72,28 +73,16 @@ struct AppGroupSupportTests {
             currentSnapshotURLOverride: currentSnapshotURL,
             legacySnapshotURLOverride: legacySnapshotURL)
 
-        #expect(result.status == .migrated)
-        #expect(result.copiedSnapshot)
-        #expect(result.copiedDefaults == 2)
-        #expect(currentDefaults.bool(forKey: "debugDisableKeychainAccess"))
-        #expect(currentDefaults.string(forKey: "widgetSelectedProvider") == UsageProvider.cursor.rawValue)
-        #expect(fileManager.fileExists(atPath: currentSnapshotURL.path))
-        #expect(
-            standardDefaults.integer(forKey: AppGroupSupport.migrationVersionKey)
-                == AppGroupSupport.migrationVersion)
-
-        let secondResult = AppGroupSupport.migrateLegacyDataIfNeeded(
-            bundleID: "com.zeronxpbee.codexbar-ark",
-            standardDefaults: standardDefaults,
-            currentDefaultsOverride: currentDefaults,
-            legacyDefaultsOverride: legacyDefaults,
-            currentSnapshotURLOverride: currentSnapshotURL,
-            legacySnapshotURLOverride: legacySnapshotURL)
-        #expect(secondResult.status == .alreadyCompleted)
+        #expect(result.status == .noChangesNeeded)
+        #expect(!result.copiedSnapshot)
+        #expect(result.copiedDefaults == 0)
+        #expect(!fileManager.fileExists(atPath: currentSnapshotURL.path))
+        #expect(currentDefaults.object(forKey: "debugDisableKeychainAccess") == nil)
     }
 
     @Test
-    func `legacy migration preserves existing target shared defaults`() throws {
+    func `fresh state migration does not copy defaults`() throws {
+        // M5A S21: fresh-state policy — legacy defaults are never copied.
         let standardSuite = "AppGroupSupportTests-standard-existing-\(UUID().uuidString)"
         let currentSuite = "AppGroupSupportTests-current-existing-\(UUID().uuidString)"
         let legacySuite = "AppGroupSupportTests-legacy-existing-\(UUID().uuidString)"

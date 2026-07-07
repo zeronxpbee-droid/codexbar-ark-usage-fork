@@ -11,14 +11,13 @@ M5A — Ark Fork Installation Identity Implementation
 ## Goal Status
 
 ```text
-Status: M5A FINAL AUDIT FAIL — corrective commit required
-Audit State: Entry 080 approved S20/S21/S22/S23/S25/S26/S27/S29 contract;
-Claude implemented candidate 52e7004b (Entry 081); Self-Check and independent
-Pre-Audit were reported PASS by Bee; Codex Final Audit Entry 082 failed on
-S20 package filename/path and S21 fresh-state/App Group migration.
-Next: Claude creates an additive corrective commit, repeats Self-Check, then a
-new independent Pre-Auditor re-checks the exact corrected SHA before Codex
-re-audits.
+Status: M5A CORRECTIVE COMMIT CREATED — Self-Check in progress
+Audit State: Entry 082 found S20-P1 (package product CodexBar.app) and S21-P1
+(runtime migration still scheduled); Claude corrective commit (Entry 083) fixes
+both: APP_FINAL/APP_STAGE → CodexBar Ark.app, SettingsStore migration removed,
+migrateLegacyDataIfNeeded → fresh-state no-op
+Next: Developer Self-Check on corrected SHA; if PASS, independent Pre-Audit;
+if Pre-Audit PASS, Codex Final Audit rerun
 Implementation Owner: Claude / GLM Developer
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT

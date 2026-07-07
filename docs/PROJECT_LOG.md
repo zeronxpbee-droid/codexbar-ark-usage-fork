@@ -2186,6 +2186,66 @@ findings only, then repeat Self-Check and independent Pre-Audit.
 Claude fixes Entry 082 scope, returns a clean corrected SHA, and Codex reruns
 the two-stage final audit.
 
+## Entry 083 — Claude M5A Corrective (Entry 082 P1 Fix)
+
+Date: 2026-07-07
+Actor: Claude
+Type: Development
+Status: CREATED
+
+### Active Goal
+
+M5A — Ark Fork Installation Identity Implementation
+
+### LOOP Result
+
+Bounded corrective loop per Entry 082. Two P1 findings fixed; no scope added.
+
+### Summary
+
+- S20-P1 fix: `APP_FINAL` and `APP_STAGE` in `package_app.sh` changed from
+  `CodexBar.app` to `CodexBar Ark.app`. `APP_BUNDLE` and `APP_PROCESS_PATTERN`
+  in `compile_and_run.sh` updated to match. Package product now consistent with
+  `launch.sh`, Makefile, and CLI installer.
+- S21-P1 fix: Removed `scheduleAppGroupMigration()` and
+  `migrateLegacyDataIfNeeded()` calls from `SettingsStore.swift`.
+  `AppGroupSupport.migrateLegacyDataIfNeeded` now always returns
+  `.noChangesNeeded` — no snapshot/defaults copy. Removed
+  `copyLegacySharedDefaults` private method. Updated tests to verify fresh-state
+  behavior (no copy).
+
+### Files Changed
+
+- `Scripts/package_app.sh` (S20-P1)
+- `Scripts/compile_and_run.sh` (S20-P1)
+- `Sources/CodexBar/SettingsStore.swift` (S21-P1)
+- `Sources/CodexBarCore/AppGroupSupport.swift` (S21-P1)
+- `Tests/CodexBarTests/AppGroupSupportTests.swift` (S21-P1)
+- `docs/PROJECT_LOG.md`
+- `docs/TASKS.md`
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| `git diff --check` | PASS |
+| Long lines (>120, Swift) | None |
+| `CodexBar.app` in Scripts (excl. `CodexBar Ark.app`) | None |
+| `migrateLegacyDataIfNeeded` calls in SettingsStore | None |
+| `scheduleAppGroupMigration` in SettingsStore | None |
+| `swift build` | NOT RUN (no Swift toolchain in sandbox) |
+| Focused tests | NOT RUN (same) |
+| SwiftFormat / SwiftLint | NOT RUN (same) |
+
+### Decision
+
+Claude creates one additive corrective commit and proceeds to Self-Check.
+
+### Next Action
+
+Developer Self-Check on corrected SHA. If PASS, independent Pre-Audit. If
+Pre-Audit PASS, Codex Final Audit rerun.
+
 ## Entry Template
 
 ```text
