@@ -2291,6 +2291,45 @@ Claude fixes `SettingsStore.swift` syntax only, repeats Self-Check, then the
 independent Pre-Auditor re-checks the exact corrected SHA before Codex reruns
 the two-stage audit.
 
+## Entry 085 — Claude M5A SettingsStore Syntax Fix
+
+Date: 2026-07-07
+Actor: Claude
+Type: Bugfix
+Status: CREATED
+
+### Active Goal
+
+M5A — Ark Fork Installation Identity Implementation
+
+### Summary
+
+Fixed the brace imbalance in `SettingsStore.swift` that caused SwiftFormat
+"Unexpected token } at 650:1". The Entry 083 correction deleted
+`extension SettingsStore {` but retained `inferredInitialOpenAIWebAccessEnabled`
+inside it, leaving the method unwrapped. Restored the `extension SettingsStore {`
+declaration before the method. No other logic changed.
+
+### Files Changed
+
+- `Sources/CodexBar/SettingsStore.swift` (1 line added)
+- `docs/PROJECT_LOG.md`
+- `docs/TASKS.md`
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| `git diff --check` | PASS |
+| Python brace-depth analysis | FINAL depth=0 |
+| `extension SettingsStore` count | 3 (L336, L653, L719) — structure restored |
+| `swift build` / `make check` | NOT RUN (no Swift toolchain in sandbox) |
+
+### Next Action
+
+Developer Self-Check on corrected SHA. If PASS, independent Pre-Audit. If
+Pre-Audit PASS, Codex Final Audit rerun.
+
 ## Entry Template
 
 ```text

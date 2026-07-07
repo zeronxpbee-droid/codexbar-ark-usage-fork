@@ -11,14 +11,12 @@ M5A — Ark Fork Installation Identity Implementation
 ## Goal Status
 
 ```text
-Status: M5A CORRECTIVE RE-AUDIT FAIL — syntax fix required
-Audit State: Entry 082 found S20-P1 and S21-P1; Claude corrective commit
-fe9075c8 (Entry 083) attempted both fixes; Codex Entry 084 stopped at the
-mechanical gate because SwiftFormat cannot parse `SettingsStore.swift`
-(unexpected `}` around line 650).
-Next: Claude creates an additive syntax-only corrective commit, repeats
-Self-Check, then independent Pre-Auditor re-checks the exact corrected SHA
-before Codex reruns the two-stage audit.
+Status: M5A SYNTAX FIX COMMITTED — Self-Check in progress
+Audit State: Entry 084 found SettingsStore.swift brace imbalance from Entry 083;
+Claude syntax fix (Entry 085) restored extension SettingsStore { declaration;
+brace depth verified 0; no logic change
+Next: Developer Self-Check on corrected SHA; if PASS, independent Pre-Audit;
+if Pre-Audit PASS, Codex Final Audit rerun
 Implementation Owner: Claude / GLM Developer
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT

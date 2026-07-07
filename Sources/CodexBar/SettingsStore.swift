@@ -333,6 +333,7 @@ final class SettingsStore {
     }
 }
 
+extension SettingsStore {
     private static func inferredInitialOpenAIWebAccessEnabled(
         config: CodexBarConfig,
         hadExistingConfig: Bool) -> Bool
