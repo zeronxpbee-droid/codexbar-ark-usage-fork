@@ -2520,6 +2520,58 @@ and ensures the Widget executable and appex are detritus-free immediately before
 their codesign steps, then repeat Self-Check and independent Pre-Audit for the
 exact new SHA.
 
+## Entry 090 — M5A Final Product Fails Deep Codesign Verification
+
+Date: 2026-07-07
+Actor: Codex
+Type: Review
+Status: FAIL
+
+### Active Goal
+
+M5A — Ark Fork Installation Identity Implementation
+
+### LOOP Result
+
+Bounded package-script re-audit. Codex verified the exact candidate, ran
+mechanical checks, package generation, and low-cost product identity/signature
+inspection. It stopped before launch, Widget registration, PR, merge, or
+release action.
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| Candidate / parent | `d564b99e` / `a552e407` |
+| Changed files | `Scripts/package_app.sh` only |
+| `git diff --check` | PASS |
+| `make check` | PASS |
+| `CODEXBAR_SIGNING=adhoc Scripts/package_app.sh debug` | PASS — created `CodexBar Ark.app` |
+| App / Widget IDs | PASS — `com.zeronxpbee.codexbar-ark.debug` / `.debug.widget` |
+| Sparkle disabled | PASS — feed/key empty, automatic checks false |
+| Entitlements | PASS — app + Widget use `group.com.zeronxpbee.codexbar-ark.debug`; Widget sandbox true |
+| Ad-hoc signature metadata | PASS — `Signature=adhoc`, `TeamIdentifier=not set` |
+| `codesign --verify --deep --strict --verbose=4 "CodexBar Ark.app"` | FAIL |
+
+### Findings
+
+| ID | Severity | Finding |
+|---|---|---|
+| PKG-P1 | P1 | Final product verification fails in subcomponent `CodexBarWidget.appex`: `resource fork, Finder information, or similar detritus not allowed`; `codesign` reports disallowed xattr `com.apple.FinderInfo`. A package command returning 0 is not enough while the final app fails strict deep verification. |
+| DOC-P2 | P2 | S29 docs cleanup remains unresolved from Entry 086, but package verification remains the blocking issue. |
+
+### Decision
+
+FAIL. Do not push, PR, merge, launch, register Widget, package for use, or
+release this candidate.
+
+### Next Action
+
+Claude should make an additive package-script fix that preserves current
+Sparkle/Widget cleanup and ensures the final `CodexBar Ark.app` passes
+`codesign --verify --deep --strict --verbose=4`, then repeat Self-Check and
+independent Pre-Audit for the exact new SHA.
+
 ## Entry Template
 
 ```text

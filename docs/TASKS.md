@@ -11,13 +11,13 @@ M5A — Ark Fork Installation Identity Implementation
 ## Goal Status
 
 ```text
-Status: M5A FINAL AUDIT FAIL — Widget executable signing cleanup required
-Audit State: Codex Entry 089 reviewed candidate `df214c9b`. `make check`
-passes and the Sparkle nested signing blocker remains fixed, but
-`CODEXBAR_SIGNING=adhoc Scripts/package_app.sh debug` now fails while signing
-`CodexBarWidget.appex/Contents/MacOS/CodexBarWidget` with resource fork/Finder
-detritus present. Failure artifact inspection showed `com.apple.provenance` on
-the Widget executable and remaining xattrs on the appex bundle.
+Status: M5A FINAL AUDIT FAIL — final app signature verification required
+Audit State: Codex Entry 090 reviewed candidate `d564b99e`. `make check`
+passes and `CODEXBAR_SIGNING=adhoc Scripts/package_app.sh debug` now exits 0,
+but the generated `CodexBar Ark.app` fails
+`codesign --verify --deep --strict --verbose=4` because
+`CodexBarWidget.appex` still has disallowed `com.apple.FinderInfo` attached
+data in the final app product.
 Next: Claude creates an additive package-script corrective commit, repeats
 Self-Check, then independent Pre-Auditor re-checks the exact corrected SHA
 before Codex reruns the package-focused final audit.
@@ -222,10 +222,10 @@ Claude / GLM may:
 ## Next Task — Claude Corrective Commit + Self-Check
 
 1. Claude invokes LOOP and verifies the exact branch/HEAD/worktree.
-2. Fix Entry 089 only: make `Scripts/package_app.sh debug` package
-   `CodexBar Ark.app` successfully by ensuring the Widget executable and appex
-   are detritus-free immediately before their codesign steps, while preserving
-   the Sparkle cleanup; do not broaden beyond M5A packaging.
+2. Fix Entry 090 only: make `Scripts/package_app.sh debug` package
+   `CodexBar Ark.app` and ensure the final product passes
+   `codesign --verify --deep --strict --verbose=4 "CodexBar Ark.app"`, while
+   preserving Sparkle and Widget cleanup; do not broaden beyond M5A packaging.
 3. Add/update deterministic tests for those fixes without real Keychain access,
    release credentials, notarization, official-data migration, S24, or S28.
 4. Create additive local commit(s), then perform same-thread Self-Check against
