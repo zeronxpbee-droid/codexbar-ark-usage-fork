@@ -2330,6 +2330,54 @@ declaration before the method. No other logic changed.
 Developer Self-Check on corrected SHA. If PASS, independent Pre-Audit. If
 Pre-Audit PASS, Codex Final Audit rerun.
 
+## Entry 086 — M5A Final Audit Fails at Package Product Check
+
+Date: 2026-07-07
+Actor: Codex
+Type: Review
+Status: FAIL
+
+### Active Goal
+
+M5A — Ark Fork Installation Identity Implementation
+
+### LOOP Result
+
+Two-stage final audit rerun. Mechanical and focused Swift gates passed, then
+Codex entered required package-product inspection. The package step failed, so
+runtime launch / Widget registration checks were not run.
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| Candidate / parent | `5ab875be` / `adb2d150` |
+| `git diff --check` | PASS |
+| `make check` | PASS |
+| `swift build` | PASS |
+| Focused tests | AppGroup 5/5, Config 18/18, KeychainMigration 2/2, ArkCredential 3/3, WidgetProvider 44/44, Ark 59, CLI 420 |
+| S20/S21 textual recheck | PASS — `CodexBar Ark.app` paths preserved; SettingsStore migration calls absent |
+| `CODEXBAR_SIGNING=adhoc Scripts/package_app.sh debug` | FAIL |
+
+### Findings
+
+| ID | Severity | Finding |
+|---|---|---|
+| PKG-P1 | P1 | `Scripts/package_app.sh debug` fails while signing `Sparkle.framework/.../Downloader.xpc`: `resource fork, Finder information, or similar detritus not allowed`. The script clears `xattr` / `._*` only after Sparkle nested signing, so copied Sparkle detritus can break the required `CodexBar Ark.app` package. |
+| DOC-P2 | P2 | Some user-facing docs still mention `~/.codexbar/config.json` (e.g. `README.md`, `docs/KEYCHAIN_FIX.md`). This is not the current blocker but remains part of S29 cleanup after packaging passes. |
+
+### Decision
+
+FAIL. Do not push, PR, merge, launch, register Widget, or release this
+candidate. Claude should make an additive package-script fix that preserves all
+Entry 082 and Entry 084 corrections.
+
+### Next Action
+
+Claude fixes the package signing order/cleanup in `Scripts/package_app.sh`,
+repeats Self-Check, then independent Pre-Auditor re-checks the exact SHA before
+Codex reruns final audit.
+
 ## Entry Template
 
 ```text
