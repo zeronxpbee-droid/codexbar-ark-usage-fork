@@ -542,3 +542,15 @@ rm -rf "$APP_FINAL"
 mv "$APP" "$APP_FINAL"
 APP="$APP_FINAL"
 echo "Created $APP"
+
+# Clear detritus xattrs that filesystem sync may reintroduce after mv.
+# Only removes Finder/ResourceFork detritus; preserves com.apple.cs.* signing xattrs.
+xattr -d -r com.apple.FinderInfo "$APP" 2>/dev/null || true
+xattr -d -r com.apple.ResourceFork "$APP" 2>/dev/null || true
+find "$APP" -name '._*' -delete 2>/dev/null || true
+
+# Verify the final product passes strict deep codesign verification.
+if ! codesign --verify --deep --strict --verbose=4 "$APP" 2>&1; then
+  echo "ERROR: Final codesign verification failed for $APP" >&2
+  exit 1
+fi
