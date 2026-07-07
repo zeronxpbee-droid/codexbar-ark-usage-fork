@@ -2378,6 +2378,53 @@ Claude fixes the package signing order/cleanup in `Scripts/package_app.sh`,
 repeats Self-Check, then independent Pre-Auditor re-checks the exact SHA before
 Codex reruns final audit.
 
+## Entry 087 — M5A Package Re-Audit Still Fails on Sparkle Detritus
+
+Date: 2026-07-07
+Actor: Codex
+Type: Review
+Status: FAIL
+
+### Active Goal
+
+M5A — Ark Fork Installation Identity Implementation
+
+### LOOP Result
+
+Token-cost gate classified this as a bounded package-script re-audit. Codex ran
+mechanical/package checks only and stopped at the first code-owned package
+failure; no launch, Widget registration, PR, merge, or release action was run.
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| Candidate / parent | `2bcbbedc` / `2d554907` |
+| Changed files | `Scripts/package_app.sh` only |
+| Worktree / index before docs | Clean, branch ahead of origin |
+| `git diff --check` | PASS |
+| `make check` | PASS |
+| `CODEXBAR_SIGNING=adhoc Scripts/package_app.sh debug` | FAIL |
+
+### Findings
+
+| ID | Severity | Finding |
+|---|---|---|
+| PKG-P1 | P1 | Package still fails signing `Sparkle.framework/.../Downloader.xpc`: `resource fork, Finder information, or similar detritus not allowed`. The new cleanup removes a stale destination `Sparkle.framework` before copy, but the freshly copied Sparkle bundle still reaches nested signing with detritus present. |
+| DOC-P2 | P2 | S29 docs cleanup remains unresolved from Entry 086, but package failure is still the blocking issue. |
+
+### Decision
+
+FAIL. Do not push, PR, merge, launch, register Widget, package for use, or
+release this candidate.
+
+### Next Action
+
+Claude should make an additive package-script fix that clears copied Sparkle
+detritus before nested signing, then repeat Self-Check and independent
+Pre-Audit for the exact new SHA before Codex reruns this package-focused final
+audit.
+
 ## Entry Template
 
 ```text

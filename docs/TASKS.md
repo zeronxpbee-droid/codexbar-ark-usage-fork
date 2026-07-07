@@ -11,15 +11,17 @@ M5A — Ark Fork Installation Identity Implementation
 ## Goal Status
 
 ```text
-Status: M5A FINAL AUDIT FAIL — package signing fix required
-Audit State: Entry 085 fixed the SettingsStore syntax issue; Codex Entry 086
-confirmed make check, swift build, and focused tests pass, but
-`Scripts/package_app.sh debug` fails while signing Sparkle
-`Downloader.xpc` because resource fork/Finder detritus is still present before
-Sparkle nested signing.
+Status: M5A FINAL AUDIT FAIL — package signing fix still required
+Audit State: Codex Entry 087 reviewed candidate `2bcbbedc`. `make check`
+passes and the candidate only changes `Scripts/package_app.sh`, but
+`CODEXBAR_SIGNING=adhoc Scripts/package_app.sh debug` still fails while
+signing Sparkle `Downloader.xpc` with resource fork/Finder detritus present.
+The current fix removes an existing destination Sparkle framework before copy,
+but does not clear detritus from the freshly copied Sparkle bundle before
+nested signing.
 Next: Claude creates an additive package-script corrective commit, repeats
 Self-Check, then independent Pre-Auditor re-checks the exact corrected SHA
-before Codex reruns the two-stage audit.
+before Codex reruns the package-focused final audit.
 Implementation Owner: Claude / GLM Developer
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
@@ -221,9 +223,10 @@ Claude / GLM may:
 ## Next Task — Claude Corrective Commit + Self-Check
 
 1. Claude invokes LOOP and verifies the exact branch/HEAD/worktree.
-2. Fix Entry 086 only: make `Scripts/package_app.sh debug` package
-   `CodexBar Ark.app` successfully by clearing copied Sparkle/app detritus
-   before Sparkle nested signing; do not broaden beyond M5A packaging.
+2. Fix Entry 087 only: make `Scripts/package_app.sh debug` package
+   `CodexBar Ark.app` successfully by clearing detritus from the freshly copied
+   Sparkle bundle before Sparkle nested signing; do not broaden beyond M5A
+   packaging.
 3. Add/update deterministic tests for those fixes without real Keychain access,
    release credentials, notarization, official-data migration, S24, or S28.
 4. Create additive local commit(s), then perform same-thread Self-Check against
