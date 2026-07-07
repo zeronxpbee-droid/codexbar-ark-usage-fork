@@ -427,6 +427,9 @@ install_widget_extension() {
   mkdir -p "$APP/Contents/PlugIns"
   cp -R "$src_appex" "$widget_app"
   verify_binary_arches "$widget_app/Contents/MacOS/CodexBarWidget" "${ARCH_LIST[@]}"
+  # Clear detritus from freshly copied Widget appex before bundle signing.
+  xattr -cr "$widget_app"
+  find "$widget_app" -name '._*' -delete 2>/dev/null || true
 }
 
 install_binary "CodexBar" "$APP/Contents/MacOS/CodexBar"
