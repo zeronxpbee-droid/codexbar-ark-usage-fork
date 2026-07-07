@@ -2669,6 +2669,57 @@ product, especially Sparkle XPC/framework components, is detritus-free before
 the final strict deep verification, then repeat Self-Check and independent
 Pre-Audit for the exact new SHA.
 
+## Entry 093 — M5A Final Verification Still Fails After Final xattr Clear
+
+Date: 2026-07-08
+Actor: Codex
+Type: Review
+Status: FAIL
+
+### Active Goal
+
+M5A — Ark Fork Installation Identity Implementation
+
+### LOOP Result
+
+Bounded package-script re-audit. Codex verified the exact candidate, ran
+mechanical checks, package generation, and the script's final deep codesign
+verification. It stopped before launch, Widget registration, PR, merge, or
+release action.
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| Candidate / parent | `9ff44dac` / `882baffe` |
+| Changed files | `Scripts/package_app.sh` only |
+| `git diff --check` | PASS |
+| `make check` | PASS |
+| `CODEXBAR_SIGNING=adhoc Scripts/package_app.sh debug` | FAIL at final verification |
+| Sparkle / Widget signing loop | PASS — package reached final app verification |
+| Final `codesign --verify --deep --strict --verbose=4` | FAIL in Sparkle XPC component |
+| Failure artifact xattr probe | Final app in Google Drive folder still had `com.apple.FinderInfo` and many file-provider xattrs |
+
+### Findings
+
+| ID | Severity | Finding |
+|---|---|---|
+| PKG-P1 | P1 | Replacing targeted deletion with final `xattr -cr "$APP"` is still insufficient: final strict verification fails on Sparkle XPC components with disallowed `com.apple.FinderInfo`. The artifact shows File Provider xattrs reappearing across the final app while it lives in the Google Drive-synced repository path. |
+| DOC-P2 | P2 | S29 docs cleanup remains unresolved from Entry 086, but package verification remains the blocking issue. |
+
+### Decision
+
+FAIL. Do not push, PR, merge, launch, register Widget, package for use, or
+release this candidate.
+
+### Next Action
+
+Claude should make an additive package-script fix within M5A packaging scope
+that avoids File Provider reintroducing disallowed xattrs before final strict
+verification, likely by using a non-synced staging/final verification path
+before exposing the artifact to the Google Drive folder. Repeat Self-Check and
+independent Pre-Audit for the exact new SHA.
+
 ## Entry Template
 
 ```text
