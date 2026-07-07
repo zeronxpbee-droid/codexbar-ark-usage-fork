@@ -522,6 +522,9 @@ fi
 
 # Sign widget extension if present
 if [[ -d "${APP}/Contents/PlugIns/CodexBarWidget.appex" ]]; then
+  # Clear detritus immediately before Widget executable and appex codesign.
+  xattr -cr "${APP}/Contents/PlugIns/CodexBarWidget.appex"
+  find "${APP}/Contents/PlugIns/CodexBarWidget.appex" -name '._*' -delete 2>/dev/null || true
   codesign "${CODESIGN_ARGS[@]}" \
     --entitlements "$WIDGET_ENTITLEMENTS" \
     "$APP/Contents/PlugIns/CodexBarWidget.appex/Contents/MacOS/CodexBarWidget"
