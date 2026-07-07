@@ -11,12 +11,13 @@ M5A — Ark Fork Installation Identity Implementation
 ## Goal Status
 
 ```text
-Status: M5A FINAL AUDIT FAIL — Sparkle signing cleanup still required
-Audit State: Codex Entry 091 reviewed candidate `2c0227be`. `make check`
-passes, but `CODEXBAR_SIGNING=adhoc Scripts/package_app.sh debug` again fails
-before final product verification while signing Sparkle
-`Downloader.xpc`. Failure artifact inspection showed `com.apple.FinderInfo`
-and file-provider xattr on the Sparkle XPC bundle.
+Status: M5A FINAL AUDIT FAIL — final Sparkle XPC verification still required
+Audit State: Codex Entry 092 reviewed candidate `5eb16538`. `make check`
+passes and `CODEXBAR_SIGNING=adhoc Scripts/package_app.sh debug` reaches final
+deep verification, but final `codesign --verify --deep --strict --verbose=4`
+fails in Sparkle `Installer.xpc` with disallowed `com.apple.FinderInfo`.
+Failure artifact inspection showed Finder/file-provider detritus still present
+on final Sparkle XPC/framework components.
 Next: Claude creates an additive package-script corrective commit, repeats
 Self-Check, then independent Pre-Auditor re-checks the exact corrected SHA
 before Codex reruns the package-focused final audit.
@@ -221,12 +222,13 @@ Claude / GLM may:
 ## Next Task — Claude Corrective Commit + Self-Check
 
 1. Claude invokes LOOP and verifies the exact branch/HEAD/worktree.
-2. Fix Entry 091 only: make `Scripts/package_app.sh debug` package
+2. Fix Entry 092 only: make `Scripts/package_app.sh debug` package
    `CodexBar Ark.app` and ensure the final product passes
    `codesign --verify --deep --strict --verbose=4 "CodexBar Ark.app"`.
-   The fix must clear Finder/resource-fork/file-provider detritus before
-   Sparkle nested signing and preserve Widget/final verification cleanup; do
-   not broaden beyond M5A packaging.
+   The fix must clear Finder/resource-fork/file-provider detritus from the
+   final app product, especially Sparkle XPC/framework components, and
+   preserve Widget/final verification cleanup; do not broaden beyond M5A
+   packaging.
 3. Add/update deterministic tests for those fixes without real Keychain access,
    release credentials, notarization, official-data migration, S24, or S28.
 4. Create additive local commit(s), then perform same-thread Self-Check against

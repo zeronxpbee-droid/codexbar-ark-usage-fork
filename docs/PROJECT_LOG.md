@@ -2619,6 +2619,56 @@ Finder/resource-fork/file-provider detritus before Sparkle nested signing,
 preserves Widget/final verification cleanup, and then repeats Self-Check and
 independent Pre-Audit for the exact new SHA.
 
+## Entry 092 — M5A Final Verification Fails on Sparkle Installer XPC
+
+Date: 2026-07-07
+Actor: Codex
+Type: Review
+Status: FAIL
+
+### Active Goal
+
+M5A — Ark Fork Installation Identity Implementation
+
+### LOOP Result
+
+Bounded package-script re-audit. Codex verified the exact candidate, ran
+mechanical checks, package generation, and the script's final deep codesign
+verification. It stopped before launch, Widget registration, PR, merge, or
+release action.
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| Candidate / parent | `5eb16538` / `b68b76f3` |
+| Changed files | `Scripts/package_app.sh` only |
+| `git diff --check` | PASS |
+| `make check` | PASS |
+| `CODEXBAR_SIGNING=adhoc Scripts/package_app.sh debug` | FAIL at final verification |
+| Sparkle / Widget signing loop | PASS — package reached final app verification |
+| Final `codesign --verify --deep --strict --verbose=4` | FAIL in Sparkle `Installer.xpc` |
+| Failure artifact xattr probe | Final app still had Finder/file-provider detritus on Sparkle XPC/framework components |
+
+### Findings
+
+| ID | Severity | Finding |
+|---|---|---|
+| PKG-P1 | P1 | The final product still fails strict deep verification: `Sparkle.framework/.../Installer.xpc` has disallowed `com.apple.FinderInfo`. The new pre-Sparkle-signing cleanup helps package progress, but final app product cleanup remains insufficient for Sparkle XPC/framework components. |
+| DOC-P2 | P2 | S29 docs cleanup remains unresolved from Entry 086, but package verification remains the blocking issue. |
+
+### Decision
+
+FAIL. Do not push, PR, merge, launch, register Widget, package for use, or
+release this candidate.
+
+### Next Action
+
+Claude should make an additive package-script fix that ensures the final app
+product, especially Sparkle XPC/framework components, is detritus-free before
+the final strict deep verification, then repeat Self-Check and independent
+Pre-Audit for the exact new SHA.
+
 ## Entry Template
 
 ```text
