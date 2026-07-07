@@ -2472,6 +2472,54 @@ Claude should make an additive package-script fix that preserves Sparkle cleanup
 and clears Widget appex detritus before bundle signing, then repeat Self-Check
 and independent Pre-Audit for the exact new SHA.
 
+## Entry 089 — M5A Package Re-Audit Fails on Widget Executable Detritus
+
+Date: 2026-07-07
+Actor: Codex
+Type: Review
+Status: FAIL
+
+### Active Goal
+
+M5A — Ark Fork Installation Identity Implementation
+
+### LOOP Result
+
+Bounded package-script re-audit. Codex verified the exact candidate, ran
+mechanical checks and packaging, then stopped at the first package failure.
+No launch, Widget registration, PR, merge, or release action was run.
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| Candidate / parent | `df214c9b` / `0a0e1198` |
+| Changed files | `Scripts/package_app.sh` only |
+| `git diff --check` | PASS |
+| `make check` | PASS |
+| Sparkle nested signing | PASS |
+| `CODEXBAR_SIGNING=adhoc Scripts/package_app.sh debug` | FAIL |
+| Failure artifact xattr probe | Widget executable had `com.apple.provenance`; `.appex` root still had Finder/file-provider xattrs |
+
+### Findings
+
+| ID | Severity | Finding |
+|---|---|---|
+| PKG-P1 | P1 | Package now fails signing `CodexBarWidget.appex/Contents/MacOS/CodexBarWidget`: `resource fork, Finder information, or similar detritus not allowed`. Cleaning immediately after Widget appex copy is insufficient; signing-relevant xattrs remain or are reintroduced by the time the Widget executable is signed. |
+| DOC-P2 | P2 | S29 docs cleanup remains unresolved from Entry 086, but package failure remains the blocking issue. |
+
+### Decision
+
+FAIL. Do not push, PR, merge, launch, register Widget, package for use, or
+release this candidate.
+
+### Next Action
+
+Claude should make an additive package-script fix that preserves Sparkle cleanup
+and ensures the Widget executable and appex are detritus-free immediately before
+their codesign steps, then repeat Self-Check and independent Pre-Audit for the
+exact new SHA.
+
 ## Entry Template
 
 ```text
