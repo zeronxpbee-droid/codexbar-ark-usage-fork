@@ -2572,6 +2572,53 @@ Sparkle/Widget cleanup and ensures the final `CodexBar Ark.app` passes
 `codesign --verify --deep --strict --verbose=4`, then repeat Self-Check and
 independent Pre-Audit for the exact new SHA.
 
+## Entry 091 — M5A Package Re-Audit Regresses to Sparkle Detritus Failure
+
+Date: 2026-07-07
+Actor: Codex
+Type: Review
+Status: FAIL
+
+### Active Goal
+
+M5A — Ark Fork Installation Identity Implementation
+
+### LOOP Result
+
+Bounded package-script re-audit. Codex verified the exact candidate, ran
+mechanical checks and package generation, then stopped at the first package
+failure. No launch, Widget registration, PR, merge, or release action was run.
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| Candidate / parent | `2c0227be` / `689c0267` |
+| Changed files | `Scripts/package_app.sh` only |
+| `git diff --check` | PASS |
+| `make check` | PASS |
+| `CODEXBAR_SIGNING=adhoc Scripts/package_app.sh debug` | FAIL |
+| Failure artifact xattr probe | Sparkle `Downloader.xpc` root had `com.apple.FinderInfo` and file-provider xattr |
+
+### Findings
+
+| ID | Severity | Finding |
+|---|---|---|
+| PKG-P1 | P1 | Candidate adds final deep codesign verification, but packaging regresses before that point: Sparkle nested signing again fails on `Downloader.xpc` with `resource fork, Finder information, or similar detritus not allowed`. The final verification step is useful, but Sparkle XPC bundles must be detritus-free before nested signing. |
+| DOC-P2 | P2 | S29 docs cleanup remains unresolved from Entry 086, but package failure remains the blocking issue. |
+
+### Decision
+
+FAIL. Do not push, PR, merge, launch, register Widget, package for use, or
+release this candidate.
+
+### Next Action
+
+Claude should make an additive package-script fix that clears
+Finder/resource-fork/file-provider detritus before Sparkle nested signing,
+preserves Widget/final verification cleanup, and then repeats Self-Check and
+independent Pre-Audit for the exact new SHA.
+
 ## Entry Template
 
 ```text
