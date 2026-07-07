@@ -471,6 +471,9 @@ fi
 function resign() { codesign "${CODESIGN_ARGS[@]}" "$1"; }
 # Validate Sparkle's nested layout before signing so framework layout drift fails clearly.
 SPARKLE_SIGNING_TARGETS=$(codexbar_sparkle_signing_targets "$SPARKLE")
+# Clear Finder/resource-fork/file-provider detritus immediately before nested signing.
+xattr -cr "$SPARKLE"
+find "$SPARKLE" -name '._*' -delete 2>/dev/null || true
 while IFS= read -r SPARKLE_TARGET; do
   resign "$SPARKLE_TARGET"
 done <<<"$SPARKLE_SIGNING_TARGETS"
