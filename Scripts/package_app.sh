@@ -448,6 +448,10 @@ SPARKLE_SOURCE=$(codexbar_require_product_directory "$PREFERRED_BUILD_DIR" Spark
 rm -rf "$APP/Contents/Frameworks/Sparkle.framework"
 cp -R "$SPARKLE_SOURCE" "$APP/Contents/Frameworks/"
 chmod -R a+rX "$APP/Contents/Frameworks/Sparkle.framework"
+# Clear resource forks, Finder info, and AppleDouble detritus from the freshly
+# copied Sparkle bundle before nested signing (codesign rejects detritus).
+xattr -cr "$APP/Contents/Frameworks/Sparkle.framework"
+find "$APP/Contents/Frameworks/Sparkle.framework" -name '._*' -delete 2>/dev/null || true
 install_name_tool -add_rpath "@executable_path/../Frameworks" "$APP/Contents/MacOS/CodexBar"
 # Re-sign Sparkle and all nested components with the selected package identity.
 SPARKLE="$APP/Contents/Frameworks/Sparkle.framework"
