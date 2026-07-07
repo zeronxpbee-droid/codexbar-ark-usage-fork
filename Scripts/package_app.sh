@@ -546,10 +546,12 @@ mv "$APP" "$APP_FINAL"
 APP="$APP_FINAL"
 echo "Created $APP"
 
-# Clear detritus xattrs that filesystem sync may reintroduce after mv.
-# Only removes Finder/ResourceFork detritus; preserves com.apple.cs.* signing xattrs.
-xattr -d -r com.apple.FinderInfo "$APP" 2>/dev/null || true
-xattr -d -r com.apple.ResourceFork "$APP" 2>/dev/null || true
+# Clear all detritus xattrs from the final product before verification.
+# codesign stores signatures in _CodeSignature directories, not xattr;
+# removing com.apple.cs.* cache xattrs is safe — codesign --verify re-reads
+# _CodeSignature. This ensures Sparkle XPC/framework components are
+# detritus-free for strict deep verification.
+xattr -cr "$APP"
 find "$APP" -name '._*' -delete 2>/dev/null || true
 
 # Verify the final product passes strict deep codesign verification.
