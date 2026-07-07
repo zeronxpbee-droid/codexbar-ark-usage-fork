@@ -2246,6 +2246,51 @@ Claude creates one additive corrective commit and proceeds to Self-Check.
 Developer Self-Check on corrected SHA. If PASS, independent Pre-Audit. If
 Pre-Audit PASS, Codex Final Audit rerun.
 
+## Entry 084 — M5A Corrective Re-Audit Fails at Mechanical Gate
+
+Date: 2026-07-07
+Actor: Codex
+Type: Review
+Status: FAIL
+
+### Active Goal
+
+M5A — Ark Fork Installation Identity Implementation
+
+### LOOP Result
+
+Two-stage corrective re-audit. Codex stopped at the mechanical gate because the
+candidate cannot pass project formatting/parsing; no package/runtime checks
+were run.
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| Candidate / parent | `fe9075c8` / `6604f6f2` |
+| `git diff --check` | PASS |
+| S20 textual check | `package_app.sh` and `compile_and_run.sh` now point at `CodexBar Ark.app` |
+| S21 textual check | `SettingsStore` no longer calls `migrateLegacyDataIfNeeded` or `scheduleAppGroupMigration` |
+| `make check` | FAIL — SwiftFormat parse error |
+
+### Findings
+
+| ID | Severity | Finding |
+|---|---|---|
+| SYNTAX-P1 | P1 | `Sources/CodexBar/SettingsStore.swift` has invalid structure after removing the migration extension. SwiftFormat reports `Unexpected token } at 650:1`, so the candidate cannot compile or be packaged. |
+
+### Decision
+
+FAIL. Do not push, PR, merge, package, launch, register Widget, or release this
+candidate. Claude should make an additive syntax-only corrective commit that
+preserves the Entry 082 fixes.
+
+### Next Action
+
+Claude fixes `SettingsStore.swift` syntax only, repeats Self-Check, then the
+independent Pre-Auditor re-checks the exact corrected SHA before Codex reruns
+the two-stage audit.
+
 ## Entry Template
 
 ```text

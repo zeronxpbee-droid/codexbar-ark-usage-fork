@@ -11,13 +11,14 @@ M5A — Ark Fork Installation Identity Implementation
 ## Goal Status
 
 ```text
-Status: M5A CORRECTIVE COMMIT CREATED — Self-Check in progress
-Audit State: Entry 082 found S20-P1 (package product CodexBar.app) and S21-P1
-(runtime migration still scheduled); Claude corrective commit (Entry 083) fixes
-both: APP_FINAL/APP_STAGE → CodexBar Ark.app, SettingsStore migration removed,
-migrateLegacyDataIfNeeded → fresh-state no-op
-Next: Developer Self-Check on corrected SHA; if PASS, independent Pre-Audit;
-if Pre-Audit PASS, Codex Final Audit rerun
+Status: M5A CORRECTIVE RE-AUDIT FAIL — syntax fix required
+Audit State: Entry 082 found S20-P1 and S21-P1; Claude corrective commit
+fe9075c8 (Entry 083) attempted both fixes; Codex Entry 084 stopped at the
+mechanical gate because SwiftFormat cannot parse `SettingsStore.swift`
+(unexpected `}` around line 650).
+Next: Claude creates an additive syntax-only corrective commit, repeats
+Self-Check, then independent Pre-Auditor re-checks the exact corrected SHA
+before Codex reruns the two-stage audit.
 Implementation Owner: Claude / GLM Developer
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
@@ -219,9 +220,8 @@ Claude / GLM may:
 ## Next Task — Claude Corrective Commit + Self-Check
 
 1. Claude invokes LOOP and verifies the exact branch/HEAD/worktree.
-2. Fix Entry 082 findings only: package/runner paths must produce and launch
-   `CodexBar Ark.app`; automatic App Group/defaults/snapshot migration must be
-   removed or made inert per the fresh-state contract.
+2. Fix Entry 084 only: restore valid `SettingsStore.swift` syntax after the
+   migration removal, without broadening beyond Entry 082's corrective scope.
 3. Add/update deterministic tests for those fixes without real Keychain access,
    release credentials, notarization, official-data migration, S24, or S28.
 4. Create additive local commit(s), then perform same-thread Self-Check against
