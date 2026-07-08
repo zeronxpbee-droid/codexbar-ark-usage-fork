@@ -3071,6 +3071,66 @@ the stale fork quick-start open path, avoids historical archives/refactor/
 superpowers, then repeats Self-Check and independent Pre-Audit for the exact
 new SHA before Codex reruns Final Audit.
 
+## Entry 101 — M5A S29 Final Audit Fails on Remaining Command Path Issues
+
+Date: 2026-07-08
+Actor: Codex
+Type: Review
+Status: FAIL
+
+### Active Goal
+
+M5A — Ark Fork Installation Identity Implementation
+
+### LOOP Result
+
+Low-cost Final Audit loop. Codex verified exact candidate `f5529fbc` after
+reported exact-SHA Self-Check and Pre-Audit PASS, reviewed the Entry 100
+docs-only correction, and stopped at remaining docs-owned command accuracy
+failures. No product code, package, launch, Widget registration, push, PR,
+merge, or release action was run.
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| Candidate / parent | `f5529fbc` / `761d354f` |
+| Corrective changed files | `docs/DEVELOPMENT_SETUP.md`, `docs/FORK_QUICK_START.md`, `docs/RELEASING.md`, `docs/keychain-prompts.md`, `docs/widgets.md` |
+| Workspace | `/Users/poon/workspace/projects/codexbar-fork-ark` |
+| Branch / worktree-index | `feature/m5a-ark-installation-isolation` / clean |
+| `git diff --check 761d354f..f5529fbc` | PASS |
+| Final source/test/script/package/plist changes | PASS — none |
+| Old CLI/config path audit | PASS outside excluded historical/design docs |
+| Stale `CodexBar.app` audit | PASS outside excluded historical/report docs |
+| Stale `/Users/steipete/Projects/codexbar/` path | PASS |
+
+### Findings
+
+| ID | Severity | Finding |
+|---|---|---|
+| S29-P1 | P1 | `docs/RELEASING.md:56` and `docs/RELEASING.md:109` still run `spctl` / `codesign` against unquoted `CodexBar Ark.app`, so the space-bearing path will be split by the shell. `docs/DEVELOPMENT_SETUP.md:178` also documents `open -n "CodExBar Ark.app"`, misspelling the exact M5A bundle name. |
+
+### Issues / Risks
+
+- The remaining `CodexBar.app` hits are in historical/report documents
+  (`docs/perf-energy-*`, `docs/overview-scroll-stutter-investigation.md`) and
+  were not treated as S29 violations.
+- Swift/build/package checks were not run because this candidate's corrective
+  diff is docs-only. Entry 095 remains the current package proof in the
+  non-synced workspace.
+
+### Decision
+
+FAIL. Do not push, PR, merge, package for use, launch/register Widget, or
+release candidate `f5529fbc`.
+
+### Next Action
+
+Claude should make an additive S29 docs-only correction for the two remaining
+release-command quoting issues and the `CodExBar` typo, avoid historical
+archives/refactor/superpowers, then repeat Self-Check and independent
+Pre-Audit for the exact new SHA before Codex reruns Final Audit.
+
 ## Entry Template
 
 ```text

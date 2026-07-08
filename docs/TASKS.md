@@ -11,17 +11,17 @@ M5A — Ark Fork Installation Identity Implementation
 ## Goal Status
 
 ```text
-Status: M5A FINAL AUDIT FAIL — S29 app-path command examples still broken
-Audit State: Codex Entry 100 reviewed candidate
-`f667d30506c740de2d1711e6f630661a7dd6c2fc` after exact-SHA
+Status: M5A FINAL AUDIT FAIL — S29 shell-command docs still inaccurate
+Audit State: Codex Entry 101 reviewed candidate
+`f5529fbc5507774142b8a706b11b68526072d21b` after exact-SHA
 `SELF-CHECK PASS` and `PRE-AUDIT PASS`. The candidate is docs-only, changes
-only `docs/DEVELOPMENT.md` and `docs/keychain-prompts.md` since parent
-`b3985c02`, and `git diff --check` passes. The previous stale
-`CodexBar.app` text was mostly replaced, but some current operational docs now
-contain unquoted `CodexBar Ark.app` shell commands, so the path with a space
-will be split by the shell. One example also still opens from the old
-`/Users/steipete/Projects/codexbar/` path instead of the fork checkout. Package
-and signing evidence from Entry 095 remains valid only in
+only `docs/DEVELOPMENT_SETUP.md`, `docs/FORK_QUICK_START.md`,
+`docs/RELEASING.md`, `docs/keychain-prompts.md`, and `docs/widgets.md` since
+parent `761d354f`, and `git diff --check` passes. It fixed some Entry 100
+quoting issues, but `docs/RELEASING.md` still contains unquoted
+`CodexBar Ark.app` in executable `spctl` / `codesign` examples, and
+`docs/DEVELOPMENT_SETUP.md` has a `CodExBar Ark.app` typo in an `open`
+command. Package and signing evidence from Entry 095 remains valid only in
 `/Users/poon/workspace/projects/codexbar-fork-ark`; the old Google Drive
 checkout remains legacy backup only.
 Implementation Owner: Claude / GLM Developer
@@ -224,14 +224,14 @@ Claude / GLM may:
 - No push, PR, merge, release, destructive operation, or history rewrite
   without Bee approval.
 
-## Next Task — Claude S29 Shell-Quoting Docs Correction + Self-Check
+## Next Task — Claude S29 Shell-Command Docs Correction + Self-Check
 
 1. Claude invokes LOOP and verifies the exact branch/HEAD/worktree in
    `/Users/poon/workspace/projects/codexbar-fork-ark`.
-2. Fix Entry 100 only: current operational docs must not contain shell
+2. Fix Entry 101 only: current operational docs must not contain shell
    commands that use the space-bearing `CodexBar Ark.app` path without safe
-   quoting or variable expansion. Also correct any still-stale official
-   checkout path in fork launch examples.
+   quoting or variable expansion, and must spell the bundle name exactly
+   `CodexBar Ark.app` in commands.
 3. Keep the correction docs-only unless a repository-hygiene `.gitignore`
    adjustment is strictly needed and explicitly justified; do not change
    source, tests, scripts, signing, package logic, Widget files, generated
