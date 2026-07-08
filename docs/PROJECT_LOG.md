@@ -3294,6 +3294,68 @@ Bee decision.
 Bee decides whether to start M5B, run post-merge local package/use
 verification, or pause with M5A merged.
 
+## Entry 105 — M5A to M5B Documentation Handoff Compacted
+
+Date: 2026-07-08
+Actor: Codex
+Type: Documentation
+Status: PASS
+
+### Active Goal
+
+Post-M5A — M5B Local-Use Isolation Preparation
+
+### LOOP Result
+
+Project Governance loop. Bee asked Codex to optimize the current documents
+before M5B while preserving key records. Codex verified the non-synced
+workspace, clean `main`, HEAD/remotes, current project rules, upstream baseline
+rules, `TASKS.md`, the current `PROJECT_LOG.md` tail, and
+`docs/CLAUDE_REVIEW_WORKFLOW.md`. The cleanup stayed documentation-only.
+
+### Summary
+
+`docs/TASKS.md` was compacted from M5A execution detail into a short M5B
+handoff. The document now records the M5A merge outcome, the durable evidence
+index, token-efficient reading rules, the M5A compact outcome, candidate M5B
+local-use isolation scope, explicit M5B non-goals, and the three next-task
+options Bee can choose from.
+
+Historical evidence was not deleted from `docs/PROJECT_LOG.md`. Entries
+099-104 remain available, while future M5B work can normally read Entries
+102-105 plus Entry 095 only when package/signing/Widget proof matters.
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| Workspace | `/Users/poon/workspace/projects/codexbar-fork-ark` |
+| Branch before cleanup | `main` |
+| HEAD before cleanup | `e7f4374712a9d1a1f84e83aaca50e71e274b121c` |
+| Remotes | `origin` fork; `upstream` fetch official / push disabled |
+| Files changed | `docs/TASKS.md`, `docs/PROJECT_LOG.md` |
+| Product code changes | none |
+| Historical log entries deleted | none |
+
+### Issues / Risks
+
+- This is documentation governance only. It does not run post-merge packaging,
+  local app launch, Widget validation, release, upstream sync, or M5B runtime
+  verification.
+- The next M5B or local-use verification loop still requires a separate Bee
+  decision.
+
+### Decision
+
+Documentation compaction is accepted as the new M5B handoff entry point.
+`docs/TASKS.md` should be the first current-state file for future agents, while
+`docs/PROJECT_LOG.md` remains the historical source of truth.
+
+### Next Action
+
+Bee chooses one next loop: post-merge local package/use verification, M5B
+local-use isolation preflight, or pause with M5A merged.
+
 ## Entry Template
 
 ```text
