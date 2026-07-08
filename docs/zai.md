@@ -10,12 +10,12 @@ read_when:
 z.ai is API-token based. No browser cookies.
 
 ## Token sources (fallback order)
-1) Config token (`~/.config/codexbar/config.json` or legacy `~/.codexbar/config.json` → `providers[].apiKey`).
+1) Config token (`~/.config/codexbar-ark/config.json` or legacy `~/.codexbar-ark/config.json` → `providers[].apiKey`).
 2) Environment variable `Z_AI_API_KEY`.
 
 ### Config location
-- New installs: `~/.config/codexbar/config.json`
-- Legacy installs: `~/.codexbar/config.json`
+- New installs: `~/.config/codexbar-ark/config.json`
+- Legacy installs: `~/.codexbar-ark/config.json`
 - Override for scripts/tests: `CODEXBAR_CONFIG=/path/to/config.json`
 
 ## Setup
@@ -27,13 +27,13 @@ Set **API region** to **Global (api.z.ai)** or **BigModel CN (open.bigmodel.cn)*
 - CLI personal:
 
   ```bash
-  printf '%s' "$Z_AI_API_KEY" | codexbar config set-api-key --provider zai --stdin
+  printf '%s' "$Z_AI_API_KEY" | codexbar-ark config set-api-key --provider zai --stdin
   ```
 
 - CLI team:
 
   ```bash
-  printf '%s' "$Z_AI_API_KEY" | codexbar config set-api-key --provider zai --stdin \
+  printf '%s' "$Z_AI_API_KEY" | codexbar-ark config set-api-key --provider zai --stdin \
     --label Team \
     --usage-scope team \
     --organization-id org_... \
@@ -43,7 +43,7 @@ Set **API region** to **Global (api.z.ai)** or **BigModel CN (open.bigmodel.cn)*
 - Check:
 
   ```bash
-  codexbar config validate
+  codexbar-ark config validate
   codexbar usage --provider zai --account Team
   ```
 

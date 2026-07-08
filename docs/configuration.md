@@ -13,10 +13,10 @@ API keys, manual cookie headers, source selection, ordering, and token accounts 
 
 ## Location
 - `CODEXBAR_CONFIG=/path/to/config.json` when set.
-- `$XDG_CONFIG_HOME/codexbar/config.json` when `XDG_CONFIG_HOME` is set to an absolute path. Relative values are
+- `$XDG_CONFIG_HOME/codexbar-ark/config.json` when `XDG_CONFIG_HOME` is set to an absolute path. Relative values are
   ignored.
-- `~/.config/codexbar/config.json` by default for new installs.
-- `~/.codexbar/config.json` for existing legacy installs when no XDG config exists.
+- `~/.config/codexbar-ark/config.json` by default for new installs.
+- `~/.codexbar-ark/config.json` for existing legacy installs when no XDG config exists.
 - The directory is created if missing.
 - Permissions are set to `0600` whenever CodexBar writes the file on macOS and Linux.
 
@@ -178,4 +178,4 @@ The order of `providers` controls display/order in the app and CLI. Reorder the 
 - Fields not relevant to a provider are ignored.
 - Omitted providers are appended with defaults during normalization.
 - Keep the file private; it contains secrets.
-- Validate the file with `codexbar config validate` (JSON output available with `--format json`).
+- Validate the file with `codexbar-ark config validate` (JSON output available with `--format json`).

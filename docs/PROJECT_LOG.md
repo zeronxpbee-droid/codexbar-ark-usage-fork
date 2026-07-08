@@ -2859,6 +2859,53 @@ audit evidence.
 Use the updated prompt templates for all subsequent Claude Developer
 Self-Check and Claude Pre-Auditor handoffs.
 
+## Entry 097 - Claude S29 Docs Cleanup from New Workspace
+
+Date: 2026-07-08
+Actor: Claude
+Type: Documentation
+Status: CREATED
+
+### Active Goal
+
+M5A - Ark Fork Installation Identity Implementation
+
+### Summary
+
+Completed S29 docs cleanup (Entry 086 DOC-P2) from the new non-synced
+workspace. Replaced all remaining `~/.codexbar/config.json` and
+`~/.config/codexbar/config.json` references with fork paths
+(`~/.codexbar-ark/config.json`, `~/.config/codexbar-ark/config.json`).
+Also replaced `codexbar config` CLI commands with `codexbar-ark config`
+and `$XDG_CONFIG_HOME/codexbar/` with `$XDG_CONFIG_HOME/codexbar-ark/`
+in current operational docs. Historical docs (`docs/PROJECT_LOG*`,
+`docs/refactor/`) were not modified per S29 boundary.
+
+### Files Changed
+
+- `docs/deepseek.md`, `docs/codebuff.md`, `docs/KEYCHAIN_FIX.md`,
+  `docs/litellm.md`, `docs/providers.md`, `docs/alibaba-coding-plan.md`,
+  `docs/cli.md`, `docs/openai.md`, `docs/configuration.md`,
+  `docs/cli-configuration.md`, `docs/zai.md`, `docs/elevenlabs.md`,
+  `docs/sakana.md`, `README.md`
+- `docs/PROJECT_LOG.md` (this entry)
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| `~/.codexbar/` in docs (excl. archives/refactor) | None remaining |
+| `~/.config/codexbar/` in docs (excl. archives/refactor) | None remaining |
+| `XDG_CONFIG_HOME/codexbar/` in docs | None remaining |
+| `codexbar config` commands in docs | All updated to `codexbar-ark config` |
+| `docs/PROJECT_LOG*`, `docs/refactor/` | Not modified (S29 boundary) |
+| `swift build` / `make check` | NOT RUN (docs-only change, no Swift toolchain) |
+
+### Next Action
+
+Developer Self-Check on candidate SHA. If PASS, independent Pre-Audit.
+If Pre-Audit PASS, Codex Final Audit.
+
 ## Entry Template
 
 ```text

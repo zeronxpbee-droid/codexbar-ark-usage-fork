@@ -73,7 +73,7 @@ Or download release tarballs from GitHub Releases:
 
 ### Set API keys from the CLI
 Provider toggles and API keys live in the resolved CodexBar config file. New installs use
-`~/.config/codexbar/config.json`; existing `~/.codexbar/config.json` installs still load from the legacy path. You can
+`~/.config/codexbar-ark/config.json`; existing `~/.codexbar-ark/config.json` installs still load from the legacy path. You can
 script the same provider list that Settings → Providers uses:
 
 ```bash
@@ -85,7 +85,7 @@ codexbar-ark config disable --provider cursor
 For API-key providers, store a key without opening Settings:
 
 ```bash
-printf '%s' "$ELEVENLABS_API_KEY" | codexbar config set-api-key --provider elevenlabs --stdin
+printf '%s' "$ELEVENLABS_API_KEY" | codexbar-ark config set-api-key --provider elevenlabs --stdin
 ```
 
 `set-api-key` trims the piped value, stores it with restrictive config-file permissions, and enables the provider by default. Use `--no-enable` to only save the key, or `--api-key <key>` for one-off local scripts where shell history is not a concern.

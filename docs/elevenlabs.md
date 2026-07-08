@@ -56,7 +56,7 @@ For tests or self-hosted/proxy setups, override the API base URL with `ELEVENLAB
 
 ### "Missing ElevenLabs API key"
 
-Set the key with `codexbar config set-api-key --provider elevenlabs --stdin`, add it in **Settings -> Providers -> ElevenLabs**, set `ELEVENLABS_API_KEY`, or configure an ElevenLabs token account.
+Set the key with `codexbar-ark config set-api-key --provider elevenlabs --stdin`, add it in **Settings -> Providers -> ElevenLabs**, set `ELEVENLABS_API_KEY`, or configure an ElevenLabs token account.
 
 ### "ElevenLabs API error"
 

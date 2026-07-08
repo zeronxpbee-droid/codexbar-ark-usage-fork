@@ -12,7 +12,7 @@ read_when:
 The original fix (migrating legacy CodexBar keychain items to `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`) is
 still in place, but the architecture has changed:
 
-- Provider settings and manual secrets are now persisted in `~/.codexbar/config.json`.
+- Provider settings and manual secrets are now persisted in `~/.codexbar-ark/config.json`.
 - Legacy keychain stores are still present mainly to migrate old installs, then clear old items.
 - Keychain is still used for runtime cache entries (for example `com.zeronxpbee.codexbar-ark.cache`) and Claude OAuth
   bootstrap reads from Claude CLI keychain (`Claude Code-credentials`).
@@ -21,7 +21,7 @@ still in place, but the architecture has changed:
 
 | Previous statement in this doc | Current behavior |
 | --- | --- |
-| CodexBar stores provider credentials only in keychain | Manual/provider settings are config-file backed (`~/.codexbar/config.json`), while keychain is still used for runtime caches and Claude OAuth bootstrap fallback. |
+| CodexBar stores provider credentials only in keychain | Manual/provider settings are config-file backed (`~/.codexbar-ark/config.json`), while keychain is still used for runtime caches and Claude OAuth bootstrap fallback. |
 | `ClaudeOAuthCredentials.swift` migrated CodexBar-owned Claude OAuth keychain items | Claude OAuth primary source is Claude CLI keychain service (`Claude Code-credentials`), with CodexBar cache in `com.zeronxpbee.codexbar-ark.cache` (`oauth.claude`). |
 | Migration runs in `CodexBarApp.init()` | Migration runs in `HiddenWindowView` `.task` via detached task (`KeychainMigration.migrateIfNeeded()`). |
 | Post-migration prompts should be zero in all Claude paths | Legacy-store prompts are reduced; Claude OAuth bootstrap can still prompt when reading Claude CLI keychain, with cooldown + no-UI probes to prevent storms. |

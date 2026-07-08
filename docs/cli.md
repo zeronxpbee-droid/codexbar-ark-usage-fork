@@ -37,8 +37,8 @@ tar -xzf CodexBarCLI-v0.17.0-macos-x86_64.tar.gz
 
 ## Configuration
 CodexBar reads the resolved config file for provider settings, secrets, and ordering. New installs use
-`~/.config/codexbar/config.json`; absolute `XDG_CONFIG_HOME` paths and `CODEXBAR_CONFIG` are supported, and existing
-`~/.codexbar/config.json` installs keep using the legacy file when no XDG config exists.
+`~/.config/codexbar-ark/config.json`; absolute `XDG_CONFIG_HOME` paths and `CODEXBAR_CONFIG` are supported, and existing
+`~/.codexbar-ark/config.json` installs keep using the legacy file when no XDG config exists.
 See `docs/configuration.md` for the schema.
 
 ## Command
@@ -142,7 +142,7 @@ KILO_API_KEY=... codexbar --provider kilo --source api --format json --pretty
 MOONSHOT_API_KEY=... codexbar --provider moonshot --source api --format json --pretty
 codexbar-ark config validate --format json --pretty
 codexbar-ark config dump --pretty
-printf '%s' "$OPENAI_ADMIN_KEY" | codexbar config set-api-key --provider openai --stdin
+printf '%s' "$OPENAI_ADMIN_KEY" | codexbar-ark config set-api-key --provider openai --stdin
 codexbar-ark config enable --provider grok
 codexbar-ark cache clear --cookies
 codexbar-ark cache clear --cookies --provider claude
