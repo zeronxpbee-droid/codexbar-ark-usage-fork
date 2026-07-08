@@ -2906,6 +2906,48 @@ in current operational docs. Historical docs (`docs/PROJECT_LOG*`,
 Developer Self-Check on candidate SHA. If PASS, independent Pre-Audit.
 If Pre-Audit PASS, Codex Final Audit.
 
+## Entry 098 - Claude S29 Pre-Audit Fix: Complete CLI Command and Path Cleanup
+
+Date: 2026-07-08
+Actor: Claude
+Type: Documentation
+Status: CREATED
+
+### Active Goal
+
+M5A - Ark Fork Installation Identity Implementation
+
+### Summary
+
+Fixed both Pre-Audit P1 findings on candidate `a36bd95e`:
+
+- P1-1: Replaced all remaining `codexbar` CLI commands with `codexbar-ark`
+  across all current operational docs (provider guides, CLI docs, config
+  docs, development docs). Used global `sed 's/codexbar /codexbar-ark /g'`
+  across all docs/*.md (excluding PROJECT_LOG*, archive/, refactor/,
+  superpowers/).
+- P1-2: Replaced `~/.codexbar/` paths with `~/.codexbar-ark/` in 12
+  additional provider/developer docs not covered by Entry 097.
+
+### Files Changed
+
+All docs/*.md and README.md excluding PROJECT_LOG*, archive/, refactor/,
+superpowers/. Approximately 30 files updated.
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| `codexbar ` CLI commands in docs (excl. archives/refactor/superpowers) | None remaining |
+| `~/.codexbar/` paths in docs (excl. archives/refactor/superpowers) | None remaining |
+| `~/.config/codexbar/` paths in docs (excl. archives/refactor/superpowers) | None remaining |
+| Historical docs (PROJECT_LOG*, refactor/, superpowers/) | Not modified |
+| `swift build` / `make check` | NOT RUN (docs-only) |
+
+### Next Action
+
+Developer Self-Check on corrected SHA. If PASS, independent Pre-Audit.
+
 ## Entry Template
 
 ```text

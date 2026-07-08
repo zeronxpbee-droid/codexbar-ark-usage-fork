@@ -54,7 +54,7 @@ ls -la "$WAPPEX" "$WAPPEX/Contents" "$WAPPEX/Contents/MacOS"
 
 ### 2) PlugInKit registration (pkd)
 ```
-pluginkit -m -p com.apple.widgetkit-extension -v | grep -i codexbar || true
+pluginkit -m -p com.apple.widgetkit-extension -v | grep -i codexbar-ark || true
 pluginkit -m -p com.apple.widgetkit-extension -i "$WIDGET_ID" -vv
 ```
 Notes:

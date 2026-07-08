@@ -26,8 +26,8 @@ Use it when you need usage numbers in scripts, CI, or dashboards without UI.
 
 ```
 tar -xzf CodexBarCLI-v0.17.0-macos-x86_64.tar.gz
-./codexbar --version
-./codexbar usage --format json --pretty
+./codexbar-ark --version
+./codexbar-ark usage --format json --pretty
 ```
 
 ## Build
@@ -129,7 +129,7 @@ codexbar-ark cost --days 90           # choose a 1...365 day cost window
 codexbar-ark cost --provider claude --format json --pretty
 codexbar-ark serve --port 8080        # localhost HTTP JSON server
 codexbar-ark serve --request-timeout 0 # disable serve request deadlines
-COPILOT_API_TOKEN=... codexbar --provider copilot --format json --pretty
+COPILOT_API_TOKEN=... codexbar-ark --provider copilot --format json --pretty
 codexbar-ark --status                 # include status page indicator/description
 codexbar-ark --provider codex --source oauth --format json --pretty
 codexbar-ark --provider codex --source web --format json --pretty
@@ -138,8 +138,8 @@ codexbar-ark --provider claude --account steipete@gmail.com
 codexbar-ark --provider claude --all-accounts --format json --pretty
 codexbar-ark --json-only --format json --pretty
 codexbar-ark --provider gemini --source api --format json --pretty
-KILO_API_KEY=... codexbar --provider kilo --source api --format json --pretty
-MOONSHOT_API_KEY=... codexbar --provider moonshot --source api --format json --pretty
+KILO_API_KEY=... codexbar-ark --provider kilo --source api --format json --pretty
+MOONSHOT_API_KEY=... codexbar-ark --provider moonshot --source api --format json --pretty
 codexbar-ark config validate --format json --pretty
 codexbar-ark config dump --pretty
 printf '%s' "$OPENAI_ADMIN_KEY" | codexbar-ark config set-api-key --provider openai --stdin

@@ -39,14 +39,14 @@ empty quota card.
 ## OAuth account switching
 
 - Login still uses Antigravity's Google OAuth client, discovered from `Antigravity.app` or overridden with `ANTIGRAVITY_OAUTH_CLIENT_ID` and `ANTIGRAVITY_OAUTH_CLIENT_SECRET`.
-- A successful login writes the latest shared credentials to `~/.codexbar/antigravity/oauth_creds.json` and upserts a token-account entry for the Google account.
+- A successful login writes the latest shared credentials to `~/.codexbar-ark/antigravity/oauth_creds.json` and upserts a token-account entry for the Google account.
 - Each token-account entry stores serialized `AntigravityOAuthCredentials` and is injected into remote fetches through `ANTIGRAVITY_OAUTH_CREDENTIALS_JSON`.
 - When a token account is selected, the OAuth fetcher uses that account before falling back to the shared credentials file.
   In `auto` mode the ambient Antigravity app, `agy` CLI, and IDE probes still run first, but a snapshot whose account
   does not match the selected account is rejected so the pipeline falls through to the account-scoped OAuth fetch (see
   `AntigravitySelectedAccountGuard`). If no account is selected/injected, `auto` includes OAuth only when the legacy
   shared credentials file already exists. Explicit `cli`/`oauth` source modes stay authoritative and are not re-checked.
-- Removing the last saved token account that matches `~/.codexbar/antigravity/oauth_creds.json` deletes that shared file,
+- Removing the last saved token account that matches `~/.codexbar-ark/antigravity/oauth_creds.json` deletes that shared file,
   so a removed CodexBar account does not silently continue refreshing through the legacy shared cache.
 - The menu action is labeled `Add Account...`; switching between saved accounts scopes Google OAuth fetches.
 

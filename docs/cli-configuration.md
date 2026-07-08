@@ -1,7 +1,7 @@
 ---
 summary: "CodexBar CLI configuration commands for provider toggles, API keys, and isolated config files."
 read_when:
-  - Using codexbar config from scripts or CI
+  - Using codexbar-ark config from scripts or CI
   - Enabling or disabling providers without opening Settings
   - Storing provider API keys from the command line
 ---
@@ -18,52 +18,52 @@ The CLI writes the file with `0600` permissions.
 List persistent provider toggles:
 
 ```bash
-codexbar config providers
-codexbar config providers --json --pretty
+codexbar-ark config providers
+codexbar-ark config providers --json --pretty
 ```
 
 Enable or disable a provider:
 
 ```bash
-codexbar config enable --provider grok
-codexbar config disable --provider cursor
+codexbar-ark config enable --provider grok
+codexbar-ark config disable --provider cursor
 ```
 
-These are persistent app/CLI settings. They are different from `codexbar usage --provider grok`, which is a one-shot
+These are persistent app/CLI settings. They are different from `codexbar-ark usage --provider grok`, which is a one-shot
 command override and does not edit config.
 
-If every provider is disabled, `codexbar usage` with no `--provider` prints no text output, and
-`codexbar usage --json` prints `[]`. Passing `--provider <name>` still fetches that provider for the one command.
+If every provider is disabled, `codexbar-ark usage` with no `--provider` prints no text output, and
+`codexbar-ark usage --json` prints `[]`. Passing `--provider <name>` still fetches that provider for the one command.
 
 ## API keys
 
 API keys are stored under the provider entry in config:
 
 ```bash
-printf '%s' "$ELEVENLABS_API_KEY" | codexbar config set-api-key --provider elevenlabs --stdin
+printf '%s' "$ELEVENLABS_API_KEY" | codexbar-ark config set-api-key --provider elevenlabs --stdin
 ```
 
 `set-api-key` enables the provider by default. Add `--no-enable` when you only want to save the key:
 
 ```bash
-printf '%s' "$OPENROUTER_API_KEY" | codexbar config set-api-key --provider openrouter --stdin --no-enable
+printf '%s' "$OPENROUTER_API_KEY" | codexbar-ark config set-api-key --provider openrouter --stdin --no-enable
 ```
 
 Useful examples:
 
 ```bash
-printf '%s' "$OPENAI_ADMIN_KEY" | codexbar config set-api-key --provider openai --stdin
-printf '%s' "$ANTHROPIC_ADMIN_KEY" | codexbar config set-api-key --provider claude --stdin
-printf '%s' "$DEEPGRAM_API_KEY" | codexbar config set-api-key --provider deepgram --stdin
-printf '%s' "$GROQ_API_KEY" | codexbar config set-api-key --provider groq --stdin
-printf '%s' "$LLM_PROXY_API_KEY" | codexbar config set-api-key --provider llmproxy --stdin
-printf '%s' "$Z_AI_API_KEY" | codexbar config set-api-key --provider zai --stdin
+printf '%s' "$OPENAI_ADMIN_KEY" | codexbar-ark config set-api-key --provider openai --stdin
+printf '%s' "$ANTHROPIC_ADMIN_KEY" | codexbar-ark config set-api-key --provider claude --stdin
+printf '%s' "$DEEPGRAM_API_KEY" | codexbar-ark config set-api-key --provider deepgram --stdin
+printf '%s' "$GROQ_API_KEY" | codexbar-ark config set-api-key --provider groq --stdin
+printf '%s' "$LLM_PROXY_API_KEY" | codexbar-ark config set-api-key --provider llmproxy --stdin
+printf '%s' "$Z_AI_API_KEY" | codexbar-ark config set-api-key --provider zai --stdin
 ```
 
 For a z.ai team account:
 
 ```bash
-printf '%s' "$Z_AI_API_KEY" | codexbar config set-api-key --provider zai --stdin \
+printf '%s' "$Z_AI_API_KEY" | codexbar-ark config set-api-key --provider zai --stdin \
   --label Team \
   --usage-scope team \
   --organization-id org_... \
@@ -86,8 +86,8 @@ For tests, demos, and CI, point CodexBar at a temporary config file:
 
 ```bash
 export CODEXBAR_CONFIG=/tmp/codexbar-config.json
-codexbar config enable --provider grok
-codexbar config providers --json --pretty
+codexbar-ark config enable --provider grok
+codexbar-ark config providers --json --pretty
 ```
 
 The override applies to both reads and writes for the current process environment.
@@ -97,8 +97,8 @@ The override applies to both reads and writes for the current process environmen
 The app setting controls the menu's local cost-history window. For one-off CLI reports, pass `--days`:
 
 ```bash
-codexbar cost --provider codex --days 90
-codexbar cost --provider claude --days 180 --format json --pretty
+codexbar-ark cost --provider codex --days 90
+codexbar-ark cost --provider claude --days 180 --format json --pretty
 ```
 
 The accepted range is 1...365 days.
@@ -108,8 +108,8 @@ The accepted range is 1...365 days.
 After hand-editing config:
 
 ```bash
-codexbar config validate
-codexbar config dump --pretty
+codexbar-ark config validate
+codexbar-ark config dump --pretty
 ```
 
 `dump` prints normalized config, including providers omitted from a hand-written file.

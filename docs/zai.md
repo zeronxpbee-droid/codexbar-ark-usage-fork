@@ -44,7 +44,7 @@ Set **API region** to **Global (api.z.ai)** or **BigModel CN (open.bigmodel.cn)*
 
   ```bash
   codexbar-ark config validate
-  codexbar usage --provider zai --account Team
+  codexbar-ark usage --provider zai --account Team
   ```
 
 Personal config can use `providers[].apiKey`. Team config uses `tokenAccounts`:
