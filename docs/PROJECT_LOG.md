@@ -2720,6 +2720,56 @@ verification, likely by using a non-synced staging/final verification path
 before exposing the artifact to the Google Drive folder. Repeat Self-Check and
 independent Pre-Audit for the exact new SHA.
 
+## Entry 094 — M5A Staged Package Verifies but Final Copied App Fails
+
+Date: 2026-07-08
+Actor: Codex
+Type: Review
+Status: FAIL
+
+### Active Goal
+
+M5A — Ark Fork Installation Identity Implementation
+
+### LOOP Result
+
+Bounded package-script re-audit. Codex used the low-cost mechanical gate first:
+verify candidate identity, run `make check`, run package generation, then
+strictly verify the final delivered app. It stopped before full tests, launch,
+Widget registration, PR, merge, or release action.
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| Candidate / parent | `b78a1341` / `0ee3721` |
+| Changed files | `Scripts/package_app.sh` only |
+| `git diff --check` | PASS |
+| `make check` | PASS |
+| `CODEXBAR_SIGNING=adhoc Scripts/package_app.sh debug` | PASS — staged `/tmp` app verifies and script exits 0 |
+| App / Widget IDs | PASS — `com.zeronxpbee.codexbar-ark.debug` / `.debug.widget` |
+| Sparkle disabled | PASS — feed/key empty, automatic checks false |
+| Final copied app strict verify | FAIL — `CodexBarWidget.appex` has disallowed `com.apple.FinderInfo` |
+
+### Findings
+
+| ID | Severity | Finding |
+|---|---|---|
+| PKG-P1 | P1 | Candidate verifies the `/tmp` staging artifact, then copies it into the Google Drive synced repository and reports success. The final user-visible `CodexBar Ark.app` still fails `codesign --verify --deep --strict --verbose=4` because File Provider reintroduces disallowed Finder detritus on `CodexBarWidget.appex`. |
+| DOC-P2 | P2 | S29 docs cleanup remains unresolved from Entry 086, but package verification remains the blocking issue. |
+
+### Decision
+
+FAIL. Do not push, PR, merge, launch, register Widget, package for use, or
+release this candidate.
+
+### Next Action
+
+Claude should make an additive package-script fix that ensures the final
+delivered artifact, not only an intermediate staging copy, passes strict deep
+verification or stops before presenting it as created. Repeat Self-Check and
+independent Pre-Audit for the exact new SHA.
+
 ## Entry Template
 
 ```text

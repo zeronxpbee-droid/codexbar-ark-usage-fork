@@ -11,16 +11,20 @@ M5A — Ark Fork Installation Identity Implementation
 ## Goal Status
 
 ```text
-Status: M5A FINAL AUDIT FAIL — synced final product path reintroduces detritus
-Audit State: Codex Entry 093 reviewed candidate `9ff44dac`. `make check`
-passes and `CODEXBAR_SIGNING=adhoc Scripts/package_app.sh debug` reaches final
-deep verification, but final `codesign --verify --deep --strict --verbose=4`
-still fails in Sparkle XPC components with disallowed `com.apple.FinderInfo`.
-Failure artifact inspection showed File Provider xattrs reappearing throughout
-the final `CodexBar Ark.app` product inside the Google Drive synced repository.
-Next: Claude creates an additive package-script corrective commit, repeats
-Self-Check, then independent Pre-Auditor re-checks the exact corrected SHA
-before Codex reruns the package-focused final audit.
+Status: M5A FINAL AUDIT FAIL — final copied app still fails strict verification
+Audit State: Codex Entry 094 reviewed candidate `b78a1341`. `make check`
+passes and `CODEXBAR_SIGNING=adhoc Scripts/package_app.sh debug` now stages,
+signs, and verifies `CodexBar Ark.app` successfully in `/tmp`. However the
+script then copies the app back into the Google Drive synced repository path,
+and the final user-visible `CodexBar Ark.app` fails
+`codesign --verify --deep --strict --verbose=4` in
+`CodexBarWidget.appex` with disallowed `com.apple.FinderInfo`. The candidate
+therefore verifies an intermediate staging artifact, not the final delivered
+artifact. Next: Claude creates an additive package-script corrective commit
+that ensures the final delivered artifact also passes strict deep verification
+or stops with an explicit failure before presenting it as created; then repeat
+Self-Check and independent Pre-Audit for the exact corrected SHA before Codex
+reruns the package-focused final audit.
 Implementation Owner: Claude / GLM Developer
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
