@@ -11,7 +11,13 @@ M5A — Ark Fork Installation Identity Implementation
 ## Goal Status
 
 ```text
-Status: M5A FINAL AUDIT FAIL — S29 shell-command docs still inaccurate
+Status: M5A S29 SELF-CHECK PASS — awaiting independent Pre-Audit
+Candidate: 6012351d660aeae84d910fcf1a5bd7890ba0a812 (parent ace1c9e6)
+Self-Check: docs-only fix for the three Entry 101 findings — unquoted
+CodexBar Ark.app in spctl/codesign commands at docs/RELEASING.md:56
+and :109, and CodExBar Ark.app typo at docs/DEVELOPMENT_SETUP.md:178.
+git diff --check 761d354f..HEAD PASS. Deterministic text audits PASS.
+Previous Final Audit FAIL (Entry 101) for f5529fbc is superseded.
 Audit State: Codex Entry 101 reviewed candidate
 `f5529fbc5507774142b8a706b11b68526072d21b` after exact-SHA
 `SELF-CHECK PASS` and `PRE-AUDIT PASS`. The candidate is docs-only, changes
@@ -224,9 +230,16 @@ Claude / GLM may:
 - No push, PR, merge, release, destructive operation, or history rewrite
   without Bee approval.
 
-## Next Task — Claude S29 Shell-Command Docs Correction + Self-Check
+## Next Task — Independent Pre-Audit for Candidate 6012351d
 
-1. Claude invokes LOOP and verifies the exact branch/HEAD/worktree in
+Claude completed the S29 docs correction and Self-Check for candidate
+`6012351d660aeae84d910fcf1a5bd7890ba0a812` (parent `ace1c9e6`). A new
+independent Claude thread should perform read-only Pre-Audit against this
+exact SHA. Codex Final Audit starts only after `PRE-AUDIT PASS`.
+
+Completed steps (for reference):
+
+1. Claude invoked LOOP and verified the exact branch/HEAD/worktree in
    `/Users/poon/workspace/projects/codexbar-fork-ark`.
 2. Fix Entry 101 only: current operational docs must not contain shell
    commands that use the space-bearing `CodexBar Ark.app` path without safe
