@@ -3131,6 +3131,69 @@ release-command quoting issues and the `CodExBar` typo, avoid historical
 archives/refactor/superpowers, then repeat Self-Check and independent
 Pre-Audit for the exact new SHA before Codex reruns Final Audit.
 
+## Entry 102 — M5A S29 Final Audit Passes Docs Cleanup
+
+Date: 2026-07-08
+Actor: Codex
+Type: Review
+Status: PASS
+
+### Active Goal
+
+M5A — Ark Fork Installation Identity Implementation
+
+### LOOP Result
+
+Low-cost Final Audit loop. Codex verified the non-synced workspace, upstream
+baseline rules, exact candidate `a8a9a7a`, branch/remotes/worktree, and the
+Entry 101 docs-only corrective range. No product code, package, signing,
+launch/register, Widget validation, push, PR, merge, or release action was run.
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| Candidate / parent | `a8a9a7a` / `ace1c9e6` |
+| Corrective changed files | `docs/DEVELOPMENT_SETUP.md`, `docs/RELEASING.md`, `docs/TASKS.md` |
+| Workspace | `/Users/poon/workspace/projects/codexbar-fork-ark` |
+| Branch / worktree-index | `feature/m5a-ark-installation-isolation` / clean |
+| Remotes | `origin` fork; `upstream` fetch official / push disabled |
+| `git diff --check ace1c9e6..a8a9a7a` | PASS |
+| `git diff --check e245894b..a8a9a7a` | PASS |
+| Corrective source/test/script/package/widget changes | PASS — none |
+| Final S29 source/test/script/package/widget changes | PASS — none |
+| Entry 101 command-path audit | PASS — no remaining `CodExBar` typo or unquoted executable `CodexBar Ark.app` paths |
+| Old CLI/config path audit | PASS outside excluded historical/design docs |
+| Forbidden historical-doc edits | PASS — no changes under archives/refactor/superpowers |
+| Secret pattern audit | PASS — only documented placeholder examples |
+
+### Findings
+
+0.
+
+### Issues / Risks
+
+- SwiftFormat, SwiftLint, `swift build`, `make check`, `make test`, package,
+  codesign, and Widget runtime checks were not rerun because this corrective
+  candidate is docs-only. Entry 095 remains the latest package/signing/Widget
+  evidence in the non-synced workspace.
+- Remaining `CodexBar.app` hits are historical/report-only documents and were
+  not treated as S29 current operational-doc violations.
+- The local branch label `feature/m5a-ark-installation-isolation.lock.bak`
+  also points at this HEAD; no branch, remote, push, PR, merge, or destructive
+  operation was performed by Codex in this audit.
+
+### Decision
+
+PASS. Candidate `a8a9a7a` is acceptable for Bee's next repository-operation
+decision. Do not push, PR, merge, package for use, launch/register Widget, or
+release without explicit Bee approval.
+
+### Next Action
+
+Bee decides whether Codex may push the M5A branch and create or update the PR,
+or whether another local governance/documentation correction is needed first.
+
 ## Entry Template
 
 ```text

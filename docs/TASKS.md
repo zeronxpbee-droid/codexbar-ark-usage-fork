@@ -11,13 +11,15 @@ M5A — Ark Fork Installation Identity Implementation
 ## Goal Status
 
 ```text
-Status: M5A S29 SELF-CHECK PASS — awaiting independent Pre-Audit
-Candidate: 6012351d660aeae84d910fcf1a5bd7890ba0a812 (parent ace1c9e6)
-Self-Check: docs-only fix for the three Entry 101 findings — unquoted
-CodexBar Ark.app in spctl/codesign commands at docs/RELEASING.md:56
-and :109, and CodExBar Ark.app typo at docs/DEVELOPMENT_SETUP.md:178.
-git diff --check 761d354f..HEAD PASS. Deterministic text audits PASS.
-Previous Final Audit FAIL (Entry 101) for f5529fbc is superseded.
+Status: M5A S29 FINAL AUDIT PASS — awaiting Bee push / PR / merge decision
+Candidate: a8a9a7a26c20381651b92879c738b152e359660a (parent ace1c9e6)
+Final Audit: Codex Entry 102 reviewed the exact candidate after reported
+exact-SHA SELF-CHECK PASS and PRE-AUDIT PASS. The Entry 101 corrective range is
+docs-only (`docs/DEVELOPMENT_SETUP.md`, `docs/RELEASING.md`, `docs/TASKS.md`);
+`git diff --check` passes for both the corrective range and final S29 range;
+source/test/script/package/widget files are unchanged in the corrective range
+and absent from the final S29 diff. Deterministic text audits for the Entry 101
+`CodExBar` typo and unquoted `CodexBar Ark.app` command paths pass.
 Audit State: Codex Entry 101 reviewed candidate
 `f5529fbc5507774142b8a706b11b68526072d21b` after exact-SHA
 `SELF-CHECK PASS` and `PRE-AUDIT PASS`. The candidate is docs-only, changes
@@ -230,33 +232,17 @@ Claude / GLM may:
 - No push, PR, merge, release, destructive operation, or history rewrite
   without Bee approval.
 
-## Next Task — Independent Pre-Audit for Candidate 6012351d
+## Next Task — Bee Decision on M5A Repository Operation
 
-Claude completed the S29 docs correction and Self-Check for candidate
-`6012351d660aeae84d910fcf1a5bd7890ba0a812` (parent `ace1c9e6`). A new
-independent Claude thread should perform read-only Pre-Audit against this
-exact SHA. Codex Final Audit starts only after `PRE-AUDIT PASS`.
+Codex Final Audit passed for candidate
+`a8a9a7a26c20381651b92879c738b152e359660a`. No push, PR, merge, package,
+launch/register, Widget validation, or release action was run after this audit.
 
-Completed steps (for reference):
+Next allowed step:
 
-1. Claude invoked LOOP and verified the exact branch/HEAD/worktree in
-   `/Users/poon/workspace/projects/codexbar-fork-ark`.
-2. Fix Entry 101 only: current operational docs must not contain shell
-   commands that use the space-bearing `CodexBar Ark.app` path without safe
-   quoting or variable expansion, and must spell the bundle name exactly
-   `CodexBar Ark.app` in commands.
-3. Keep the correction docs-only unless a repository-hygiene `.gitignore`
-   adjustment is strictly needed and explicitly justified; do not change
-   source, tests, scripts, signing, package logic, Widget files, generated
-   projects, historical archives, `docs/refactor/`, or `docs/superpowers/`.
-4. Re-run deterministic text audits for old `codexbar` CLI commands, old
-   config paths, stale app bundle paths, unquoted `CodexBar Ark.app` command
-   usage, and forbidden historical-doc edits.
-5. Create additive local commit(s), then perform same-thread Self-Check against
-   the complete corrected M5A diff.
-6. Handoff only a clean exact candidate with `SELF-CHECK PASS`.
-7. A new independent Claude thread performs read-only Pre-Audit. Codex Final
-   Audit starts only after `PRE-AUDIT PASS` for the same SHA.
+1. Bee decides whether Codex may push the M5A branch and create or update the
+   PR, or whether another local governance/documentation correction is needed
+   first.
 
 ## Definition of Done — M5A Implementation
 
