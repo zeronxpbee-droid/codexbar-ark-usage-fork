@@ -11,20 +11,22 @@ M5A — Ark Fork Installation Identity Implementation
 ## Goal Status
 
 ```text
-Status: M5A FINAL AUDIT FAIL — final copied app still fails strict verification
-Audit State: Codex Entry 094 reviewed candidate `b78a1341`. `make check`
-passes and `CODEXBAR_SIGNING=adhoc Scripts/package_app.sh debug` now stages,
-signs, and verifies `CodexBar Ark.app` successfully in `/tmp`. However the
-script then copies the app back into the Google Drive synced repository path,
-and the final user-visible `CodexBar Ark.app` fails
-`codesign --verify --deep --strict --verbose=4` in
-`CodexBarWidget.appex` with disallowed `com.apple.FinderInfo`. The candidate
-therefore verifies an intermediate staging artifact, not the final delivered
-artifact. Next: Claude creates an additive package-script corrective commit
-that ensures the final delivered artifact also passes strict deep verification
-or stops with an explicit failure before presenting it as created; then repeat
-Self-Check and independent Pre-Audit for the exact corrected SHA before Codex
-reruns the package-focused final audit.
+Status: M5A ENVIRONMENT MIGRATED — package blocker cleared in non-synced workspace
+Audit State: Codex Entry 095 cloned the repository from the Google Drive
+synced path to `/Users/poon/workspace/projects/codexbar-fork-ark`, restored
+GitHub `origin` and official `upstream` remotes, and verified that the final
+user-visible `CodexBar Ark.app` passes
+`codesign --verify --deep --strict --verbose=4` in the new non-synced
+workspace. Entry 094's package failure is now attributed to Google Drive File
+Provider reintroducing disallowed Finder detritus after copy, not to a
+remaining product-code or package-script requirement. Future development,
+audit, package, signing, and Widget verification must use the new workspace;
+the old Google Drive checkout is retained only as a backup and must not be
+used for package/signing evidence. Next: Claude resumes M5A work from the new
+workspace, avoids further package xattr workarounds unless a new local failure
+appears, completes any remaining approved M5A scope such as S29 docs cleanup,
+then repeats Self-Check and independent Pre-Audit for the exact new SHA before
+Codex final acceptance review.
 Implementation Owner: Claude / GLM Developer
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
@@ -47,6 +49,8 @@ M3 merge commit: 9a24cf7356b6cace5fdbaeac5424609093245887
 M4 merged PR: https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/5
 M4 merge commit: b40762d8f259b286f82f6280ec3c5a777a379a60
 M5A branch: feature/m5a-ark-installation-isolation
+Active local workspace: /Users/poon/workspace/projects/codexbar-fork-ark
+Legacy backup checkout: /Users/poon/Library/CloudStorage/GoogleDrive-zeronxpbee@gmail.com/我的云端硬盘/Codex/projects/codexbar-fork-ark
 ```
 
 ## Mandatory Pre-Execution Rule

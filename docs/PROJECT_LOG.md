@@ -2770,6 +2770,55 @@ delivered artifact, not only an intermediate staging copy, passes strict deep
 verification or stops before presenting it as created. Repeat Self-Check and
 independent Pre-Audit for the exact new SHA.
 
+## Entry 095 — M5A Workspace Relocation Clears File Provider Package Blocker
+
+Date: 2026-07-08
+Actor: Codex
+Type: Documentation / Review
+Status: PASS
+
+### Active Goal
+
+M5A — Ark Fork Installation Identity Implementation
+
+### LOOP Result
+
+Environment remediation loop. Codex did not modify product code. It cloned the
+repository into a non-synced local workspace, restored remotes, and reran only
+the low-cost checks needed to prove whether Entry 094 was caused by Google
+Drive File Provider state.
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| New workspace | `/Users/poon/workspace/projects/codexbar-fork-ark` |
+| Legacy backup checkout | Google Drive `CloudStorage/.../codexbar-fork-ark` |
+| Clone HEAD / branch | `eeaedcf8` / `feature/m5a-ark-installation-isolation` |
+| Remotes | `origin` restored to GitHub fork; `upstream` restored to official CodexBar with push disabled |
+| `git diff --check` | PASS |
+| `CODEXBAR_SIGNING=adhoc Scripts/package_app.sh debug` | PASS |
+| Final copied app strict verify | PASS — `CodexBar Ark.app` valid on disk and satisfies its designated requirement |
+| App / Widget IDs | PASS — `com.zeronxpbee.codexbar-ark.debug` / `.debug.widget` |
+| Signature | PASS — ad-hoc, `TeamIdentifier=not set` |
+| Finder/File Provider detritus scan | PASS — no `FinderInfo`, `ResourceFork`, or file-provider xattrs reported |
+
+### Decision
+
+Entry 094's package failure is attributed to the old Google Drive synced
+workspace reintroducing disallowed File Provider/Finder detritus after copy.
+Future development, audit, packaging, signing, and Widget verification must use
+the new non-synced workspace. The old Google Drive checkout is a backup only
+and must not be used for package/signing evidence.
+
+### Next Action
+
+Claude should resume from `/Users/poon/workspace/projects/codexbar-fork-ark`,
+avoid further package xattr workarounds unless the new local workspace
+reproduces a failure, finish remaining approved M5A scope such as S29 docs
+cleanup, then repeat Self-Check and independent Pre-Audit for the exact new
+SHA before Codex final acceptance review.
+
 ## Entry Template
 
 ```text
