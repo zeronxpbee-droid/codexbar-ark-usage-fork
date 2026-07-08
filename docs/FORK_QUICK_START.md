@@ -51,8 +51,8 @@ swiftlint --strict
 ./Scripts/package_app.sh
 
 # Restart app after rebuild
-pkill -x CodexBar || pkill -f CodexBar.app || true
-cd /Users/steipete/Projects/codexbar-ark && open -n /Users/steipete/Projects/codexbar/CodexBar.app
+pkill -x CodexBar || pkill -f CodexBar Ark.app || true
+cd /Users/steipete/Projects/codexbar-ark && open -n /Users/steipete/Projects/codexbar/CodexBar Ark.app
 ```
 
 ### Release
@@ -150,7 +150,7 @@ swift test --filter AugmentTests
 ### App Won't Launch
 ```bash
 # Kill all instances
-pkill -x CodexBar || pkill -f CodexBar.app || true
+pkill -x CodexBar || pkill -f CodexBar Ark.app || true
 
 # Rebuild and relaunch
 ./Scripts/compile_and_run.sh

@@ -234,7 +234,7 @@ make docs-list                       # list docs with frontmatter summaries
 
 CLI install:
 ```bash
-# after installing CodexBar.app in /Applications
+# after installing CodexBar Ark.app in /Applications
 ./bin/install-codexbar-cli.sh
 ```
 

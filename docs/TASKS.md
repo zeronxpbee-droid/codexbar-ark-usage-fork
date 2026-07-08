@@ -11,22 +11,18 @@ M5A — Ark Fork Installation Identity Implementation
 ## Goal Status
 
 ```text
-Status: M5A ENVIRONMENT MIGRATED — package blocker cleared in non-synced workspace
-Audit State: Codex Entry 095 cloned the repository from the Google Drive
-synced path to `/Users/poon/workspace/projects/codexbar-fork-ark`, restored
-GitHub `origin` and official `upstream` remotes, and verified that the final
-user-visible `CodexBar Ark.app` passes
-`codesign --verify --deep --strict --verbose=4` in the new non-synced
-workspace. Entry 094's package failure is now attributed to Google Drive File
-Provider reintroducing disallowed Finder detritus after copy, not to a
-remaining product-code or package-script requirement. Future development,
-audit, package, signing, and Widget verification must use the new workspace;
-the old Google Drive checkout is retained only as a backup and must not be
-used for package/signing evidence. Next: Claude resumes M5A work from the new
-workspace, avoids further package xattr workarounds unless a new local failure
-appears, completes any remaining approved M5A scope such as S29 docs cleanup,
-then repeats Self-Check and independent Pre-Audit for the exact new SHA before
-Codex final acceptance review.
+Status: M5A FINAL AUDIT FAIL — S29 app-path documentation cleanup incomplete
+Audit State: Codex Entry 099 reviewed candidate
+`4fb11ad5021e9ff5307c8a69bb3cf5db6c5b2357` after exact-SHA
+`SELF-CHECK PASS` and `PRE-AUDIT PASS`. The candidate has no final source,
+test, script, package, plist, or generated-project changes; final diff is
+current docs plus `.gitignore`, and `git diff --check` passes. However,
+current operational docs still contain stale `CodexBar.app` / official app
+path instructions in files covered by S29, including `README.md`,
+`docs/cli.md`, `docs/RELEASING.md`, `docs/FORK_QUICK_START.md`, and
+`docs/DEVELOPMENT_SETUP.md`. Package/signing evidence from Entry 095 remains
+valid only in `/Users/poon/workspace/projects/codexbar-fork-ark`; the old
+Google Drive checkout remains legacy backup only.
 Implementation Owner: Claude / GLM Developer
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
@@ -227,21 +223,24 @@ Claude / GLM may:
 - No push, PR, merge, release, destructive operation, or history rewrite
   without Bee approval.
 
-## Next Task — Claude Corrective Commit + Self-Check
+## Next Task — Claude S29 Docs Correction + Self-Check
 
-1. Claude invokes LOOP and verifies the exact branch/HEAD/worktree.
-2. Fix Entry 093 only: make `Scripts/package_app.sh debug` package
-   `CodexBar Ark.app` and ensure the final product passes
-   `codesign --verify --deep --strict --verbose=4 "CodexBar Ark.app"`.
-   The fix may need a non-synced staging/final verification path before
-   exposing the product to the Google Drive folder; preserve Sparkle, Widget,
-   and final verification cleanup; do not broaden beyond M5A packaging.
-3. Add/update deterministic tests for those fixes without real Keychain access,
-   release credentials, notarization, official-data migration, S24, or S28.
-4. Create additive local commit(s), then perform same-thread Self-Check against
+1. Claude invokes LOOP and verifies the exact branch/HEAD/worktree in
+   `/Users/poon/workspace/projects/codexbar-fork-ark`.
+2. Fix Entry 099 only: current operational docs must not instruct users or
+   maintainers to package, install, open, verify, or symlink the fork through
+   stale `CodexBar.app` / official app paths where M5A requires
+   `CodexBar Ark.app`.
+3. Keep the correction docs-only unless a repository-hygiene `.gitignore`
+   adjustment is strictly needed and explicitly justified; do not change
+   source, tests, scripts, signing, package logic, Widget files, generated
+   projects, historical archives, `docs/refactor/`, or `docs/superpowers/`.
+4. Re-run deterministic text audits for old `codexbar` CLI commands, old
+   config paths, stale app bundle paths, and forbidden historical-doc edits.
+5. Create additive local commit(s), then perform same-thread Self-Check against
    the complete corrected M5A diff.
-5. Handoff only a clean exact candidate with `SELF-CHECK PASS`.
-6. A new independent Claude thread performs read-only Pre-Audit. Codex Final
+6. Handoff only a clean exact candidate with `SELF-CHECK PASS`.
+7. A new independent Claude thread performs read-only Pre-Audit. Codex Final
    Audit starts only after `PRE-AUDIT PASS` for the same SHA.
 
 ## Definition of Done — M5A Implementation

@@ -2948,6 +2948,68 @@ superpowers/. Approximately 30 files updated.
 
 Developer Self-Check on corrected SHA. If PASS, independent Pre-Audit.
 
+## Entry 099 — M5A S29 Final Audit Fails on Stale App Paths
+
+Date: 2026-07-08
+Actor: Codex
+Type: Review
+Status: FAIL
+
+### Active Goal
+
+M5A — Ark Fork Installation Identity Implementation
+
+### LOOP Result
+
+Low-cost Final Audit loop. Codex verified exact candidate `4fb11ad5` after
+reported exact-SHA Self-Check and Pre-Audit PASS, reviewed only S29 docs /
+repository hygiene scope, and stopped at the first docs-owned acceptance
+failure. No product code, package, launch, Widget registration, push, PR,
+merge, or release action was run.
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| Candidate / parent | `4fb11ad5` / `97b36e4b` |
+| Reviewed range | `e245894b..4fb11ad5` |
+| Workspace | `/Users/poon/workspace/projects/codexbar-fork-ark` |
+| Branch / worktree-index | `feature/m5a-ark-installation-isolation` / clean |
+| `git diff --check` | PASS |
+| Final changed files | 42: current docs plus `.gitignore` |
+| Source/test/script/package/plist changes | PASS — none in final diff |
+| Old `codexbar` CLI commands | PASS outside excluded historical/design docs |
+| Old config paths | PASS outside excluded historical/design docs |
+| `.gitignore` | Adds `.lock.removed`; final tree has no tracked `.lock` |
+| Transient `.lock` blob | Removed from final tree; blob is a Git index, no secret-pattern hit |
+
+### Findings
+
+| ID | Severity | Finding |
+|---|---|---|
+| S29-P1 | P1 | Current operational docs still contain stale `CodexBar.app` / official app-path instructions despite M5A requiring `CodexBar Ark.app`. Examples: `README.md:237`, `docs/cli.md:34`, `docs/RELEASING.md:46`, `docs/RELEASING.md:56`, `docs/FORK_QUICK_START.md:55`, `docs/DEVELOPMENT_SETUP.md:83`, `docs/DEVELOPMENT_SETUP.md:104`. |
+
+### Issues / Risks
+
+- `docs/PROJECT_LOG.md` was modified as the implementation log, despite the
+  Pre-Audit matrix saying `PROJECT_LOG*` was not modified. This is acceptable
+  as historical recording, but the handoff statement was imprecise.
+- Full Swift/build/package checks were not run because this candidate's final
+  diff is docs plus `.gitignore`; Entry 095 remains the current package proof
+  in the non-synced workspace.
+
+### Decision
+
+FAIL. Do not push, PR, merge, package for use, launch/register Widget, or
+release candidate `4fb11ad5`.
+
+### Next Action
+
+Claude should make an additive S29 docs-only correction for stale app bundle
+paths in current operational docs, avoid historical archives/refactor/
+superpowers, then repeat Self-Check and independent Pre-Audit for the exact
+new SHA before Codex reruns Final Audit.
+
 ## Entry Template
 
 ```text

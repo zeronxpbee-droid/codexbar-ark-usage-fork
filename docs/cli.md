@@ -31,7 +31,7 @@ tar -xzf CodexBarCLI-v0.17.0-macos-x86_64.tar.gz
 ```
 
 ## Build
-- `./Scripts/package_app.sh` (or `./Scripts/compile_and_run.sh`) bundles `CodexBarCLI` into `CodexBar.app/Contents/Helpers/CodexBarCLI`.
+- `./Scripts/package_app.sh` (or `./Scripts/compile_and_run.sh`) bundles `CodexBarCLI` into `CodexBar Ark.app/Contents/Helpers/CodexBarCLI`.
 - Standalone: `swift build -c release --product CodexBarCLI` (binary at `./.build/release/CodexBarCLI`).
 - Dependencies: Swift 6.2+, Commander package (`https://github.com/steipete/Commander`).
 
