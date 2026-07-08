@@ -38,7 +38,7 @@ Safe checks:
 
 ```bash
 pgrep -fl 'CodexBar|CodexBarCLI'
-ls -ld /Applications/CodexBar Ark.app
+ls -ld "/Applications/CodexBar Ark.app"
 brew info --cask codexbar
 mdfind 'kMDItemCFBundleIdentifier == "com.steipete.codexbar"'
 ```

@@ -175,5 +175,5 @@ Or manually:
 ```bash
 ./Scripts/package_app.sh
 pkill -x CodexBar || pkill -f "CodexBar Ark.app" || true
-open -n CodexBar Ark.app
+open -n "CodExBar Ark.app"
 ```

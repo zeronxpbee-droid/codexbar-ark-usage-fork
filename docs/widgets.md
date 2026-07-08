@@ -73,10 +73,10 @@ If multiple paths appear, delete older installs and bump `CFBundleVersion`.
 ### 3) Code signing + Gatekeeper assessment
 Widgets are loaded by system daemons. Any signing failure can hide the widget.
 ```
-codesign --verify --deep --strict --verbose=4 /Applications/CodexBar Ark.app
+codesign --verify --deep --strict --verbose=4 "/Applications/CodexBar Ark.app"
 codesign --verify --strict --verbose=4 "$WAPPEX"
 codesign --verify --strict --verbose=4 "$WAPPEX/Contents/MacOS/CodexBarWidget"
-spctl --assess --type execute --verbose=4 /Applications/CodexBar Ark.app
+spctl --assess --type execute --verbose=4 "/Applications/CodexBar Ark.app"
 ```
 
 ### 4) Restart the right daemons (NotificationCenter alone is not enough)
