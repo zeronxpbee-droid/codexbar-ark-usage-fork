@@ -11,7 +11,7 @@ M5A — Ark Fork Installation Identity Implementation
 ## Goal Status
 
 ```text
-Status: M5A S29 FINAL AUDIT PASS — awaiting Bee push / PR / merge decision
+Status: M5A DRAFT PR OPEN — awaiting Bee review / merge decision
 Candidate: a8a9a7a26c20381651b92879c738b152e359660a (parent ace1c9e6)
 Final Audit: Codex Entry 102 reviewed the exact candidate after reported
 exact-SHA SELF-CHECK PASS and PRE-AUDIT PASS. The Entry 101 corrective range is
@@ -20,6 +20,7 @@ docs-only (`docs/DEVELOPMENT_SETUP.md`, `docs/RELEASING.md`, `docs/TASKS.md`);
 source/test/script/package/widget files are unchanged in the corrective range
 and absent from the final S29 diff. Deterministic text audits for the Entry 101
 `CodExBar` typo and unquoted `CodexBar Ark.app` command paths pass.
+PR: https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/6
 Audit State: Codex Entry 101 reviewed candidate
 `f5529fbc5507774142b8a706b11b68526072d21b` after exact-SHA
 `SELF-CHECK PASS` and `PRE-AUDIT PASS`. The candidate is docs-only, changes
@@ -232,17 +233,21 @@ Claude / GLM may:
 - No push, PR, merge, release, destructive operation, or history rewrite
   without Bee approval.
 
-## Next Task — Bee Decision on M5A Repository Operation
+## Next Task — Bee Review of M5A Draft PR
 
-Codex Final Audit passed for candidate
-`a8a9a7a26c20381651b92879c738b152e359660a`. No push, PR, merge, package,
-launch/register, Widget validation, or release action was run after this audit.
+Codex pushed `feature/m5a-ark-installation-isolation` and opened draft PR #6:
+
+```text
+https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/6
+```
+
+No merge, package, launch/register, Widget validation, or release action was
+run after the PR was opened.
 
 Next allowed step:
 
-1. Bee decides whether Codex may push the M5A branch and create or update the
-   PR, or whether another local governance/documentation correction is needed
-   first.
+1. Bee reviews PR #6 and decides whether Codex may merge M5A, request another
+   correction, or leave the PR as draft.
 
 ## Definition of Done — M5A Implementation
 

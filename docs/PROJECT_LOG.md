@@ -3194,6 +3194,54 @@ release without explicit Bee approval.
 Bee decides whether Codex may push the M5A branch and create or update the PR,
 or whether another local governance/documentation correction is needed first.
 
+## Entry 103 — M5A Draft PR Opened
+
+Date: 2026-07-08
+Actor: Codex
+Type: Repository Operation
+Status: CREATED
+
+### Active Goal
+
+M5A — Ark Fork Installation Identity Implementation
+
+### LOOP Result
+
+Repository Operation loop. Bee authorized Codex to push the audited M5A branch
+and create or update a draft PR. Codex re-verified the non-synced workspace,
+branch, remotes, clean worktree, upstream baseline rules, TASKS/PROJECT_LOG
+state, and `git diff --check`, then performed only the authorized GitHub
+publish actions.
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| Workspace | `/Users/poon/workspace/projects/codexbar-fork-ark` |
+| Branch | `feature/m5a-ark-installation-isolation` |
+| Pushed head | `ac217931023741fbb1e226bb6304b500233d3588` |
+| Remote | `origin` fork |
+| `git diff --check HEAD` | PASS |
+| Push | PASS — branch updated on `origin` |
+| Draft PR | https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/6 |
+
+### Issues / Risks
+
+- Local `gh auth status` reported an invalid `gh` token, so PR creation used
+  the GitHub connector after `git push` succeeded with the repository remote
+  credentials.
+- No merge, package, launch/register, Widget validation, release, destructive
+  operation, or history rewrite was performed.
+
+### Decision
+
+Draft PR #6 is open for Bee review. Merge still requires explicit Bee approval.
+
+### Next Action
+
+Bee reviews PR #6 and decides whether Codex may merge M5A, request another
+correction, or leave the PR as draft.
+
 ## Entry Template
 
 ```text
