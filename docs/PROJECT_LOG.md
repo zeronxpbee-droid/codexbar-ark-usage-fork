@@ -3443,6 +3443,81 @@ runtime or Widget registration proof.
 Bee decides whether to start M5B Local-Use Isolation Preflight or pause with
 M5A merged.
 
+## Entry 107 — M5B Local-Use Isolation Preflight Matrix
+
+Date: 2026-07-08
+Actor: Codex
+Type: Documentation
+Status: PASS
+
+### Active Goal
+
+M5B — Local-Use Isolation Implementation Contract
+
+### LOOP Result
+
+Project Governance loop. Bee approved moving from the post-M5A verification
+state into M5B preflight. Codex verified the non-synced workspace, clean
+`main`, HEAD/remotes, current project rules, upstream baseline rules,
+`TASKS.md`, current `PROJECT_LOG.md` handoff entries, and
+`docs/CLAUDE_REVIEW_WORKFLOW.md`. The loop stayed static and
+documentation-only: no source implementation, package, launch, Widget runtime,
+release, upstream sync, branch, PR, or merge work was performed.
+
+### Summary
+
+Codex completed the M5B preflight matrix and updated `docs/TASKS.md` with the
+smallest useful implementation contract. The scope is not a broad rename.
+M5B should isolate app-owned support/cache/log/history files and fork launch
+scripts that can collide with official CodexBar. M5B should not fork
+provider-owned external auth stores, rename Swift package targets, or restart
+release/distribution work.
+
+### Files Changed
+
+- `docs/TASKS.md`
+- `docs/PROJECT_LOG.md`
+
+### Evidence
+
+| Surface | Evidence | Classification |
+|---|---|---|
+| App Group / Widget snapshot fallback | `AppGroupSupport.swift` uses fixed `group.com.zeronxpbee.codexbar-ark` and fallback `CodexBarArk` | already isolated / do not change |
+| Config store | Entry 106 verified fork config source `~/.config/codexbar-ark/config.json` with no official fallback | already isolated / do not change |
+| Keychain services | Entry 106 verified fork services `com.zeronxpbee.codexbar-ark` and `.cache` | already isolated / do not change |
+| App-owned Application Support | `TokenAccounts.swift`, `ManagedCodexAccountStore.swift`, `ManagedCodexAccountService.swift`, `CodexAccountUsageSnapshotStore.swift`, `CookieHeaderCache.swift`, and provider session/probe stores still use `Application Support/CodexBar` | must isolate |
+| Reverse-DNS support history/cache | `OpenAIDashboardModels.swift` and `PlanUtilizationHistoryStore.swift` use `Application Support/com.steipete.codexbar` | must isolate |
+| Cost/model caches | `PiSessionCostCache.swift`, `CostUsageCache.swift`, `ModelsDevPricing.swift`, and `UsageStore+TokenCost.swift` use `Caches/CodexBar` | must isolate |
+| Debug file logging | `FileLogHandler.swift` uses `Library/Logs/CodexBar/CodexBar.log` | must isolate |
+| Launch/dev scripts | `Scripts/compile_and_run.sh`, `Scripts/launch.sh`, and `Makefile` still use generic `pkill -x CodexBar` / `pgrep -x CodexBar` patterns | must isolate |
+| Packaged-app defaults | Product code uses `UserDefaults.standard` / `@AppStorage`; packaged bundle ID is already forked | acceptable as-is |
+| Unbundled localization fallback | `Localization.swift` falls back to `UserDefaults(suiteName: "CodexBar")` outside `.app` bundles | must isolate for dev/debug clarity |
+| Provider-owned external state | `~/.codex`, `~/.claude`, browser stores, provider CLIs, and explicit `CODEX_HOME` are provider-owned | acceptable shared/external state |
+| Diagnostic labels | `com.steipete.codexbar` osLog/SwiftLog/queue/notification/run-loop labels remain | defer unless runtime evidence shows a collision |
+
+### Issues / Risks
+
+- This preflight did not run GUI side-by-side proof, Widget runtime proof, or
+  package/build checks. Those belong to implementation review or optional
+  Codex final validation if Bee approves the runtime cost.
+- Some provider session/probe stores under `Application Support/CodexBar` are
+  not Ark-specific, but they are app-owned and can cause official/fork state
+  bleed; M5B should move them through a shared fork path helper rather than
+  one-off edits.
+- Diagnostic labels and user-facing branding strings remain imperfect for a
+  public fork, but they are not needed for private local-use isolation.
+
+### Decision
+
+M5B should proceed, if Bee approves, as a narrow local-use isolation task:
+fork app-owned support/cache/log/history roots and fork launch process matching,
+while preserving provider-owned external state and M5A identity decisions.
+
+### Next Action
+
+Bee decides whether Codex should create/start the M5B implementation branch
+from `main` and hand the contract to Claude / GLM Developer.
+
 ## Entry Template
 
 ```text

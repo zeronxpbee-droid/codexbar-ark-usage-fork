@@ -5,13 +5,13 @@
 ## Active Goal
 
 ```text
-Post-M5A — M5B Local-Use Isolation Preparation
+M5B — Local-Use Isolation Implementation Contract
 ```
 
 ## Goal Status
 
 ```text
-Status: POST-M5A LOCAL PACKAGE/USE VERIFICATION COMPLETE — awaiting Bee decision
+Status: M5B PREFLIGHT COMPLETE — awaiting Bee approval to start implementation branch
 Current branch: main
 Active local workspace: /Users/poon/workspace/projects/codexbar-fork-ark
 Legacy backup checkout: /Users/poon/Library/CloudStorage/GoogleDrive-zeronxpbee@gmail.com/我的云端硬盘/Codex/projects/codexbar-fork-ark
@@ -30,9 +30,10 @@ Current durable evidence index:
 - Entry 104: PR #6 merged.
 - Entry 105: M5A->M5B documentation compaction / handoff cleanup.
 - Entry 106: post-merge local package/static-use verification.
+- Entry 107: M5B local-use isolation preflight matrix / implementation contract.
 
 Next allowed work requires a Bee decision:
-1. M5B local-use isolation preflight;
+1. create/start the M5B implementation branch from `main`;
 2. pause with M5A merged.
 ```
 
@@ -141,13 +142,13 @@ Known M5A post-merge verification outcome:
   installer mutation, real Ark credential usage, and Gatekeeper `spctl`
   assessment remain NOT RUN / inconclusive as recorded in Entry 106.
 
-## M5B Candidate Goal
+## M5B Goal
 
 M5B is not required for the Ark feature itself. Its local-use goal is to make
 the fork safer for long-term private use alongside official CodexBar, especially
 when official CodexBar is updated or both apps are present on the same Mac.
 
-Candidate M5B focus:
+M5B implementation focus:
 
 - Application Support, history, account, cost-cache, runtime-cache, and log
   isolation that M5A deferred as S24.
@@ -155,17 +156,27 @@ Candidate M5B focus:
   `CodexBar.app`.
 - Side-by-side smoke evidence for official `CodexBar.app` plus
   `CodexBar Ark.app`, if Bee approves runtime verification.
-- Minimal diagnostic naming isolation only where it affects local-use clarity
-  or collision risk; broad S28 osLog/queue/notification/run-loop renaming can
-  remain deferred unless preflight proves it is needed.
+- Minimal diagnostic naming isolation only where it affects local-use clarity or
+  real collision risk.
 
-M5B should start with a preflight matrix before implementation. The matrix
-should classify each remaining collision surface as:
+## M5B Preflight Matrix
 
-- must isolate for local private use;
-- acceptable shared/external provider-owned state;
-- defer to later release/distribution work;
-- do not change.
+Entry 107 classified the remaining local-use collision surfaces:
+
+| Surface | Classification | Implementation contract |
+|---|---|---|
+| `~/Library/Application Support/CodexBar` app-owned files | must isolate | Move app-owned support files to a fork root such as `~/Library/Application Support/CodexBarArk`, through a small shared path helper. Covers token accounts, managed Codex account index/homes, Codex account snapshots, legacy cookie-cache files, provider session caches, and provider probe working directories. |
+| `~/Library/Application Support/com.steipete.codexbar` app-owned history/cache | must isolate | Move history/dashboard support data to a fork-owned reverse-DNS root such as `com.zeronxpbee.codexbar-ark`; do not copy official history. |
+| `~/Library/Caches/CodexBar` token-cost/model-pricing caches | must isolate | Move app-owned cache roots to `~/Library/Caches/CodexBarArk` or the shared path helper equivalent; stale official caches must not be read as fork cache hits. |
+| `~/Library/Logs/CodexBar/CodexBar.log` debug file log | must isolate | Move optional debug file logging to a fork log path such as `~/Library/Logs/CodexBarArk/CodexBarArk.log`. |
+| `Scripts/compile_and_run.sh`, `Scripts/launch.sh`, `Makefile` process matching | must isolate | Remove broad `pkill -x CodexBar` / `pgrep -x CodexBar` behavior from fork launch flows. Match the packaged `CodexBar Ark.app` path and this repo's `.build/.../CodexBar` binaries only. |
+| Unbundled localization fallback `UserDefaults(suiteName: "CodexBar")` | must isolate | Use a fork-only suite/domain for non-bundled runs; bundled app `UserDefaults.standard` is already bundle-ID isolated. |
+| `UserDefaults.standard`, `@AppStorage` in the packaged app | acceptable shared/external state | No M5B change unless a call explicitly targets official domains. The fork bundle ID `com.zeronxpbee.codexbar-ark` already isolates packaged-app defaults. |
+| App Group, Widget snapshot, config store, CodexBar-owned Keychain services | do not change | Already isolated by M5A S21-S23; M5B must not reintroduce official fallback or migration. |
+| Provider-owned external homes and auth stores such as `~/.codex`, `~/.claude`, browser cookie stores, provider CLIs, and explicit `CODEX_HOME` usage | acceptable shared/external state | Do not fork or migrate provider-owned state by default. Only app-owned managed homes/caches move under the fork support root. |
+| Internal Swift package/module/target/executable name `CodexBar` | do not change | M5A intentionally preserved internal names. Do not rename package targets or executable unless Bee explicitly re-approves a larger compatibility tradeoff. |
+| osLog subsystem, SwiftLog labels, dispatch queue names, notifications, run-loop names | defer | Leave broad S28 diagnostic naming for later unless a concrete local-use collision or confusing runtime evidence appears during M5B validation. |
+| About pane links, broad user-facing branding strings, public release/Homebrew/Sparkle publication paths | defer | Not required for local private side-by-side use. Handle in a later release/distribution or branding cleanup loop if Bee wants it. |
 
 ## M5B Explicit Non-Goals Unless Bee Re-Approves
 
@@ -178,16 +189,63 @@ should classify each remaining collision surface as:
   fixture.
 - No package/module/target/executable rename unless preflight proves it is
   strictly required and Bee explicitly approves.
+- No migration, copy, delete, or import of official CodexBar app-owned support,
+  cache, log, defaults, or history data. M5B uses a fresh fork state policy.
+- No broad S28 diagnostic rename unless implementation evidence shows a real
+  local-use collision.
+
+## M5B Implementation Contract
+
+Allowed source scope:
+
+- Add a small fork-local path helper or equivalent constants for app-owned
+  support/cache/log roots.
+- Replace app-owned hard-coded `CodexBar` and `com.steipete.codexbar`
+  filesystem roots in the M5B matrix.
+- Update fork launch/dev scripts so they do not kill or validate official
+  `CodexBar.app` by generic process name.
+- Update focused tests and docs only where required by these changes.
+
+Forbidden source scope:
+
+- Ark provider/API/menu/popover/snapshot schema/Widget UI feature changes.
+- Provider-owned external auth/home migration, including `~/.codex`,
+  `~/.claude`, browser profiles, or provider CLI state.
+- CodexBar-owned Keychain/App Group/config identity changes already completed
+  in M5A.
+- Public release, notarization, Sparkle feed, Homebrew, upstream sync, or
+  upstream PR work.
+- Broad package/module/target/executable rename.
+
+Required verification for a Developer candidate:
+
+- `git diff --check`.
+- Focused path-isolation tests covering the new helper/default URLs.
+- Focused script tests or shell/static checks proving launch/dev scripts no
+  longer use generic `pkill -x CodexBar` / `pgrep -x CodexBar` to target both
+  official and fork apps.
+- Existing focused isolation tests touched by the implementation.
+- `swift build` and `make check` if available in the environment; record
+  unavailable commands as `NOT RUN`.
+- Static search evidence that product code no longer writes fork app-owned
+  support/cache/log/history files under official `CodexBar` or
+  `com.steipete.codexbar` roots, excluding documentation, tests that assert
+  legacy behavior, and provider-owned external state.
+
+Optional Codex final validation, only if Bee approves runtime cost:
+
+- Launch official `CodexBar.app` and packaged `CodexBar Ark.app` side by side.
+- Verify the fork creates/uses fork-owned support/cache/log paths.
+- Verify Widget snapshot/runtime behavior after M5B package.
 
 ## Next Task Options
 
 Bee should choose exactly one next loop:
 
-1. **M5B Local-Use Isolation Preflight**
-   - Produce the collision surface matrix and smallest useful implementation
-     contract.
-   - No source changes except governance docs.
-   - No runtime automation unless Bee approves the token cost.
+1. **Start M5B Implementation**
+   - Codex creates or confirms the M5B task branch from current `main`.
+   - Claude / GLM implements only the M5B Implementation Contract above.
+   - Four-stage review workflow remains required.
 
 2. **Pause**
    - Keep M5A merged and defer further local-use hardening.
