@@ -45,7 +45,7 @@ The billing cycle window is set to 30 days for pace calculation.
 ## CLI
 
 ```bash
-codexbar usage --provider abacusai --verbose
+codexbar-ark usage --provider abacusai --verbose
 ```
 
 ## Troubleshooting

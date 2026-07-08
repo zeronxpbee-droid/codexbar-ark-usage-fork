@@ -10,13 +10,13 @@ start-debug:
 
 start-release:
 	./Scripts/package_app.sh release
-	pkill -x CodexBar || pkill -f CodexBar.app || true
-	cd /Users/steipete/Projects/codexbar && open -n /Users/steipete/Projects/codexbar/CodexBar.app
+	pkill -x CodexBar || pkill -f "CodexBar Ark.app" || true
+	open -n "$(CURDIR)/CodexBar Ark.app"
 
 restart: start
 
 stop:
-	pkill -x CodexBar || pkill -f CodexBar.app || true
+	pkill -x CodexBar || pkill -f "CodexBar Ark.app" || true
 
 check lint:
 	./Scripts/lint.sh lint

@@ -92,27 +92,17 @@ public struct CodexBarConfigStore: @unchecked Sendable {
             let expanded = (xdgConfigHome as NSString).expandingTildeInPath
             if (expanded as NSString).isAbsolutePath {
                 return URL(fileURLWithPath: expanded, isDirectory: true)
-                    .appendingPathComponent("codexbar", isDirectory: true)
+                    .appendingPathComponent("codexbar-ark", isDirectory: true)
                     .appendingPathComponent("config.json")
             }
         }
 
-        let xdgDefault = home
+        // M5A S22: fork uses codexbar-ark directory; no fallback to official
+        // ~/.codexbar or ~/.config/codexbar paths.
+        return home
             .appendingPathComponent(".config", isDirectory: true)
-            .appendingPathComponent("codexbar", isDirectory: true)
+            .appendingPathComponent("codexbar-ark", isDirectory: true)
             .appendingPathComponent("config.json")
-        if fileManager.fileExists(atPath: xdgDefault.path) {
-            return xdgDefault
-        }
-
-        let legacy = home
-            .appendingPathComponent(".codexbar", isDirectory: true)
-            .appendingPathComponent("config.json")
-        if fileManager.fileExists(atPath: legacy.path) {
-            return legacy
-        }
-
-        return xdgDefault
     }
 
     private func applySecurePermissionsIfNeeded() throws {

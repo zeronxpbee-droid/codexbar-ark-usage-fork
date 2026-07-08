@@ -47,16 +47,16 @@ Alternatively, set the environment variable `SAKANA_COOKIE` to the raw cookie he
 ## CLI usage
 
 ```
-codexbar usage --provider sakana
-codexbar usage --provider sakana-ai   # alias
+codexbar-ark usage --provider sakana
+codexbar-ark usage --provider sakana-ai   # alias
 ```
 
 Set the cookie via the environment variable or Settings UI:
 
-- **Environment variable**: `SAKANA_COOKIE=<cookie-header-value> codexbar usage --provider sakana`
+- **Environment variable**: `SAKANA_COOKIE=<cookie-header-value> codexbar-ark usage --provider sakana`
 - **Settings UI**: Settings → Providers → Sakana AI → Cookie header
 
-There is no `codexbar config set` command for `cookieHeader`; use one of the paths above.
+There is no `codexbar-ark config set` command for `cookieHeader`; use one of the paths above.
 
 ## Errors
 

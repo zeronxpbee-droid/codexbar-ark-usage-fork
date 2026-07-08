@@ -15,7 +15,7 @@ When developing CodexBar, you may see frequent keychain permission prompts like:
 > **CodexBar wants to access key "Claude Code-credentials" in your keychain.**
 
 This happens because each rebuild creates a new code signature, and macOS treats it as a "different" app.
-That can affect both CodexBar-owned entries (`com.steipete.CodexBar`, `com.steipete.codexbar.cache`) and
+That can affect both CodexBar-owned entries (`com.zeronxpbee.codexbar-ark`, `com.zeronxpbee.codexbar-ark.cache`) and
 third-party items such as `Claude Code-credentials`, so an ad-hoc-signed rebuild can keep re-triggering
 password/keychain approval dialogs even after you previously chose **Always Allow**.
 
@@ -80,11 +80,11 @@ If you see multiple `CodexBar *.app` bundles in your project directory, you can 
 rm -rf "CodexBar "*.app
 
 # The .gitignore already excludes these patterns:
-# - CodexBar.app
+# - CodexBar Ark.app
 # - CodexBar *.app/
 ```
 
-The build script creates `CodexBar.app` in the project root. Old numbered builds (like `CodexBar 2.app`) are created when Finder can't overwrite the running app.
+The build script creates `CodexBar Ark.app` in the project root. Old numbered builds (like `CodexBar 2.app`) are created when Finder can't overwrite the running app.
 
 ---
 
@@ -101,11 +101,11 @@ This script:
 2. Runs `swift build` (release mode)
 3. Runs the sharded full test suite when `--test` is passed
 4. Packages the app with `./Scripts/package_app.sh`
-5. Launches `CodexBar.app`
+5. Launches `CodexBar Ark.app`
 6. Verifies it stays running
 
 Launching an unbundled `CodexBar` executable, including SwiftPM builds using `.build` or a custom scratch path, disables
-Keychain access for that process to avoid repeated password prompts. Use the packaged `CodexBar.app` when local
+Keychain access for that process to avoid repeated password prompts. Use the packaged `CodexBar Ark.app` when local
 validation needs browser cookies or stored credentials; packaged app bundles keep their normal Keychain behavior
 regardless of signing mode.
 
@@ -145,7 +145,7 @@ swift build  # defaults to debug
 The compile_and_run script should kill old instances, but if it doesn't:
 
 ```bash
-pkill -x CodexBar || pkill -f CodexBar.app || true
+pkill -x CodexBar || pkill -f "CodexBar Ark.app" || true
 ```
 
 ### "Permission denied" when accessing keychain
@@ -174,6 +174,6 @@ Or manually:
 
 ```bash
 ./Scripts/package_app.sh
-pkill -x CodexBar || pkill -f CodexBar.app || true
-open -n CodexBar.app
+pkill -x CodexBar || pkill -f "CodexBar Ark.app" || true
+open -n "CodexBar Ark.app"
 ```

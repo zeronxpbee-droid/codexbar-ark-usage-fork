@@ -19,16 +19,16 @@ enum KeychainMigration {
     }
 
     static let itemsToMigrate: [MigrationItem] = [
-        MigrationItem(service: "com.steipete.CodexBar", account: "codex-cookie"),
-        MigrationItem(service: "com.steipete.CodexBar", account: "claude-cookie"),
-        MigrationItem(service: "com.steipete.CodexBar", account: "cursor-cookie"),
-        MigrationItem(service: "com.steipete.CodexBar", account: "factory-cookie"),
-        MigrationItem(service: "com.steipete.CodexBar", account: "minimax-cookie"),
-        MigrationItem(service: "com.steipete.CodexBar", account: "minimax-api-token"),
-        MigrationItem(service: "com.steipete.CodexBar", account: "augment-cookie"),
-        MigrationItem(service: "com.steipete.CodexBar", account: "copilot-api-token"),
-        MigrationItem(service: "com.steipete.CodexBar", account: "zai-api-token"),
-        MigrationItem(service: "com.steipete.CodexBar", account: "synthetic-api-key"),
+        MigrationItem(service: "com.zeronxpbee.codexbar-ark", account: "codex-cookie"),
+        MigrationItem(service: "com.zeronxpbee.codexbar-ark", account: "claude-cookie"),
+        MigrationItem(service: "com.zeronxpbee.codexbar-ark", account: "cursor-cookie"),
+        MigrationItem(service: "com.zeronxpbee.codexbar-ark", account: "factory-cookie"),
+        MigrationItem(service: "com.zeronxpbee.codexbar-ark", account: "minimax-cookie"),
+        MigrationItem(service: "com.zeronxpbee.codexbar-ark", account: "minimax-api-token"),
+        MigrationItem(service: "com.zeronxpbee.codexbar-ark", account: "augment-cookie"),
+        MigrationItem(service: "com.zeronxpbee.codexbar-ark", account: "copilot-api-token"),
+        MigrationItem(service: "com.zeronxpbee.codexbar-ark", account: "zai-api-token"),
+        MigrationItem(service: "com.zeronxpbee.codexbar-ark", account: "synthetic-api-key"),
     ]
 
     /// Run migration once per installation

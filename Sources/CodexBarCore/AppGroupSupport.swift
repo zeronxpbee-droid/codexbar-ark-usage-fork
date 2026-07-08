@@ -4,10 +4,13 @@ import Security
 #endif
 
 public enum AppGroupSupport {
-    public static let defaultTeamID = "Y5PE65HELJ"
+    // M5A S21: fork uses fixed App Group IDs; Team ID is no longer used for
+    // group construction. defaultTeamID remains as an empty fallback for
+    // resolvedTeamID() callers, but currentGroupID ignores it.
+    public static let defaultTeamID = ""
     public static let teamIDInfoKey = "CodexBarTeamID"
-    public static let legacyReleaseGroupID = "group.com.steipete.codexbar"
-    public static let legacyDebugGroupID = "group.com.steipete.codexbar.debug"
+    public static let legacyReleaseGroupID = "group.com.zeronxpbee.codexbar-ark"
+    public static let legacyDebugGroupID = "group.com.zeronxpbee.codexbar-ark.debug"
     public static let widgetSnapshotFilename = "widget-snapshot.json"
     public static let migrationVersion = 1
     public static let migrationVersionKey = "appGroupMigrationVersion"
@@ -40,7 +43,8 @@ public enum AppGroupSupport {
     }
 
     static func currentGroupID(teamID: String, bundleID: String?) -> String {
-        let base = "\(teamID).com.steipete.codexbar"
+        // M5A S21: fork uses fixed App Group IDs; Team ID is not used.
+        let base = "group.com.zeronxpbee.codexbar-ark"
         return self.isDebugBundleID(bundleID) ? "\(base).debug" : base
     }
 
@@ -111,7 +115,7 @@ public enum AppGroupSupport {
     {
         let base = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? fileManager.temporaryDirectory
-        let directory = base.appendingPathComponent("CodexBar", isDirectory: true)
+        let directory = base.appendingPathComponent("CodexBarArk", isDirectory: true)
         try? fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
         return directory
     }
@@ -138,77 +142,18 @@ public enum AppGroupSupport {
         legacySnapshotURLOverride: URL? = nil)
         -> MigrationResult
     {
-        if standardDefaults.integer(forKey: self.migrationVersionKey) >= self.migrationVersion {
-            return MigrationResult(status: .alreadyCompleted)
-        }
-
-        guard let currentDefaults = currentDefaultsOverride ?? self.sharedDefaults(
-            bundleID: bundleID,
-            fileManager: fileManager)
-        else {
-            return MigrationResult(status: .targetUnavailable)
-        }
-
-        let legacyDefaults = legacyDefaultsOverride ?? UserDefaults(suiteName: self.legacyGroupID(for: bundleID))
-        let currentSnapshotURL = currentSnapshotURLOverride
-            ?? self.currentContainerURL(bundleID: bundleID, fileManager: fileManager)?
-            .appendingPathComponent(self.widgetSnapshotFilename, isDirectory: false)
-        let legacySnapshotURL = legacySnapshotURLOverride
-            ?? self.legacyContainerCandidateURL(bundleID: bundleID, homeDirectory: homeDirectory)
-            .appendingPathComponent(self.widgetSnapshotFilename, isDirectory: false)
-
-        let copiedSnapshot = {
-            guard let currentSnapshotURL else { return false }
-            guard !fileManager.fileExists(atPath: currentSnapshotURL.path),
-                  fileManager.fileExists(atPath: legacySnapshotURL.path)
-            else {
-                return false
-            }
-            do {
-                try fileManager.createDirectory(
-                    at: currentSnapshotURL.deletingLastPathComponent(),
-                    withIntermediateDirectories: true)
-                try fileManager.copyItem(at: legacySnapshotURL, to: currentSnapshotURL)
-                return true
-            } catch {
-                return false
-            }
-        }()
-
-        let copiedDefaults = self.copyLegacySharedDefaults(
-            from: legacyDefaults,
-            to: currentDefaults)
-
-        let result = if copiedSnapshot || copiedDefaults > 0 {
-            MigrationResult(
-                status: .migrated,
-                copiedSnapshot: copiedSnapshot,
-                copiedDefaults: copiedDefaults)
-        } else {
-            MigrationResult(status: .noChangesNeeded)
-        }
-
-        standardDefaults.set(self.migrationVersion, forKey: self.migrationVersionKey)
-        return result
-    }
-
-    private static func copyLegacySharedDefaults(
-        from legacyDefaults: UserDefaults?,
-        to currentDefaults: UserDefaults) -> Int
-    {
-        guard let legacyDefaults else { return 0 }
-
-        var copied = 0
-        for key in self.sharedDefaultsMigrationKeys {
-            guard currentDefaults.object(forKey: key) == nil,
-                  let legacyValue = legacyDefaults.object(forKey: key)
-            else {
-                continue
-            }
-            currentDefaults.set(legacyValue, forKey: key)
-            copied += 1
-        }
-        return copied
+        // M5A S21: fresh-state policy — no automatic config/App Group/defaults/
+        // snapshot migration or copying. Fork starts with isolated state.
+        // Method signature retained for compatibility; all parameters unused.
+        _ = bundleID
+        _ = standardDefaults
+        _ = fileManager
+        _ = homeDirectory
+        _ = currentDefaultsOverride
+        _ = legacyDefaultsOverride
+        _ = currentSnapshotURLOverride
+        _ = legacySnapshotURLOverride
+        return MigrationResult(status: .noChangesNeeded)
     }
 
     private static func isDebugBundleID(_ bundleID: String?) -> Bool {

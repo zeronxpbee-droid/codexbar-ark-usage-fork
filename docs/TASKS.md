@@ -5,19 +5,35 @@
 ## Active Goal
 
 ```text
-Post-M4 governance — M5 entry and installation-isolation decision
+M5A — Ark Fork Installation Identity Implementation
 ```
 
 ## Goal Status
 
 ```text
-Status: M4 MERGED — M5 product implementation not started
-Audit State: PR #5 merged as b40762d8 after candidate 93123f6e passed all four
-review stages and deterministic Small/Medium visual proof (Entries 071–072).
-Next: decide how the Ark fork and official CodexBar coexist without app/Widget
-identity or updater collisions; archive closed M1/M2 log segments; then Bee
-explicitly authorizes M5 in a fresh thread.
-Implementation Owner: None until M5 authorization
+Status: M5A DRAFT PR OPEN — awaiting Bee review / merge decision
+Candidate: a8a9a7a26c20381651b92879c738b152e359660a (parent ace1c9e6)
+Final Audit: Codex Entry 102 reviewed the exact candidate after reported
+exact-SHA SELF-CHECK PASS and PRE-AUDIT PASS. The Entry 101 corrective range is
+docs-only (`docs/DEVELOPMENT_SETUP.md`, `docs/RELEASING.md`, `docs/TASKS.md`);
+`git diff --check` passes for both the corrective range and final S29 range;
+source/test/script/package/widget files are unchanged in the corrective range
+and absent from the final S29 diff. Deterministic text audits for the Entry 101
+`CodExBar` typo and unquoted `CodexBar Ark.app` command paths pass.
+PR: https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/6
+Audit State: Codex Entry 101 reviewed candidate
+`f5529fbc5507774142b8a706b11b68526072d21b` after exact-SHA
+`SELF-CHECK PASS` and `PRE-AUDIT PASS`. The candidate is docs-only, changes
+only `docs/DEVELOPMENT_SETUP.md`, `docs/FORK_QUICK_START.md`,
+`docs/RELEASING.md`, `docs/keychain-prompts.md`, and `docs/widgets.md` since
+parent `761d354f`, and `git diff --check` passes. It fixed some Entry 100
+quoting issues, but `docs/RELEASING.md` still contains unquoted
+`CodexBar Ark.app` in executable `spctl` / `codesign` examples, and
+`docs/DEVELOPMENT_SETUP.md` has a `CodExBar Ark.app` typo in an `open`
+command. Package and signing evidence from Entry 095 remains valid only in
+`/Users/poon/workspace/projects/codexbar-fork-ark`; the old Google Drive
+checkout remains legacy backup only.
+Implementation Owner: Claude / GLM Developer
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
 ```
@@ -38,6 +54,9 @@ M3 merged PR: https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/4
 M3 merge commit: 9a24cf7356b6cace5fdbaeac5424609093245887
 M4 merged PR: https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/5
 M4 merge commit: b40762d8f259b286f82f6280ec3c5a777a379a60
+M5A branch: feature/m5a-ark-installation-isolation
+Active local workspace: /Users/poon/workspace/projects/codexbar-fork-ark
+Legacy backup checkout: /Users/poon/Library/CloudStorage/GoogleDrive-zeronxpbee@gmail.com/我的云端硬盘/Codex/projects/codexbar-fork-ark
 ```
 
 ## Mandatory Pre-Execution Rule
@@ -62,160 +81,190 @@ Any source/test change invalidates the prior Self-Check and Pre-Audit.
 Reusable prompts and output contracts are in
 `docs/CLAUDE_REVIEW_WORKFLOW.md`.
 
-## M4 Objective
+## M5A Objective
 
-Make Ark selectable in the appropriate Widget configuration/switcher surface
-and render useful small and medium Widget states from the M3 persisted
-5h/Daily/Weekly/Monthly rows.
+Design the smallest upstream-aligned packaging/storage identity profile that
+lets official CodexBar and the Ark fork coexist without one replacing or
+invalidating the other.
 
-M4 owns picker/intent wiring and visible small/medium presentation only. It
-must consume the app-owned snapshot and must not call Ark directly.
+The preflight must cover:
 
-## Preflight Findings
+- app display name and app Bundle ID;
+- Widget Bundle ID and WidgetKit registration;
+- App Group ID and snapshot/defaults migration;
+- config path using the existing `CodexBarConfigStore` with mode `0600`;
+- Keychain cache service names and other persistent support directories;
+- Sparkle feed/public key/automatic-update behavior;
+- ad-hoc versus Developer ID signing and local installation;
+- side-by-side installation versus simultaneous execution;
+- minimal rollback and migration tests.
 
-1. M3 already persists stable Ark rows with `percentLeft`, `resetsAt`, and
-   opaque `detailText`; M4 needs no schema or network change.
-2. `ProviderChoice` currently drives all of:
-   - `CodexBar Usage`;
-   - `CodexBar History`;
-   - `CodexBar Metric` through `CompactMetricSelectionIntent`;
-   - the static switcher's supported-provider filter and buttons.
-   Adding one `.ark` case therefore exposes Ark beyond the requested Usage
-   small/medium surface. History has no Ark daily history, and Metric offers
-   credits/cost values Ark does not provide.
-3. The current `WidgetUsageRow` projection copies only id/title/percent and
-   drops M3's `resetsAt` and `detailText`. `UsageBarRow` renders only title,
-   percentage, and bar. S7 is required to make the M3 payload visible.
-4. Small and medium row limits are Ark-unaware. Small would currently render
-   all four Ark rows, risking crowding; medium also renders all four but has no
-   space policy for complete quota detail plus reset text.
-5. Existing large Usage and Switcher families share the same row views.
-   Enabling Ark selection may also make large rendering reachable even though
-   FR7 requires only small and medium behavior.
+Preferred phased target for evaluation:
 
-## Approved Shared Touchpoints
+- M5A solves safe side-by-side installation and prevents official updates from
+  overwriting the fork;
+- the fork uses no official Sparkle feed;
+- simultaneous execution and a fork-owned update service may be deferred to
+  M5B if isolating every cache is disproportionately broad.
 
-### S6 — Ark Widget provider choice (APPROVED)
+## Preflight Status
 
-- File: `Sources/CodexBarWidget/CodexBarWidgetProvider.swift`
-- Approved edit: add `.ark`, display representation `"Ark"`,
-  `.ark -> .ark`, and change `init?(provider: .ark)` from `nil` to `.ark`.
-- Ark may appear in `CodexBar Usage` and the static Switcher only.
-- Add intent-specific `DynamicOptionsProvider` filtering in the same file so
-  History and Metric exclude `.ark` without splitting/renaming the persisted
-  `ProviderChoice` enum or invalidating existing configurations.
-- Risk: Medium. The enum is shared, but picker filtering contains the new
-  exposure while preserving existing raw values.
-- Rollback: restore `.ark -> nil`, remove the enum/display/provider arms and
-  intent-specific filters.
+Claude reports the read-only survey complete: 23 collision surfaces mapped to
+9 S20+ proposals. The detailed decision package received a bounded Stage 1
+screen and Phase 2 feasibility proof. Bee accepted the resulting identity,
+signing, update, migration, App Group, documentation, and M5B-deferral
+recommendations. Bee subsequently approved the final contract below.
 
-### S7 — Ark small/medium row presentation (APPROVED)
+Approved decisions:
 
-- File: `Sources/CodexBarWidget/CodexBarWidgetViews.swift`
-- Approved edit: preserve `resetsAt`/`detailText` in `WidgetUsageRow`, define
-  the Ark-specific selection/presentation below, and route only Ark through
-  that presentation.
-- Small Usage/Switcher:
-  - choose the known row with the lowest `percentLeft` (highest risk);
-  - preserve stable source order on ties;
-  - if no row has known usage, show the first stable Ark row as unavailable;
-  - render title, percent/bar, opaque detail, and relative reset using a
-    compact fallback that omits lower-priority text rather than crowding.
-- Medium Usage/Switcher:
-  - retain all available Ark rows in stable 5h/Daily/Weekly/Monthly order;
-  - render compact title + percent/bar for every row;
-  - use a horizontal-fit fallback for opaque detail and relative reset so
-    provider/updated state is not displaced.
-- Large behavior is not an M4 deliverable. It may continue using generic rows
-  but must not receive new Ark-only layout logic.
-- Do not parse `detailText`; reset display derives only from `resetsAt`.
-- All generic behavior for existing providers must remain unchanged.
-- Risk: Medium. This file owns shared Usage and Switcher layouts across small,
-  medium, and large families.
-- Rollback: remove Ark-specific projection/selection/presentation and restore
-  percentage-only rows.
+| Question | Codex recommendation |
+|---|---|
+| Q1 Bundle ID | `com.zeronxpbee.codexbar-ark`; debug adds `.debug`; Widget derives `.widget` |
+| Q2 visible name | `CodexBar Ark` / `CodexBar Ark.app`; keep Swift package, module, target, process, and executable names unchanged |
+| Q3 signing | M5A uses the upstream-supported ad-hoc path only |
+| Q4 Sparkle | no official feed or automatic checks in any fork build; keep the existing framework unless Phase 2 proves more is required |
+| Q5 migration | fresh isolated state; no automatic config, Keychain, snapshot, defaults, or support-directory copying; Bee re-enters Ark credentials |
+| Q6 App Group | use fixed `group.com.zeronxpbee.codexbar-ark` (`.debug` for debug); do not use the official Team ID or Application Support fallback as the sharing contract |
+| Q7 documentation | update `docs/widgets.md` together with the eventual implementation |
+| Q8 diagnostics | defer osLog, queue labels, notification names, and run-loop labels to M5B |
 
-### S19 — History Widget registration isolation (APPROVED)
+Stage 1 also found that the physical `.app` filename is part of Q2 and that
+renaming `Package.swift` products/modules would add conflict without helping
+installation identity. The approved contract below preserves that boundary.
 
-- File: `Sources/CodexBarWidget/CodexBarWidgetBundle.swift`
-- Approved edit: change only the History Widget intent/timeline registration
-  required to give History a filtered provider-options source while Usage
-  retains its existing registration.
-- The History intent parameter must remain the existing `ProviderChoice` type.
-- Risk accepted by Bee: changing the History intent type may reset an existing
-  History Widget configuration.
-- Metric must keep its existing intent and `ProviderChoice` parameter type;
-  its Ark exclusion uses filtered options and must not introduce a Metric
-  configuration-type reset.
-- Rollback: restore the original History `ProviderSelectionIntent` /
-  `CodexBarTimelineProvider` registration.
+### Phase 2 Feasibility Result
+
+Codex ran a disposable, ad-hoc-signed App Group probe on macOS 26.4.1. Both an
+ordinary App-equivalent process and an App-Sandbox-enabled Widget-equivalent
+process read the same seeded marker through
+`FileManager.containerURL(forSecurityApplicationGroupIdentifier:)`. The
+recommended fixed `group.com.zeronxpbee.codexbar-ark` form worked without a
+Team Identifier in the ad-hoc signature. All uniquely named probe containers
+and crash reports were removed afterward; the repository remained clean.
+
+This proves the local M5A path, not future distribution. A future Developer ID
+or App Store build must register/authorize the group for that signing team.
+The Application Support fallback remains only a failure fallback; it is not a
+valid cross-sandbox sharing contract.
+
+Minimum M5A fresh-state storage boundary:
+
+- use a new config path with no fallback read from official CodexBar;
+- use the fixed fork App Group for Widget snapshot/shared defaults, with no
+  migration read from official or legacy groups;
+- rely on the new Bundle ID to isolate standard `UserDefaults`;
+- give CodexBar-owned Keychain services fork-specific names and prevent the
+  fork's migration pass from reading official CodexBar services;
+- leave external provider-owned credentials, such as Claude CLI credentials,
+  under their provider-owned identities;
+- defer unrelated Application Support history/account caches, cost caches,
+  logs, and diagnostic labels to M5B, with the explicit limitation that M5A is
+  not full simultaneous-run/storage isolation.
+
+The feasibility result is implemented only through the approved contract below.
+
+## Approved M5A Implementation Contract
+
+The Claude preflight is not adopted wholesale. The following revised
+touchpoints are the complete approved M5A implementation boundary:
+
+| ID | Exact surface | Allowed result |
+|---|---|---|
+| S20 | `Scripts/package_app.sh`, `Scripts/compile_and_run.sh`, `Scripts/launch.sh`, `Makefile`, `WidgetExtension/project.yml`, `WidgetExtension/Info.plist`, generated Widget `.pbxproj` | Package `CodexBar Ark.app`; release/debug app IDs use `com.zeronxpbee.codexbar-ark[.debug]`; Widget ID derives with `.widget`; visible app/Widget name is `CodexBar Ark`; internal Swift package/module/target/executable names stay unchanged |
+| S21 | `Sources/CodexBarCore/AppGroupSupport.swift`, packaging entitlements/team plumbing in S20 files, `Tests/CodexBarTests/AppGroupSupportTests.swift` | Fixed release/debug groups `group.com.zeronxpbee.codexbar-ark[.debug]`; remove official Team-ID dependence; fork legacy candidates must never point at official groups; fallback directory becomes `CodexBarArk` but is not the Widget sharing contract |
+| S22 | `Sources/CodexBarCore/Config/CodexBarConfigStore.swift`, `Tests/CodexBarTests/ConfigValidationTests.swift` | Default/XDG directory is `codexbar-ark`; `CODEXBAR_CONFIG` override remains; remove automatic fallback to official `~/.codexbar` or `~/.config/codexbar`; preserve atomic writes and mode `0600` |
+| S23 | `Sources/CodexBarCore/KeychainCacheStore.swift`; `Sources/CodexBar/{CookieHeaderStore,CopilotTokenStore,KeychainMigration,KimiK2TokenStore,KimiTokenStore,MiniMaxAPITokenStore,MiniMaxCookieStore,SyntheticTokenStore,ZaiTokenStore}.swift`; `Scripts/compile_and_run.sh`; `Tests/CodexBarTests/KeychainMigrationTests.swift` | CodexBar-owned services become `com.zeronxpbee.codexbar-ark.cache` and `com.zeronxpbee.codexbar-ark`; migration/clear paths operate only on fork services; no real Keychain tests, official-service reads, deletes, or copies |
+| S25 | Sparkle plist generation in `Scripts/package_app.sh` plus fork identity script tests | Every fork build has no official feed, no official Sparkle public key, and automatic checks disabled; retain the existing framework and upstream ad-hoc `DisabledUpdaterController` behavior |
+| S26 | signing branches in `Scripts/package_app.sh` / `Scripts/compile_and_run.sh`; `Scripts/sign-and-notarize.sh`; `Scripts/release.sh`; `.mac-release.env`; `Scripts/test_package_signing.sh` | Default local path is ad-hoc; identity signing requires explicit future fork credentials; remove/disable official identity, key path, feed, repo, notarization, and release defaults; signed/notarized release remains unavailable in M5A |
+| S27 | `Sources/CodexBarCLI/CLIHelpers.swift`, `bin/install-codexbar-cli.sh` and focused tests/docs | CLI reads fork release/debug defaults domains; installer targets `CodexBar Ark.app` and command `codexbar-ark`, so it cannot replace the official `codexbar` symlink |
+| S29 | current user/developer/provider docs that contain the changed app path, config path, Widget ID, or CodexBar-owned Keychain services | Mechanically synchronize fork values; update `README.md`, Widget/CLI/configuration/development/keychain docs and affected provider guides; do not rewrite archives, historical reports, old design specs, or unrelated upstream documentation |
+
+Rejected from M5A:
+
+- S24 broad Application Support/history/account/cost-cache/log isolation moves
+  to M5B.
+- S28 osLog, DispatchQueue, Notification, and RunLoop labels move to M5B.
+- No `Package.swift` product/module/target rename.
+- No Ark provider, API, menu, popover, snapshot schema, or Widget UI change.
+- No official config/App Group/Keychain migration or secret-bearing fixture.
+
+Implementation must treat the identity set atomically. Partial rollback is not
+safe; rollback reverts every M5A implementation commit in reverse order.
+
+Required evidence before Developer handoff:
+
+1. `git diff --check`, project-pinned format/lint, `swift build`.
+2. Script identity/signing tests, AppGroupSupport, ConfigValidation,
+   KeychainMigration, ArkCredentialProjection, and relevant Widget tests.
+3. Final-candidate `make check` and `make test`.
+4. Package exact `CodexBar Ark.app`; inspect app/Widget IDs, matching
+   entitlements, ad-hoc signature, absent official feed/key, and disabled
+   automatic checks.
+5. Keep official `CodexBar.app` installed while registering/launching only the
+   fork; verify the fork Widget reads the fork snapshot.
+6. No simultaneous-run test, real Keychain read, automatic credential copy,
+   official release command, notarization, or secret output.
 
 ## Allowed Implementation Scope
 
 Codex may:
 
-- Inspect the M4 diff and record audit evidence.
-- Maintain governance records and the M4 branch.
-- Register a Bee-approved S19 boundary, then authorize a bounded corrective
-  loop.
+- Maintain the M5A branch and governance records.
+- Audit the implementation and operate Git/PR state after the required gates.
+- Commit governance/audit records only; do not implement product fixes.
 
 Claude / GLM may:
 
-- Modify only `Sources/CodexBarWidget/CodexBarWidgetViews.swift`,
-  `Tests/CodexBarTests/CodexBarWidgetProviderTests.swift`,
-  `docs/TASKS.md`, and `docs/PROJECT_LOG.md` for the Entry 067 Medium-layout
-  correction.
-- Preserve the passing Small Ark layout, non-Ark behavior, and large-family
-  behavior.
+- Implement only S20/S21/S22/S23/S25/S26/S27/S29 and required focused tests.
+- Modify the exact existing files/surfaces listed in the approved contract.
+- Add a fork-identity shell test when needed for deterministic script checks.
+- Update current operational documentation under S29 only.
+- Create additive local commits and complete Developer Self-Check.
 
 ## Forbidden Scope
 
-- No Widget API call to Ark.
-- No Ark exposure in History, Metric, burn-down, or any new Widget kind.
-- No change to Ark signing, networking, credentials, menu bar, or popover.
-- No `supportsOpus=true` workaround.
-- No S16 typed popover payload.
-- No new snapshot schema, unrelated provider, dependency, generated-file, or
-  global Widget
-  architecture change.
+- No source, packaging, identity, persistence, Keychain, signing, release,
+  test, or documentation edit outside the approved contract.
+- No new dependency, release credential, Sparkle key, certificate, profile,
+  secret, real config, or credential migration.
+- No change to Ark API, provider, menu bar, popover, snapshot, or Widget UI.
+- No assumption that changing only the `.app` filename provides isolation.
+- No use of the official CodexBar signing identity or Sparkle private key.
 - No push, PR, merge, release, destructive operation, or history rewrite
   without Bee approval.
 
-## Next Task — Post-M4 Governance
+## Next Task — Bee Review of M5A Draft PR
 
-1. Preserve M4 PR #5 and merge commit `b40762d8`; do not rewrite history.
-2. Evaluate official/fork coexistence across app name, app Bundle ID, Widget
-   Bundle ID, app-group snapshot identity, signing, updater channel, and config
-   migration. No identifier change is authorized before Bee chooses a design.
-3. Archive the closed M1/M2 PROJECT_LOG segments as required by Entry 064.
-4. Bee explicitly approves the installation-isolation direction and entry into
-   M5; M5 begins in a fresh thread.
-5. No packaging implementation, release, destructive operation, or upstream
-   synchronization before that decision.
+Codex pushed `feature/m5a-ark-installation-isolation` and opened draft PR #6:
 
-## Definition of Done — M4
+```text
+https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/6
+```
 
-M4 is Done only when:
+No merge, package, launch/register, Widget validation, or release action was
+run after the PR was opened.
 
-- LOOP and baseline rules were followed.
-- Bee approves the exact picker and layout policy.
-- Ark is selectable only in the approved Widget surfaces.
-- Small Widget shows a useful Ark usage/reset state under the approved policy.
-- Medium Widget shows the four available Ark windows in stable order.
-- Unknown/missing windows remain unavailable/omitted rather than zero.
-- M3 `resetsAt`/`detailText` data is consumed without parsing opaque detail.
-- Widget performs no Ark network call.
-- Existing provider Widget behavior remains unchanged.
-- Focused picker, row projection/selection, and small/medium model tests pass.
-- `swift build`, relevant Widget/Ark tests, `make test`, and `make check` pass,
-  or an
-  environment-only blocker is reproduced and recorded.
-- Codex audits the complete M4 diff and records PASS/FAIL.
-- Bee approves merge or moving to M5.
+Next allowed step:
 
-## Planned Milestones After M4
+1. Bee reviews PR #6 and decides whether Codex may merge M5A, request another
+   correction, or leave the PR as draft.
 
-- After M4 merge: archive closed M1/M2 PROJECT_LOG segments, then start M5 in
-  a fresh thread.
-- M5 — Stabilization and local release candidate.
+## Definition of Done — M5A Implementation
+
+- S20/S21/S22/S23/S25/S26/S27/S29 are implemented exactly; S24/S28 remain
+  untouched.
+- Official and fork App, Widget, App Group, config, Keychain, updater, and CLI
+  identities do not collide within the approved M5A boundary.
+- Internal Swift package/module/target/executable names remain unchanged.
+- No official credential/config/App Group data is read, copied, deleted, or
+  migrated by fork-owned storage paths.
+- Required script, focused Swift, build, format/lint, final test, packaging,
+  entitlement, and Widget snapshot evidence passes.
+- Developer Self-Check and independent Pre-Audit pass for the exact candidate.
+- Codex Final Audit is recorded and Bee approves push/PR/merge separately.
+
+## Planned Milestones
+
+- M5A — Installation identity isolation and local release candidate.
+- M5B — Optional full simultaneous-run and fork-owned update isolation.
 - M6 — Optional upstream contribution review.

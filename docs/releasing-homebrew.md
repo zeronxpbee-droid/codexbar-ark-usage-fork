@@ -41,7 +41,7 @@ In `../homebrew-tap`, update the formula at `Formula/codexbar.rb`:
 
 ## 3) Verify install
 ```sh
-brew uninstall --cask codexbar || true
+brew uninstall --cask codexbar-ark || true
 brew untap steipete/tap || true
 brew tap steipete/tap
 brew install --cask steipete/tap/codexbar

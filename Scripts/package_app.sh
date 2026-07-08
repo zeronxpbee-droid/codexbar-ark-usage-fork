@@ -183,9 +183,13 @@ for ARCH in "${ARCH_LIST[@]}"; do
   stage_build_products "$ARCH"
 done
 
-APP_FINAL="$ROOT/CodexBar.app"
-APP_STAGE="$ROOT/.build/package/CodexBar.app"
-rm -rf "$APP_STAGE"
+APP_FINAL="$ROOT/CodexBar Ark.app"
+# M5A Entry 093: stage in non-synced /tmp to avoid Google Drive File Provider
+# reintroducing xattr detritus during signing and verification.
+APP_STAGE_DIR="/tmp/codexbar-ark-pkg-$$"
+APP_STAGE="$APP_STAGE_DIR/CodexBar Ark.app"
+rm -rf "$APP_STAGE_DIR"
+mkdir -p "$APP_STAGE_DIR"
 APP="$APP_STAGE"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources" "$APP/Contents/Frameworks"
 mkdir -p "$APP/Contents/Helpers" "$APP/Contents/PlugIns"
@@ -197,24 +201,20 @@ if [[ -f "$ICON_SOURCE" ]]; then
   iconutil --convert icns --output "$ICON_TARGET" "$ICON_SOURCE"
 fi
 
-BUNDLE_ID="com.steipete.codexbar"
-FEED_URL="https://raw.githubusercontent.com/steipete/CodexBar/main/appcast.xml"
-AUTO_CHECKS=true
+BUNDLE_ID="com.zeronxpbee.codexbar-ark"
+FEED_URL=""
+AUTO_CHECKS=false
 if [[ "$LOWER_CONF" == "debug" ]]; then
-  BUNDLE_ID="com.steipete.codexbar.debug"
-  FEED_URL=""
-  AUTO_CHECKS=false
-fi
-if [[ "$SIGNING_MODE" == "adhoc" ]]; then
-  FEED_URL=""
-  AUTO_CHECKS=false
+  BUNDLE_ID="com.zeronxpbee.codexbar-ark.debug"
 fi
 WIDGET_BUNDLE_ID="${BUNDLE_ID}.widget"
-APP_TEAM_ID="${APP_TEAM_ID:-Y5PE65HELJ}"
-APP_GROUP_ID="${APP_TEAM_ID}.com.steipete.codexbar"
+APP_GROUP_ID="group.com.zeronxpbee.codexbar-ark"
 if [[ "$BUNDLE_ID" == *".debug"* ]]; then
-  APP_GROUP_ID="${APP_TEAM_ID}.com.steipete.codexbar.debug"
+  APP_GROUP_ID="group.com.zeronxpbee.codexbar-ark.debug"
 fi
+# M5A S21: fork uses fixed App Group IDs; Team ID is no longer used for group
+# construction. CodexBarTeamID remains in Info.plist as metadata only.
+APP_TEAM_ID="${APP_TEAM_ID:-}"
 ENTITLEMENTS_DIR="$ROOT/.build/entitlements"
 APP_ENTITLEMENTS="${ENTITLEMENTS_DIR}/CodexBar.entitlements"
 WIDGET_ENTITLEMENTS="${ENTITLEMENTS_DIR}/CodexBarWidget.entitlements"
@@ -258,8 +258,8 @@ cat > "$APP/Contents/Info.plist" <<PLIST
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>CFBundleName</key><string>CodexBar</string>
-    <key>CFBundleDisplayName</key><string>CodexBar</string>
+    <key>CFBundleName</key><string>CodexBar Ark</string>
+    <key>CFBundleDisplayName</key><string>CodexBar Ark</string>
     <key>CFBundleIdentifier</key><string>${BUNDLE_ID}</string>
     <key>CFBundleExecutable</key><string>CodexBar</string>
     <key>CFBundlePackageType</key><string>APPL</string>
@@ -270,7 +270,7 @@ cat > "$APP/Contents/Info.plist" <<PLIST
     <key>CFBundleIconFile</key><string>Icon</string>
     <key>NSHumanReadableCopyright</key><string>© 2026 Peter Steinberger. MIT License.</string>
     <key>SUFeedURL</key><string>${FEED_URL}</string>
-    <key>SUPublicEDKey</key><string>AGCY8w5vHirVfGGDGc8Szc5iuOqupZSh9pMj/Qs67XI=</string>
+    <key>SUPublicEDKey</key><string></string>
     <key>SUEnableAutomaticChecks</key><${AUTO_CHECKS}/>
     <key>CodexBuildTimestamp</key><string>${BUILD_TIMESTAMP}</string>
     <key>CodexGitCommit</key><string>${GIT_COMMIT}</string>
@@ -431,6 +431,9 @@ install_widget_extension() {
   mkdir -p "$APP/Contents/PlugIns"
   cp -R "$src_appex" "$widget_app"
   verify_binary_arches "$widget_app/Contents/MacOS/CodexBarWidget" "${ARCH_LIST[@]}"
+  # Clear detritus from freshly copied Widget appex before bundle signing.
+  xattr -cr "$widget_app"
+  find "$widget_app" -name '._*' -delete 2>/dev/null || true
 }
 
 install_binary "CodexBar" "$APP/Contents/MacOS/CodexBar"
@@ -448,8 +451,14 @@ swiftpm_bin_path "${ARCH_LIST[0]}" PREFERRED_BUILD_DIR
 
 # Embed Sparkle.framework
 SPARKLE_SOURCE=$(codexbar_require_product_directory "$PREFERRED_BUILD_DIR" Sparkle.framework packaging)
+# Clean any copied Sparkle/app detritus before fresh copy and nested signing.
+rm -rf "$APP/Contents/Frameworks/Sparkle.framework"
 cp -R "$SPARKLE_SOURCE" "$APP/Contents/Frameworks/"
 chmod -R a+rX "$APP/Contents/Frameworks/Sparkle.framework"
+# Clear resource forks, Finder info, and AppleDouble detritus from the freshly
+# copied Sparkle bundle before nested signing (codesign rejects detritus).
+xattr -cr "$APP/Contents/Frameworks/Sparkle.framework"
+find "$APP/Contents/Frameworks/Sparkle.framework" -name '._*' -delete 2>/dev/null || true
 install_name_tool -add_rpath "@executable_path/../Frameworks" "$APP/Contents/MacOS/CodexBar"
 # Re-sign Sparkle and all nested components with the selected package identity.
 SPARKLE="$APP/Contents/Frameworks/Sparkle.framework"
@@ -460,12 +469,15 @@ elif [[ "$ALLOW_LLDB" == "1" ]]; then
   CODESIGN_ID="-"
   CODESIGN_ARGS=(--force --sign "$CODESIGN_ID")
 else
-  CODESIGN_ID="${APP_IDENTITY:-Developer ID Application: Peter Steinberger (Y5PE65HELJ)}"
+  CODESIGN_ID="${APP_IDENTITY:?identity signing requires APP_IDENTITY}"
   CODESIGN_ARGS=(--force --timestamp --options runtime --sign "$CODESIGN_ID")
 fi
 function resign() { codesign "${CODESIGN_ARGS[@]}" "$1"; }
 # Validate Sparkle's nested layout before signing so framework layout drift fails clearly.
 SPARKLE_SIGNING_TARGETS=$(codexbar_sparkle_signing_targets "$SPARKLE")
+# Clear Finder/resource-fork/file-provider detritus immediately before nested signing.
+xattr -cr "$SPARKLE"
+find "$SPARKLE" -name '._*' -delete 2>/dev/null || true
 while IFS= read -r SPARKLE_TARGET; do
   resign "$SPARKLE_TARGET"
 done <<<"$SPARKLE_SIGNING_TARGETS"
@@ -517,6 +529,9 @@ fi
 
 # Sign widget extension if present
 if [[ -d "${APP}/Contents/PlugIns/CodexBarWidget.appex" ]]; then
+  # Clear detritus immediately before Widget executable and appex codesign.
+  xattr -cr "${APP}/Contents/PlugIns/CodexBarWidget.appex"
+  find "${APP}/Contents/PlugIns/CodexBarWidget.appex" -name '._*' -delete 2>/dev/null || true
   codesign "${CODESIGN_ARGS[@]}" \
     --entitlements "$WIDGET_ENTITLEMENTS" \
     "$APP/Contents/PlugIns/CodexBarWidget.appex/Contents/MacOS/CodexBarWidget"
@@ -530,7 +545,24 @@ codesign "${CODESIGN_ARGS[@]}" \
   --entitlements "$APP_ENTITLEMENTS" \
   "$APP"
 
+# M5A Entry 093: verify in non-synced staging dir before exposing to Google Drive.
+# codesign stores signatures in _CodeSignature directories, not xattr;
+# removing com.apple.cs.* cache xattrs is safe — codesign --verify re-reads
+# _CodeSignature.
+xattr -cr "$APP"
+find "$APP" -name '._*' -delete 2>/dev/null || true
+
+# Verify the staged product passes strict deep codesign verification.
+if ! codesign --verify --deep --strict --verbose=4 "$APP" 2>&1; then
+  echo "ERROR: Final codesign verification failed for $APP" >&2
+  exit 1
+fi
+
+# Copy the verified product to the final Google Drive location.
 rm -rf "$APP_FINAL"
-mv "$APP" "$APP_FINAL"
+ditto "$APP" "$APP_FINAL"
 APP="$APP_FINAL"
 echo "Created $APP"
+
+# Clean up the non-synced staging directory.
+rm -rf "$APP_STAGE_DIR"

@@ -83,15 +83,15 @@ metadata is present, the reset time is shown as unknown.
 
 ```bash
 # Show T3 Chat usage
-codexbar usage --provider t3chat
+codexbar-ark usage --provider t3chat
 
 # Or use the alias
-codexbar usage --provider t3-chat
-codexbar usage --provider t3
+codexbar-ark usage --provider t3-chat
+codexbar-ark usage --provider t3
 ```
 
 T3 Chat provides no token-cost data. The `usage --format json` output contains usage and identity
-data, while `codexbar cost --provider t3chat` is unsupported.
+data, while `codexbar-ark cost --provider t3chat` is unsupported.
 
 ## Common errors
 

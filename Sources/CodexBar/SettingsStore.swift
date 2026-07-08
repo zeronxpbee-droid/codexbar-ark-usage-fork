@@ -248,13 +248,8 @@ final class SettingsStore {
         performInitialProviderDetection: Bool = !SettingsStore.isRunningTests)
     {
         let appGroupID = AppGroupSupport.currentGroupID()
-        let appGroupMigration: AppGroupSupport.MigrationResult
-        if Self.isRunningTests {
-            appGroupMigration = AppGroupSupport.migrateLegacyDataIfNeeded(standardDefaults: userDefaults)
-        } else {
-            Self.scheduleAppGroupMigration()
-            appGroupMigration = AppGroupSupport.MigrationResult(status: .targetUnavailable)
-        }
+        // M5A S21: fresh-state policy — no automatic App Group/defaults/snapshot migration.
+        let appGroupMigration = AppGroupSupport.MigrationResult(status: .noChangesNeeded)
         let sharedDefaultsAvailable = Self.sharedDefaults != nil
         if !Self.isRunningTests {
             CodexBarLog.logger(LogCategories.settings).info(
@@ -339,19 +334,6 @@ final class SettingsStore {
 }
 
 extension SettingsStore {
-    private static func scheduleAppGroupMigration() {
-        Task.detached(priority: .utility) {
-            let result = AppGroupSupport.migrateLegacyDataIfNeeded()
-            CodexBarLog.logger(LogCategories.settings).info(
-                "App group migration completed",
-                metadata: [
-                    "migrationStatus": result.status.rawValue,
-                    "migratedSnapshot": result.copiedSnapshot ? "1" : "0",
-                    "migratedDefaults": "\(result.copiedDefaults)",
-                ])
-        }
-    }
-
     private static func inferredInitialOpenAIWebAccessEnabled(
         config: CodexBarConfig,
         hadExistingConfig: Bool) -> Bool

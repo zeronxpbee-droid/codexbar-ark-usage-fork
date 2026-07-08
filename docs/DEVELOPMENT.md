@@ -52,7 +52,7 @@ when you intentionally want to reset ad-hoc keychain state.
 
 ### Reset Migration (Testing)
 ```bash
-defaults delete com.steipete.codexbar KeychainMigrationV1Completed
+defaults delete com.steipete.codexbar-ark KeychainMigrationV1Completed
 ```
 
 ## Augment Cookie Refresh
@@ -110,7 +110,7 @@ CodexBar/
 1. Enable Debug → Logging → "Enable file logging" or raise verbosity in the app settings.
 2. Reproduce with `./Scripts/compile_and_run.sh`.
 3. Check logs in Console.app:
-   - Filter: `subsystem:com.steipete.codexbar category:augment`
+   - Filter: `subsystem:com.steipete.codexbar-ark category:augment`
    - Importer messages include the `[augment-cookie]` prefix
 
 ### Run Tests Only
@@ -129,7 +129,7 @@ swiftlint --strict
 ### Local Development Build
 ```bash
 ./Scripts/package_app.sh
-# Creates: CodexBar.app with ad-hoc signing by default
+# Creates: CodexBar Ark.app with ad-hoc signing by default
 ```
 
 ### Release Build (Notarized)
@@ -154,7 +154,7 @@ ls -lt ~/Library/Logs/DiagnosticReports/CodexBar* | head -5
 ### Keychain Prompts Keep Appearing
 ```bash
 # Verify migration completed
-defaults read com.steipete.codexbar KeychainMigrationV1Completed
+defaults read com.steipete.codexbar-ark KeychainMigrationV1Completed
 # Should output: 1
 
 # Check migration logs
@@ -173,14 +173,14 @@ Debug builds start the hang watchdog automatically. To diagnose a release build,
 enable it explicitly and restart CodexBar:
 
 ```bash
-defaults write com.steipete.codexbar debugMainThreadHangWatchdog -bool true
+defaults write com.steipete.codexbar-ark debugMainThreadHangWatchdog -bool true
 ```
 
 Hangs are written to the app log. Hangs over two seconds also request a process
 sample under `~/Library/Logs/CodexBar/`. Disable the release opt-in with:
 
 ```bash
-defaults delete com.steipete.codexbar debugMainThreadHangWatchdog
+defaults delete com.steipete.codexbar-ark debugMainThreadHangWatchdog
 ```
 
 ## Architecture Notes
@@ -194,7 +194,7 @@ defaults delete com.steipete.codexbar debugMainThreadHangWatchdog
 ### Cookie Management
 - Automatic browser import via SweetCookieKit
 - Keychain cache for some imported browser cookies and OAuth/device-flow credentials
-- `~/.codexbar/config.json` for provider settings, manual cookies, and stored API keys
+- `~/.codexbar-ark/config.json` for provider settings, manual cookies, and stored API keys
 - Manual override for debugging
 - Browser-cookie import when cached sessions need refresh
 

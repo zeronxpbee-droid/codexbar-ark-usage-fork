@@ -45,16 +45,16 @@ registration, signing, or daemon caching (not SwiftUI code).
 
 ### 1) Verify the extension bundle exists where macOS expects it
 ```
-APP="/Applications/CodexBar.app"
+APP="/Applications/CodexBar Ark.app"
 WAPPEX="$APP/Contents/PlugIns/CodexBarWidget.appex"
-WIDGET_ID="com.steipete.codexbar.widget" # debug builds use com.steipete.codexbar.debug.widget
+WIDGET_ID="com.zeronxpbee.codexbar-ark.widget" # debug builds use com.zeronxpbee.codexbar-ark.debug.widget
 
 ls -la "$WAPPEX" "$WAPPEX/Contents" "$WAPPEX/Contents/MacOS"
 ```
 
 ### 2) PlugInKit registration (pkd)
 ```
-pluginkit -m -p com.apple.widgetkit-extension -v | grep -i codexbar || true
+pluginkit -m -p com.apple.widgetkit-extension -v | grep -i codexbar-ark || true
 pluginkit -m -p com.apple.widgetkit-extension -i "$WIDGET_ID" -vv
 ```
 Notes:
@@ -73,10 +73,10 @@ If multiple paths appear, delete older installs and bump `CFBundleVersion`.
 ### 3) Code signing + Gatekeeper assessment
 Widgets are loaded by system daemons. Any signing failure can hide the widget.
 ```
-codesign --verify --deep --strict --verbose=4 /Applications/CodexBar.app
+codesign --verify --deep --strict --verbose=4 "/Applications/CodexBar Ark.app"
 codesign --verify --strict --verbose=4 "$WAPPEX"
 codesign --verify --strict --verbose=4 "$WAPPEX/Contents/MacOS/CodexBarWidget"
-spctl --assess --type execute --verbose=4 /Applications/CodexBar.app
+spctl --assess --type execute --verbose=4 "/Applications/CodexBar Ark.app"
 ```
 
 ### 4) Restart the right daemons (NotificationCenter alone is not enough)
@@ -92,7 +92,7 @@ log stream --style compact --predicate '(process == "pkd" OR process == "chronod
 ```
 
 ### 6) Packaging sanity checks
-- Widget bundle id should be `com.steipete.codexbar.widget` for release and `com.steipete.codexbar.debug.widget` for debug.
+- Widget bundle id should be `com.zeronxpbee.codexbar-ark.widget` for release and `com.zeronxpbee.codexbar-ark.debug.widget` for debug.
 - `NSExtensionPointIdentifier` must be `com.apple.widgetkit-extension`.
 - Bundle folder name should match: `CodexBarWidget.appex`.
 

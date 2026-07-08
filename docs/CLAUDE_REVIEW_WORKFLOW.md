@@ -20,8 +20,10 @@ Copy this into the existing Developer thread after implementation:
 你现在从 Claude Developer 切换为 Claude Developer Self-Check。
 这是同一开发线程的候选清理门，不是独立审计，也不是最终验收。
 
-项目目录：
-/Users/poon/Library/CloudStorage/GoogleDrive-zeronxpbee@gmail.com/我的云端硬盘/Codex/projects/codexbar-fork-ark
+项目目录（以 docs/TASKS.md 的 Active local workspace 为准）：
+/Users/poon/workspace/projects/codexbar-fork-ark
+
+不要使用旧 Google Drive / CloudStorage 备份目录做开发、打包、签名或审计证据。
 
 目标：
 对你刚完成的候选实现做完整自查。发现问题时在既有授权范围内直接修复，
@@ -100,8 +102,10 @@ Open a new Claude thread and paste this prompt with the candidate SHA:
 你是 CodexBar Ark Fork 的 Claude Pre-Auditor。
 这是独立的新线程；你不是 Developer，也不修复候选。
 
-项目目录：
-/Users/poon/Library/CloudStorage/GoogleDrive-zeronxpbee@gmail.com/我的云端硬盘/Codex/projects/codexbar-fork-ark
+项目目录（以 docs/TASKS.md 的 Active local workspace 为准）：
+/Users/poon/workspace/projects/codexbar-fork-ark
+
+不要使用旧 Google Drive / CloudStorage 备份目录做开发、打包、签名或审计证据。
 
 Candidate SHA:
 <PASTE_CANDIDATE_SHA>

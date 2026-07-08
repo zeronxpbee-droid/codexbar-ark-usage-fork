@@ -12,9 +12,9 @@ A lightweight Commander-based CLI that mirrors the menu bar app’s provider fet
 Use it when you need usage numbers in scripts, CI, or dashboards without UI.
 
 ## Install
-- In the app: **Preferences → Advanced → Install CLI**. This symlinks `CodexBarCLI` to `/usr/local/bin/codexbar` and `/opt/homebrew/bin/codexbar`.
-- From the repo, after installing `CodexBar.app` in `/Applications`: `./bin/install-codexbar-cli.sh` (same symlink targets).
-- Manual: `ln -sf "/Applications/CodexBar.app/Contents/Helpers/CodexBarCLI" /usr/local/bin/codexbar`.
+- In the app: **Preferences → Advanced → Install CLI**. This symlinks `CodexBarCLI` to `/usr/local/bin/codexbar-ark` and `/opt/homebrew/bin/codexbar-ark`.
+- From the repo, after installing `CodexBar Ark.app` in `/Applications`: `./bin/install-codexbar-cli.sh` (same symlink targets).
+- Manual: `ln -sf "/Applications/CodexBar Ark.app/Contents/Helpers/CodexBarCLI" /usr/local/bin/codexbar-ark`.
 
 ### Release tarball install (macOS/Linux)
 - Homebrew formula (Linux today): `brew install steipete/tap/codexbar`.
@@ -26,28 +26,28 @@ Use it when you need usage numbers in scripts, CI, or dashboards without UI.
 
 ```
 tar -xzf CodexBarCLI-v0.17.0-macos-x86_64.tar.gz
-./codexbar --version
-./codexbar usage --format json --pretty
+./codexbar-ark --version
+./codexbar-ark usage --format json --pretty
 ```
 
 ## Build
-- `./Scripts/package_app.sh` (or `./Scripts/compile_and_run.sh`) bundles `CodexBarCLI` into `CodexBar.app/Contents/Helpers/CodexBarCLI`.
+- `./Scripts/package_app.sh` (or `./Scripts/compile_and_run.sh`) bundles `CodexBarCLI` into `CodexBar Ark.app/Contents/Helpers/CodexBarCLI`.
 - Standalone: `swift build -c release --product CodexBarCLI` (binary at `./.build/release/CodexBarCLI`).
 - Dependencies: Swift 6.2+, Commander package (`https://github.com/steipete/Commander`).
 
 ## Configuration
 CodexBar reads the resolved config file for provider settings, secrets, and ordering. New installs use
-`~/.config/codexbar/config.json`; absolute `XDG_CONFIG_HOME` paths and `CODEXBAR_CONFIG` are supported, and existing
-`~/.codexbar/config.json` installs keep using the legacy file when no XDG config exists.
+`~/.config/codexbar-ark/config.json`; absolute `XDG_CONFIG_HOME` paths and `CODEXBAR_CONFIG` are supported, and existing
+`~/.codexbar-ark/config.json` installs keep using the legacy file when no XDG config exists.
 See `docs/configuration.md` for the schema.
 
 ## Command
-- `codexbar` defaults to the `usage` command.
+- `codexbar-ark` defaults to the `usage` command.
   - `--format text|json` (default: text).
-- `codexbar cost` prints local token cost usage for Claude + Codex without web/CLI access.
+- `codexbar-ark cost` prints local token cost usage for Claude + Codex without web/CLI access.
   - `--format text|json` (default: text).
   - `--refresh` ignores cached scans.
-- `codexbar serve` starts a foreground localhost-only HTTP server for usage and cost JSON.
+- `codexbar-ark serve` starts a foreground localhost-only HTTP server for usage and cost JSON.
   - `--port <port>` defaults to `8080`.
   - `--refresh-interval <seconds>` defaults to `60` and controls the in-memory response cache TTL.
   - `--request-timeout <seconds>` defaults to `30` and bounds each request before returning `504 Gateway Timeout`; use `0` to keep waiting indefinitely.
@@ -55,9 +55,9 @@ See `docs/configuration.md` for the schema.
   - Transient refresh failures fall back to the last good response for up to ten refresh intervals (minimum five minutes) so polling clients do not flicker between data and errors; disabled when `--refresh-interval 0`.
   - v1 binds to `127.0.0.1` only and rejects non-loopback `Host` headers. It does not expose remote bind, auth, CORS, TLS, or daemon mode.
   - Endpoints: `GET /health`, `GET /usage`, `GET /usage?provider=<id|both|all>`, `GET /cost`, `GET /cost?provider=<id|both|all>`.
-  - `GET /health` returns `{"status":"ok"}` plus a `version` field with the running build (e.g. `"0.37.2"`) when resolvable; clients can compare it against `codexbar --version` to detect a `serve` process still running an older binary after an update.
+  - `GET /health` returns `{"status":"ok"}` plus a `version` field with the running build (e.g. `"0.37.2"`) when resolvable; clients can compare it against `codexbar-ark --version` to detect a `serve` process still running an older binary after an update.
   - Codex usage responses include every visible Codex account, matching the menu bar switcher.
-- `codexbar cache clear` clears local CodexBar caches.
+- `codexbar-ark cache clear` clears local CodexBar caches.
   - `--cookies` removes cached browser-cookie headers from the CodexBar Keychain cache.
   - `--cookies --provider <id>` removes browser-cookie cache entries for that provider, including managed Codex account scopes.
   - `--cost` removes local cost-usage scan caches.
@@ -89,10 +89,10 @@ See `docs/configuration.md` for the schema.
 - Global flags: `-h/--help`, `-V/--version`, `-v/--verbose`, `--no-color`, `--log-level <trace|verbose|debug|info|warning|error|critical>`, `--json-output`, `--json-only`.
   - `--json-output`: JSONL logs on stderr (machine-readable).
   - `--json-only`: suppress non-JSON output; errors become JSON payloads.
-- `codexbar config validate` checks the resolved config file for invalid fields.
+- `codexbar-ark config validate` checks the resolved config file for invalid fields.
   - `--format text|json`, `--pretty`, and `--json-only` are supported.
   - Warnings keep exit code 0; errors exit non-zero.
-- `codexbar config dump` prints the normalized config JSON.
+- `codexbar-ark config dump` prints the normalized config JSON.
 
 ### Token accounts
 The CLI reads multi-account tokens from the same resolved config file as the app.
@@ -104,13 +104,13 @@ For Claude, token accounts accept either `sessionKey` cookies or OAuth access to
 OAuth usage requires the `user:profile` scope; inference-only tokens will return an error.
 
 ### Codex accounts
-For Codex, `--all-accounts` and `codexbar serve` enumerate the same visible accounts as the app switcher:
+For Codex, `--all-accounts` and `codexbar-ark serve` enumerate the same visible accounts as the app switcher:
 managed Codex accounts from `managed-codex-accounts.json` plus the live system account when present.
 Each fetch is scoped to that account's Codex home before the normal Codex web/OAuth/CLI strategy runs, and JSON
 payloads include the visible account label in `account`.
 
 ### Cost JSON payload
-`codexbar cost --format json` emits an array of payloads (one per provider).
+`codexbar-ark cost --format json` emits an array of payloads (one per provider).
 - `provider`, `source`, `updatedAt`
 - `sessionTokens`, `sessionCostUSD`
 - `last30DaysTokens`, `last30DaysCostUSD`
@@ -119,34 +119,34 @@ payloads include the visible account label in `account`.
 
 ## Example usage
 ```
-codexbar                          # text, respects app toggles
-codexbar --provider claude        # force Claude
-codexbar --provider all           # query all registered providers
-codexbar --format json --pretty   # machine output
-codexbar --format json --provider both
-codexbar cost                     # local cost usage (default 30-day window + today)
-codexbar cost --days 90           # choose a 1...365 day cost window
-codexbar cost --provider claude --format json --pretty
-codexbar serve --port 8080        # localhost HTTP JSON server
-codexbar serve --request-timeout 0 # disable serve request deadlines
-COPILOT_API_TOKEN=... codexbar --provider copilot --format json --pretty
-codexbar --status                 # include status page indicator/description
-codexbar --provider codex --source oauth --format json --pretty
-codexbar --provider codex --source web --format json --pretty
-codexbar --provider codex --all-accounts --format json --pretty
-codexbar --provider claude --account steipete@gmail.com
-codexbar --provider claude --all-accounts --format json --pretty
-codexbar --json-only --format json --pretty
-codexbar --provider gemini --source api --format json --pretty
-KILO_API_KEY=... codexbar --provider kilo --source api --format json --pretty
-MOONSHOT_API_KEY=... codexbar --provider moonshot --source api --format json --pretty
-codexbar config validate --format json --pretty
-codexbar config dump --pretty
-printf '%s' "$OPENAI_ADMIN_KEY" | codexbar config set-api-key --provider openai --stdin
-codexbar config enable --provider grok
-codexbar cache clear --cookies
-codexbar cache clear --cookies --provider claude
-codexbar cache clear --all --format json --pretty
+codexbar-ark                          # text, respects app toggles
+codexbar-ark --provider claude        # force Claude
+codexbar-ark --provider all           # query all registered providers
+codexbar-ark --format json --pretty   # machine output
+codexbar-ark --format json --provider both
+codexbar-ark cost                     # local cost usage (default 30-day window + today)
+codexbar-ark cost --days 90           # choose a 1...365 day cost window
+codexbar-ark cost --provider claude --format json --pretty
+codexbar-ark serve --port 8080        # localhost HTTP JSON server
+codexbar-ark serve --request-timeout 0 # disable serve request deadlines
+COPILOT_API_TOKEN=... codexbar-ark --provider copilot --format json --pretty
+codexbar-ark --status                 # include status page indicator/description
+codexbar-ark --provider codex --source oauth --format json --pretty
+codexbar-ark --provider codex --source web --format json --pretty
+codexbar-ark --provider codex --all-accounts --format json --pretty
+codexbar-ark --provider claude --account steipete@gmail.com
+codexbar-ark --provider claude --all-accounts --format json --pretty
+codexbar-ark --json-only --format json --pretty
+codexbar-ark --provider gemini --source api --format json --pretty
+KILO_API_KEY=... codexbar-ark --provider kilo --source api --format json --pretty
+MOONSHOT_API_KEY=... codexbar-ark --provider moonshot --source api --format json --pretty
+codexbar-ark config validate --format json --pretty
+codexbar-ark config dump --pretty
+printf '%s' "$OPENAI_ADMIN_KEY" | codexbar-ark config set-api-key --provider openai --stdin
+codexbar-ark config enable --provider grok
+codexbar-ark cache clear --cookies
+codexbar-ark cache clear --cookies --provider claude
+codexbar-ark cache clear --all --format json --pretty
 ```
 
 ### Sample output (text)

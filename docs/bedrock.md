@@ -82,8 +82,8 @@ tracking continue unchanged.
 ## CLI
 
 ```bash
-codexbar --provider bedrock --source api
-codexbar --provider bedrock --format json --pretty
+codexbar-ark --provider bedrock --source api
+codexbar-ark --provider bedrock --format json --pretty
 ```
 
 ## Troubleshooting
