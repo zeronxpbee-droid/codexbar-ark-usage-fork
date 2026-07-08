@@ -11,7 +11,7 @@ Post-M5A — M5B Local-Use Isolation Preparation
 ## Goal Status
 
 ```text
-Status: M5A->M5B DOCUMENTATION COMPACTION COMPLETE — awaiting Bee decision
+Status: POST-M5A LOCAL PACKAGE/USE VERIFICATION COMPLETE — awaiting Bee decision
 Current branch: main
 Active local workspace: /Users/poon/workspace/projects/codexbar-fork-ark
 Legacy backup checkout: /Users/poon/Library/CloudStorage/GoogleDrive-zeronxpbee@gmail.com/我的云端硬盘/Codex/projects/codexbar-fork-ark
@@ -29,11 +29,11 @@ Current durable evidence index:
 - Entry 103: Draft PR #6 opened.
 - Entry 104: PR #6 merged.
 - Entry 105: M5A->M5B documentation compaction / handoff cleanup.
+- Entry 106: post-merge local package/static-use verification.
 
 Next allowed work requires a Bee decision:
-1. post-merge local package/use verification;
-2. M5B local-use isolation preflight;
-3. pause with M5A merged.
+1. M5B local-use isolation preflight;
+2. pause with M5A merged.
 ```
 
 ## Repository Baseline
@@ -130,10 +130,16 @@ Preserved M5A constraints:
   service was introduced.
 - The identity set is atomic; partial rollback is not safe.
 
-Known M5A post-merge limitation:
+Known M5A post-merge verification outcome:
 
-- No post-merge package/use verification has been run after merge commit
-  `86f4cec5967bc45340dae90479ef6d4e82d34fc1`.
+- Entry 106 packaged `CodexBar Ark.app` from `main` after M5A merge and
+  verified bundle identity, ad-hoc code signing, App Group entitlements,
+  Widget extension identity, disabled official Sparkle feed/key, CLI helper
+  availability, fork config source, focused isolation tests, and static source
+  isolation checks.
+- GUI launch, menu proof, Widget runtime registration/read proof, CLI symlink
+  installer mutation, real Ark credential usage, and Gatekeeper `spctl`
+  assessment remain NOT RUN / inconclusive as recorded in Entry 106.
 
 ## M5B Candidate Goal
 
@@ -177,20 +183,13 @@ should classify each remaining collision surface as:
 
 Bee should choose exactly one next loop:
 
-1. **Post-merge local package/use verification**
-   - Build/package from `main`.
-   - Verify `CodexBar Ark.app`, `codexbar-ark`, fork config path, fork App
-     Group, fork Keychain services, disabled official Sparkle feed, and Widget
-     snapshot behavior.
-   - Do not start M5B implementation.
-
-2. **M5B Local-Use Isolation Preflight**
+1. **M5B Local-Use Isolation Preflight**
    - Produce the collision surface matrix and smallest useful implementation
      contract.
    - No source changes except governance docs.
    - No runtime automation unless Bee approves the token cost.
 
-3. **Pause**
+2. **Pause**
    - Keep M5A merged and defer further local-use hardening.
 
 ## Planned Milestones

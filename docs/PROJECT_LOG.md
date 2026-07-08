@@ -3356,6 +3356,93 @@ Documentation compaction is accepted as the new M5B handoff entry point.
 Bee chooses one next loop: post-merge local package/use verification, M5B
 local-use isolation preflight, or pause with M5A merged.
 
+## Entry 106 — Post-M5A Local Package and Static-Use Verification
+
+Date: 2026-07-08
+Actor: Codex
+Type: Review
+Status: PASS WITH LIMITATIONS
+
+### Active Goal
+
+Post-M5A — post-merge local package/use verification from `main`
+
+### LOOP Result
+
+Local verification loop. Bee selected option 1 after M5A merge. Codex used the
+new non-synced workspace, confirmed `main`, HEAD, worktree state, remotes,
+project rules, upstream baseline rules, `TASKS.md`, `PROJECT_LOG.md`, and
+`docs/CLAUDE_REVIEW_WORKFLOW.md`, then ran bounded package, signing, CLI,
+config, static isolation, and focused test checks. No M5B implementation was
+started.
+
+### Summary
+
+`CodexBar Ark.app` was packaged successfully from current `main` in
+`/Users/poon/workspace/projects/codexbar-fork-ark`. Static verification shows
+the fork app, widget, App Group, config store, Keychain service names, and
+Sparkle settings are isolated from official CodexBar for the M5A contract.
+The bundled CLI helper works and exposes the Ark provider. Focused isolation
+tests pass.
+
+Runtime GUI proof was not completed because launching the app through `open`
+required an escalated GUI operation and the approval system rejected further
+escalation due to usage limit. Codex did not work around that block.
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| Workspace | `/Users/poon/workspace/projects/codexbar-fork-ark` |
+| Branch / state before Entry 106 docs update | `main`, clean worktree, `origin/main` ahead by local docs commit only |
+| HEAD verified | `fd671d1faf1a9bf2cf6deecc08c8ff228574a09a` before this entry |
+| Package command | `./Scripts/package_app.sh release` PASS after escalated Swift/Xcode cache access |
+| Packaged app | `CodexBar Ark.app`, 53M |
+| Main bundle ID / names | `com.zeronxpbee.codexbar-ark`, `CodexBar Ark` |
+| Widget bundle ID / name | `com.zeronxpbee.codexbar-ark.widget`, `CodexBar Ark` |
+| Architectures | app, CLI, widget all `arm64` |
+| Codesign verify | `codesign --verify --deep --strict --verbose=4` PASS |
+| Signing identity | ad-hoc, TeamIdentifier not set |
+| App entitlements | `group.com.zeronxpbee.codexbar-ark` |
+| Widget entitlements | sandbox true; `group.com.zeronxpbee.codexbar-ark` |
+| Sparkle settings | feed/key empty; automatic checks disabled |
+| AppleDouble files | none found under packaged app |
+| CLI helper | `CodexBarCLI --help`, `--version`, `config validate`, `config providers --format json --pretty` PASS |
+| Ark provider | present in provider list; disabled by default |
+| Fork config path | source default is `~/.config/codexbar-ark/config.json`; no official config fallback |
+| Local fork config file | not created by validation/provider-list smoke |
+| Keychain/static isolation scan | fork service/cache strings present; no `~/.codexbar/` or official config fallback in checked surfaces |
+| Focused tests | `swift test --filter 'AppGroupSupportTests|ConfigValidationTests|KeychainMigrationTests|ArkCredentialProjection'` PASS, 28 tests |
+
+### Issues / Risks
+
+- GUI launch, menu bar proof, Widget runtime registration/read proof, and
+  side-by-side official/fork runtime evidence are NOT RUN due to escalation
+  usage-limit rejection for `open`.
+- `spctl --assess --type execute --verbose 'CodexBar Ark.app'` returned an
+  internal Code Signing subsystem error, so Gatekeeper assessment is
+  inconclusive. The app is expected to be ad-hoc signed for private local use.
+- The actual CLI symlink installer was not run because it would mutate
+  `/usr/local/bin` or `/opt/homebrew/bin`. Static inspection shows the script
+  targets `codexbar-ark`.
+- `codexbar-ark` is not currently installed on this Mac; official `codexbar`
+  remains present at `/opt/homebrew/bin/codexbar`.
+- Bundled CLI help examples still mention `codexbar` in help text.
+- M5B preflight should inspect remaining local-use collision surfaces,
+  including `Scripts/compile_and_run.sh` / `Scripts/launch.sh` process-kill
+  behavior and remaining `UserDefaults` / suite-name usages.
+
+### Decision
+
+Post-merge local package and static-use verification is sufficient to move to
+M5B preflight if Bee approves. It is not sufficient to claim side-by-side
+runtime or Widget registration proof.
+
+### Next Action
+
+Bee decides whether to start M5B Local-Use Isolation Preflight or pause with
+M5A merged.
+
 ## Entry Template
 
 ```text
