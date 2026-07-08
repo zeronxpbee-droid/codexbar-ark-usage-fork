@@ -3010,6 +3010,67 @@ paths in current operational docs, avoid historical archives/refactor/
 superpowers, then repeat Self-Check and independent Pre-Audit for the exact
 new SHA before Codex reruns Final Audit.
 
+## Entry 100 — M5A S29 Final Audit Fails on Unquoted App Paths
+
+Date: 2026-07-08
+Actor: Codex
+Type: Review
+Status: FAIL
+
+### Active Goal
+
+M5A — Ark Fork Installation Identity Implementation
+
+### LOOP Result
+
+Low-cost Final Audit loop. Codex verified exact candidate `f667d305` after
+reported exact-SHA Self-Check and Pre-Audit PASS, reviewed the Entry 099
+docs-only correction, and stopped at the docs-owned command validity failure.
+No product code, package, launch, Widget registration, push, PR, merge, or
+release action was run.
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| Candidate / parent | `f667d305` / `b3985c02` |
+| Corrective changed files | `docs/DEVELOPMENT.md`, `docs/keychain-prompts.md` |
+| Workspace | `/Users/poon/workspace/projects/codexbar-fork-ark` |
+| Branch / worktree-index | `feature/m5a-ark-installation-isolation` / clean |
+| `git diff --check b3985c02..f667d305` | PASS |
+| Final source/test/script/package/plist changes | PASS — none |
+| Old CLI/config path audit | PASS outside excluded historical/design docs |
+| Stale `CodexBar.app` audit | PASS outside excluded historical/report docs |
+| Secret pattern hits | PASS — only documented placeholder Bearer examples |
+
+### Findings
+
+| ID | Severity | Finding |
+|---|---|---|
+| S29-P1 | P1 | Several current docs now use `CodexBar Ark.app` in shell commands without quoting, so the path splits at the space. Examples: `docs/keychain-prompts.md:41`, `docs/FORK_QUICK_START.md:54`, `docs/FORK_QUICK_START.md:55`, `docs/FORK_QUICK_START.md:153`, `docs/RELEASING.md:56`, `docs/RELEASING.md:101`, `docs/RELEASING.md:109`, `docs/DEVELOPMENT_SETUP.md:178`, `docs/widgets.md:76`, `docs/widgets.md:79`. `docs/FORK_QUICK_START.md:55` also still opens from the old `/Users/steipete/Projects/codexbar/` checkout path while the command has switched the working directory to `codexbar-ark`. |
+
+### Issues / Risks
+
+- The remaining `CodexBar.app` hits are in historical/report documents
+  (`docs/perf-energy-*`, `docs/overview-scroll-stutter-investigation.md`) and
+  were not treated as S29 violations.
+- Swift/build/package checks were not run because this candidate's final
+  corrective diff is docs-only. Entry 095 remains the current package proof in
+  the non-synced workspace.
+
+### Decision
+
+FAIL. Do not push, PR, merge, package for use, launch/register Widget, or
+release candidate `f667d305`.
+
+### Next Action
+
+Claude should make an additive S29 docs-only correction that quotes or
+variable-expands every shell command path containing `CodexBar Ark.app`, fixes
+the stale fork quick-start open path, avoids historical archives/refactor/
+superpowers, then repeats Self-Check and independent Pre-Audit for the exact
+new SHA before Codex reruns Final Audit.
+
 ## Entry Template
 
 ```text

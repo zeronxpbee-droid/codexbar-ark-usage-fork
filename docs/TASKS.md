@@ -11,18 +11,19 @@ M5A — Ark Fork Installation Identity Implementation
 ## Goal Status
 
 ```text
-Status: M5A FINAL AUDIT FAIL — S29 app-path documentation cleanup incomplete
-Audit State: Codex Entry 099 reviewed candidate
-`4fb11ad5021e9ff5307c8a69bb3cf5db6c5b2357` after exact-SHA
-`SELF-CHECK PASS` and `PRE-AUDIT PASS`. The candidate has no final source,
-test, script, package, plist, or generated-project changes; final diff is
-current docs plus `.gitignore`, and `git diff --check` passes. However,
-current operational docs still contain stale `CodexBar.app` / official app
-path instructions in files covered by S29, including `README.md`,
-`docs/cli.md`, `docs/RELEASING.md`, `docs/FORK_QUICK_START.md`, and
-`docs/DEVELOPMENT_SETUP.md`. Package/signing evidence from Entry 095 remains
-valid only in `/Users/poon/workspace/projects/codexbar-fork-ark`; the old
-Google Drive checkout remains legacy backup only.
+Status: M5A FINAL AUDIT FAIL — S29 app-path command examples still broken
+Audit State: Codex Entry 100 reviewed candidate
+`f667d30506c740de2d1711e6f630661a7dd6c2fc` after exact-SHA
+`SELF-CHECK PASS` and `PRE-AUDIT PASS`. The candidate is docs-only, changes
+only `docs/DEVELOPMENT.md` and `docs/keychain-prompts.md` since parent
+`b3985c02`, and `git diff --check` passes. The previous stale
+`CodexBar.app` text was mostly replaced, but some current operational docs now
+contain unquoted `CodexBar Ark.app` shell commands, so the path with a space
+will be split by the shell. One example also still opens from the old
+`/Users/steipete/Projects/codexbar/` path instead of the fork checkout. Package
+and signing evidence from Entry 095 remains valid only in
+`/Users/poon/workspace/projects/codexbar-fork-ark`; the old Google Drive
+checkout remains legacy backup only.
 Implementation Owner: Claude / GLM Developer
 Repository Operator / Auditor: Codex
 Architecture / Decision: Bee + ChatGPT
@@ -223,20 +224,21 @@ Claude / GLM may:
 - No push, PR, merge, release, destructive operation, or history rewrite
   without Bee approval.
 
-## Next Task — Claude S29 Docs Correction + Self-Check
+## Next Task — Claude S29 Shell-Quoting Docs Correction + Self-Check
 
 1. Claude invokes LOOP and verifies the exact branch/HEAD/worktree in
    `/Users/poon/workspace/projects/codexbar-fork-ark`.
-2. Fix Entry 099 only: current operational docs must not instruct users or
-   maintainers to package, install, open, verify, or symlink the fork through
-   stale `CodexBar.app` / official app paths where M5A requires
-   `CodexBar Ark.app`.
+2. Fix Entry 100 only: current operational docs must not contain shell
+   commands that use the space-bearing `CodexBar Ark.app` path without safe
+   quoting or variable expansion. Also correct any still-stale official
+   checkout path in fork launch examples.
 3. Keep the correction docs-only unless a repository-hygiene `.gitignore`
    adjustment is strictly needed and explicitly justified; do not change
    source, tests, scripts, signing, package logic, Widget files, generated
    projects, historical archives, `docs/refactor/`, or `docs/superpowers/`.
 4. Re-run deterministic text audits for old `codexbar` CLI commands, old
-   config paths, stale app bundle paths, and forbidden historical-doc edits.
+   config paths, stale app bundle paths, unquoted `CodexBar Ark.app` command
+   usage, and forbidden historical-doc edits.
 5. Create additive local commit(s), then perform same-thread Self-Check against
    the complete corrected M5A diff.
 6. Handoff only a clean exact candidate with `SELF-CHECK PASS`.
