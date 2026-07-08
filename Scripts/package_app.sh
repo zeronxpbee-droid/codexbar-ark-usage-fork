@@ -184,8 +184,12 @@ for ARCH in "${ARCH_LIST[@]}"; do
 done
 
 APP_FINAL="$ROOT/CodexBar Ark.app"
-APP_STAGE="$ROOT/.build/package/CodexBar Ark.app"
-rm -rf "$APP_STAGE"
+# M5A Entry 093: stage in non-synced /tmp to avoid Google Drive File Provider
+# reintroducing xattr detritus during signing and verification.
+APP_STAGE_DIR="/tmp/codexbar-ark-pkg-$$"
+APP_STAGE="$APP_STAGE_DIR/CodexBar Ark.app"
+rm -rf "$APP_STAGE_DIR"
+mkdir -p "$APP_STAGE_DIR"
 APP="$APP_STAGE"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources" "$APP/Contents/Frameworks"
 mkdir -p "$APP/Contents/Helpers" "$APP/Contents/PlugIns"
@@ -541,21 +545,24 @@ codesign "${CODESIGN_ARGS[@]}" \
   --entitlements "$APP_ENTITLEMENTS" \
   "$APP"
 
-rm -rf "$APP_FINAL"
-mv "$APP" "$APP_FINAL"
-APP="$APP_FINAL"
-echo "Created $APP"
-
-# Clear all detritus xattrs from the final product before verification.
+# M5A Entry 093: verify in non-synced staging dir before exposing to Google Drive.
 # codesign stores signatures in _CodeSignature directories, not xattr;
 # removing com.apple.cs.* cache xattrs is safe — codesign --verify re-reads
-# _CodeSignature. This ensures Sparkle XPC/framework components are
-# detritus-free for strict deep verification.
+# _CodeSignature.
 xattr -cr "$APP"
 find "$APP" -name '._*' -delete 2>/dev/null || true
 
-# Verify the final product passes strict deep codesign verification.
+# Verify the staged product passes strict deep codesign verification.
 if ! codesign --verify --deep --strict --verbose=4 "$APP" 2>&1; then
   echo "ERROR: Final codesign verification failed for $APP" >&2
   exit 1
 fi
+
+# Copy the verified product to the final Google Drive location.
+rm -rf "$APP_FINAL"
+ditto "$APP" "$APP_FINAL"
+APP="$APP_FINAL"
+echo "Created $APP"
+
+# Clean up the non-synced staging directory.
+rm -rf "$APP_STAGE_DIR"
