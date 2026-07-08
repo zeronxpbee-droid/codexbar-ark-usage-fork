@@ -2819,6 +2819,46 @@ reproduces a failure, finish remaining approved M5A scope such as S29 docs
 cleanup, then repeat Self-Check and independent Pre-Audit for the exact new
 SHA before Codex final acceptance review.
 
+## Entry 096 — Claude Workflow Prompts Point to New Workspace
+
+Date: 2026-07-08
+Actor: Codex
+Type: Documentation
+Status: PASS
+
+### Active Goal
+
+M5A — Ark Fork Installation Identity Implementation
+
+### LOOP Result
+
+Small governance-document update. Codex checked the project guidance files for
+hard-coded old workspace paths, updated only the reusable Claude workflow
+prompts, and left `AGENTS.md` unchanged because `docs/TASKS.md` owns the active
+local workspace.
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| Updated file | `docs/CLAUDE_REVIEW_WORKFLOW.md` |
+| Prompt A path | `/Users/poon/workspace/projects/codexbar-fork-ark` |
+| Prompt B path | `/Users/poon/workspace/projects/codexbar-fork-ark` |
+| Legacy directory warning | Added to both Claude prompts |
+| `AGENTS.md` | No hard-coded old project path; unchanged |
+
+### Decision
+
+Future Claude Developer Self-Check and independent Pre-Auditor prompts now
+point to the non-synced workspace and explicitly forbid using the old Google
+Drive / CloudStorage backup directory for development, packaging, signing, or
+audit evidence.
+
+### Next Action
+
+Use the updated prompt templates for all subsequent Claude Developer
+Self-Check and Claude Pre-Auditor handoffs.
+
 ## Entry Template
 
 ```text
