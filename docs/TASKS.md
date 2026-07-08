@@ -11,7 +11,7 @@ M5A — Ark Fork Installation Identity Implementation
 ## Goal Status
 
 ```text
-Status: M5A DRAFT PR OPEN — awaiting Bee review / merge decision
+Status: M5A MERGED — awaiting Bee decision for M5B or release/use follow-up
 Candidate: a8a9a7a26c20381651b92879c738b152e359660a (parent ace1c9e6)
 Final Audit: Codex Entry 102 reviewed the exact candidate after reported
 exact-SHA SELF-CHECK PASS and PRE-AUDIT PASS. The Entry 101 corrective range is
@@ -21,6 +21,7 @@ source/test/script/package/widget files are unchanged in the corrective range
 and absent from the final S29 diff. Deterministic text audits for the Entry 101
 `CodExBar` typo and unquoted `CodexBar Ark.app` command paths pass.
 PR: https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/6
+Merge commit: 86f4cec5967bc45340dae90479ef6d4e82d34fc1
 Audit State: Codex Entry 101 reviewed candidate
 `f5529fbc5507774142b8a706b11b68526072d21b` after exact-SHA
 `SELF-CHECK PASS` and `PRE-AUDIT PASS`. The candidate is docs-only, changes
@@ -54,6 +55,8 @@ M3 merged PR: https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/4
 M3 merge commit: 9a24cf7356b6cace5fdbaeac5424609093245887
 M4 merged PR: https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/5
 M4 merge commit: b40762d8f259b286f82f6280ec3c5a777a379a60
+M5A merged PR: https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/6
+M5A merge commit: 86f4cec5967bc45340dae90479ef6d4e82d34fc1
 M5A branch: feature/m5a-ark-installation-isolation
 Active local workspace: /Users/poon/workspace/projects/codexbar-fork-ark
 Legacy backup checkout: /Users/poon/Library/CloudStorage/GoogleDrive-zeronxpbee@gmail.com/我的云端硬盘/Codex/projects/codexbar-fork-ark
@@ -233,21 +236,27 @@ Claude / GLM may:
 - No push, PR, merge, release, destructive operation, or history rewrite
   without Bee approval.
 
-## Next Task — Bee Review of M5A Draft PR
+## Next Task — Bee Decision After M5A Merge
 
-Codex pushed `feature/m5a-ark-installation-isolation` and opened draft PR #6:
+Codex merged PR #6 into `main`:
 
 ```text
 https://github.com/zeronxpbee-droid/codexbar-ark-usage-fork/pull/6
 ```
 
-No merge, package, launch/register, Widget validation, or release action was
-run after the PR was opened.
+Merge commit:
+
+```text
+86f4cec5967bc45340dae90479ef6d4e82d34fc1
+```
+
+No package, launch/register, Widget validation, release, upstream sync, or M5B
+development action was run after the merge.
 
 Next allowed step:
 
-1. Bee reviews PR #6 and decides whether Codex may merge M5A, request another
-   correction, or leave the PR as draft.
+1. Bee decides whether to start an M5B planning/development loop, run a local
+   post-merge package/use verification loop, or pause with M5A merged.
 
 ## Definition of Done — M5A Implementation
 
